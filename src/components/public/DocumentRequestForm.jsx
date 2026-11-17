@@ -14,11 +14,13 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
   CircleAlert,
   CircleCheck,
   FileText,
   LoaderCircle,
+  LogIn,
   Send,
   ShieldCheck,
   WifiOff,
@@ -114,14 +116,16 @@ export default function DocumentRequestForm() {
         const response = await fetch('/api/resident/me', { cache: 'no-store' });
         if (cancelled) return;
         if (response.status === 401) {
-          router.replace('/resident/login?next=/services/request');
+          if (!cancelled) setSessionState('unauthenticated');
           return;
         }
         if (response.ok) {
           const data = await response.json().catch(() => null);
           if (!cancelled && data && data.masked_name) setMaskedName(data.masked_name);
+          if (!cancelled) setSessionState('ok');
+        } else {
+          if (!cancelled) setSessionState('unauthenticated');
         }
-        if (!cancelled) setSessionState('ok');
       } catch {
         if (!cancelled) setSessionState('offline');
       }
@@ -138,6 +142,10 @@ export default function DocumentRequestForm() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (sessionState === 'unauthenticated') {
+      router.push('/resident/login?next=/services/request');
+      return;
+    }
     setFormError('');
     setPurposeError('');
 
@@ -342,11 +350,34 @@ export default function DocumentRequestForm() {
 
   return (
     <form className="glass max-w-xl p-rhythm-4" onSubmit={handleSubmit} noValidate>
+      {sessionState === 'unauthenticated' ? (
+        <div className="mb-5 rounded-2xl border border-sky-300 bg-sky-50 p-4 text-sm text-sky-950 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-200">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-sky-700 dark:text-cyan-400 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-bold">Resident Sign-in Required to File</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+                You can browse document options and fee requirements below. To submit an official request, sign in with your verified Barangay Daro resident account.
+              </p>
+              <div className="mt-3">
+                <Link
+                  href="/resident/login?next=/services/request"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-sky-700 dark:bg-cyan-400 dark:text-slate-950"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign in as Resident
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Filing as{' '}
           <span className="font-mono font-semibold text-slate-900 dark:text-slate-200">
-            {maskedName || 'verified resident'}
+            {maskedName || (sessionState === 'unauthenticated' ? 'Guest (Sign in to submit)' : 'verified resident')}
           </span>
         </p>
         <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide state-success">
@@ -461,10 +492,16 @@ export default function DocumentRequestForm() {
       >
         {submitting ? (
           <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
+        ) : sessionState === 'unauthenticated' ? (
+          <LogIn className="h-5 w-5" aria-hidden="true" />
         ) : (
           <Send className="h-5 w-5" aria-hidden="true" />
         )}
-        {submitting ? 'Sending...' : 'Submit request'}
+        {submitting
+          ? 'Sending...'
+          : sessionState === 'unauthenticated'
+          ? 'Sign in to file request'
+          : 'Submit request'}
       </button>
 
       <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">

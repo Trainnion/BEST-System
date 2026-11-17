@@ -48,17 +48,18 @@ export default function RootLayout({ children }) {
           Skip to main content
         </a>
 
-        <SiteHeader />
-        <OfflineBanner />
-        <ServiceWorkerRegistrar />
-
-        {/* L0 ambient background: decorative radial gradients, never remote images.
-            Drift is Full-tier only and is removed entirely in motion-lite/print. */}
+        {/* L0 ambient background: rich decorative blue & purple radial gradient mesh */}
         <AmbientOrbs />
 
-        {children}
+        <div className="relative z-10 flex min-h-dvh flex-col">
+          <SiteHeader />
+          <OfflineBanner />
+          <ServiceWorkerRegistrar />
 
-        <SiteFooter />
+          <div className="flex-1">{children}</div>
+
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );

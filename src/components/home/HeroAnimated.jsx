@@ -87,22 +87,6 @@ export default function HeroAnimated() {
               Anonymous Blotter
             </Link>
           </div>
-
-          {/* Statutory and Privacy Trust Anchors */}
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-200 pt-4 text-xs text-slate-600 dark:border-white/10 dark:text-slate-400">
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 dark:bg-cyan-400"></span>
-              Public lookups masked to <span className="font-mono font-bold text-slate-900 dark:text-slate-200">J*** D**</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
-              R.A. 11261 Jobseekers <span className="font-bold text-emerald-800 dark:text-emerald-300">₱0 Fee</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span>
-              Zero Cloud Tracking
-            </span>
-          </div>
         </div>
 
         {/* Right Column: Citizen Service & Fast-Track Card */}

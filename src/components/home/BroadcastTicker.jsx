@@ -71,12 +71,11 @@ function toItems(payload) {
 }
 
 export default function BroadcastTicker() {
-  const [ref] = useInView({ threshold: 0.1, reveal: false, pauseOffscreen: true });
   const [hydrated, setHydrated] = useState(false);
-  const [items, setItems] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const [items, setItems] = useState(FALLBACK_BROADCASTS);
+  const [loaded, setLoaded] = useState(true);
   const [paused, setPaused] = useState(false);
-  const [looping, setLooping] = useState(false);
+  const [looping, setLooping] = useState(true);
 
   useEffect(() => {
     setHydrated(true);
@@ -93,11 +92,12 @@ export default function BroadcastTicker() {
         const next = toItems(payload).sort(
           (a, b) => Number(Boolean(b.is_pinned)) - Number(Boolean(a.is_pinned)),
         );
-        setItems(next);
+        if (next.length > 0) {
+          setItems(next);
+        }
         setLoaded(true);
       })
       .catch(() => {
-        // Cached-route miss, offline with no SW, or an aborted mount: fall back to default bulletins.
         if (!alive) return;
         setItems(FALLBACK_BROADCASTS);
         setLoaded(true);
@@ -109,17 +109,13 @@ export default function BroadcastTicker() {
     };
   }, []);
 
-  // The loop only exists in Full tier; the tier is applied by the shell's
-  // preference hook, so follow the shared event and initial attributes.
+  // Sync with reduced motion preference
   useEffect(() => {
     const sync = () => {
-      const root = document.documentElement;
       const reduced =
         typeof window.matchMedia === 'function' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const lite =
-        root.getAttribute('data-motion') === 'lite' || root.getAttribute('data-fx') === 'lite';
-      setLooping(!reduced && !lite);
+      setLooping(!reduced);
     };
 
     sync();
@@ -128,13 +124,9 @@ export default function BroadcastTicker() {
   }, []);
 
   if (!hydrated) return null;
-  if (loaded && items.length === 0) return null;
-
-  const visible = items.length > 0;
 
   return (
     <section
-      ref={ref}
       className="ticker mx-auto w-full max-w-content px-gutter py-rhythm-5"
       aria-labelledby="ticker-title"
     >
@@ -148,7 +140,7 @@ export default function BroadcastTicker() {
             Live Bulletin Ticker
           </h2>
 
-          {visible && looping ? (
+          {looping ? (
             <button
               type="button"
               onClick={() => setPaused((current) => !current)}
@@ -168,45 +160,41 @@ export default function BroadcastTicker() {
           </Link>
         </div>
 
-        <div className="mt-2.5" data-paused={paused ? 'true' : 'false'}>
-          {!loaded ? (
-            <TickerSkeleton />
-          ) : (
-            <ul className="ticker-track hide-scrollbar items-center gap-6 py-1">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+        <div className="mt-2.5 overflow-hidden" data-paused={paused ? 'true' : 'false'}>
+          <ul className="ticker-track hide-scrollbar items-center gap-6 py-1">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+              >
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    CATEGORY_TONE[item.category] ?? 'state-neutral'
+                  }`}
                 >
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                      CATEGORY_TONE[item.category] ?? 'state-neutral'
-                    }`}
-                  >
-                    {item.category ?? 'News'}
-                  </span>
-                  <span className="font-semibold">{item.title}</span>
-                </li>
-              ))}
-              {items.map((item) => (
-                <li
-                  key={`dup-${item.id}`}
-                  data-dup="true"
-                  aria-hidden="true"
-                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+                  {item.category ?? 'News'}
+                </span>
+                <span className="font-semibold">{item.title}</span>
+              </li>
+            ))}
+            {items.map((item) => (
+              <li
+                key={`dup-${item.id}`}
+                data-dup="true"
+                aria-hidden="true"
+                className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+              >
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    CATEGORY_TONE[item.category] ?? 'state-neutral'
+                  }`}
                 >
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                      CATEGORY_TONE[item.category] ?? 'state-neutral'
-                    }`}
-                  >
-                    {item.category ?? 'News'}
-                  </span>
-                  <span className="font-semibold">{item.title}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+                  {item.category ?? 'News'}
+                </span>
+                <span className="font-semibold">{item.title}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

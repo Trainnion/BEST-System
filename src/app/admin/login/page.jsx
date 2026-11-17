@@ -4,13 +4,6 @@ import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Shield, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
 
-const DEMO_STAFF_ACCOUNTS = [
-  { label: 'Admin', role: 'ADMIN', username: 'admin', pass: 'AdminSecure2026!' },
-  { label: 'Frontline Staff', role: 'STAFF', username: 'staff', pass: 'StaffDesk2026!' },
-  { label: 'Treasurer', role: 'TREASURER', username: 'treasurer', pass: 'TreasurerPay2026!' },
-  { label: 'Official', role: 'OFFICIAL', username: 'official', pass: 'OfficialLead2026!' },
-];
-
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,12 +19,6 @@ function AdminLoginForm() {
       : '',
   );
   const [loading, setLoading] = useState(false);
-
-  function fillDemoAccount(acc) {
-    setUsername(acc.username);
-    setPassword(acc.pass);
-    setError('');
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -81,30 +68,6 @@ function AdminLoginForm() {
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Barangay Staff Portal</h1>
           <p className="text-xs font-medium text-slate-600 mt-1 dark:text-slate-400">Authorized personnel and officials only · Barangay Daro</p>
-        </div>
-
-        {/* Demo Quick-Fill Accounts */}
-        <div className="mb-6 p-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-            Quick-Select Staff Account
-          </p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {DEMO_STAFF_ACCOUNTS.map((acc) => (
-              <button
-                key={acc.username}
-                type="button"
-                onClick={() => fillDemoAccount(acc)}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold text-left transition border ${
-                  username === acc.username
-                    ? 'border-sky-500 bg-sky-100 text-sky-900 dark:border-cyan-400 dark:bg-cyan-500/20 dark:text-cyan-200'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:border-slate-300 dark:border-white/5 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span className="block font-bold">{acc.label}</span>
-                <span className="block text-[10px] opacity-75 font-mono">{acc.username}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
         {error && (

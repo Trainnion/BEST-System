@@ -44,10 +44,10 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(8vw, 6vh, 0) scale(1.14);
+    transform: translate3d(14vw, 12vh, 0) scale(1.18);
   }
   100% {
-    transform: translate3d(-4vw, 10vh, 0) scale(0.96);
+    transform: translate3d(-8vw, 18vh, 0) scale(0.92);
   }
 }
 
@@ -56,10 +56,10 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(-7vw, 9vh, 0) scale(1.12);
+    transform: translate3d(-14vw, 15vh, 0) scale(1.16);
   }
   100% {
-    transform: translate3d(5vw, -5vh, 0) scale(1.05);
+    transform: translate3d(10vw, -8vh, 0) scale(1.05);
   }
 }
 
@@ -68,10 +68,10 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(6vw, -8vh, 0) scale(1.16);
+    transform: translate3d(12vw, -14vh, 0) scale(1.22);
   }
   100% {
-    transform: translate3d(-5vw, -3vh, 0) scale(0.94);
+    transform: translate3d(-10vw, -6vh, 0) scale(0.9);
   }
 }
 
@@ -80,10 +80,10 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(-6vw, -5vh, 0) scale(1.08);
+    transform: translate3d(-12vw, -10vh, 0) scale(1.12);
   }
   100% {
-    transform: translate3d(8vw, 4vh, 0) scale(1.14);
+    transform: translate3d(14vw, 8vh, 0) scale(1.2);
   }
 }
 
@@ -164,6 +164,12 @@
 .ticker-track {
   display: flex;
   width: max-content;
+  animation: ticker 28s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
 }
 
 /* ---- 1. Motion is opt-in. "Before" states exist ONLY when JS ran (html.js) AND
@@ -185,22 +191,22 @@
   }
 
   .ambient-orb-1 {
-    animation: orb-drift-1 22s ease-in-out infinite alternate;
+    animation: orb-drift-1 16s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-2 {
-    animation: orb-drift-2 26s ease-in-out infinite alternate;
+    animation: orb-drift-2 20s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-3 {
-    animation: orb-drift-3 20s ease-in-out infinite alternate;
+    animation: orb-drift-3 14s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-4 {
-    animation: orb-drift-4 28s ease-in-out infinite alternate;
+    animation: orb-drift-4 18s ease-in-out infinite alternate;
     will-change: transform;
   }
 

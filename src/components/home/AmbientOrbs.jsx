@@ -24,35 +24,35 @@ export default function AmbientOrbs() {
   return (
     <div
       ref={ref}
-      className="ambient pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      className="ambient pointer-events-none fixed inset-0 z-0 overflow-hidden"
       aria-hidden="true"
     >
-      {/* Orb 1: Top-Left Cyan/Sky Blue drifting orb */}
+      {/* Orb 1: Vibrant Electric Royal Blue (Top-Left) */}
       <div
-        className="ambient-orb-1 absolute -left-[10%] -top-[15%] h-[52vmax] w-[52vmax] rounded-full opacity-60 dark:opacity-75 transition-opacity duration-700"
+        className="ambient-orb-1 absolute -left-[15%] -top-[15%] h-[65vmax] w-[65vmax] rounded-full opacity-80 dark:opacity-85 filter blur-[60px] transition-opacity duration-700"
         style={{
-          background: 'radial-gradient(closest-side, var(--ambient-blue-1), transparent)',
+          background: 'radial-gradient(circle, var(--ambient-blue-1), transparent 70%)',
         }}
       />
-      {/* Orb 2: Top-Right Sapphire / Royal Blue drifting orb */}
+      {/* Orb 2: Vivid Purple / Violet (Top-Right) */}
       <div
-        className="ambient-orb-2 absolute -right-[15%] top-[5%] h-[48vmax] w-[48vmax] rounded-full opacity-50 dark:opacity-65 transition-opacity duration-700"
+        className="ambient-orb-2 absolute -right-[15%] top-[0%] h-[60vmax] w-[60vmax] rounded-full opacity-70 dark:opacity-80 filter blur-[60px] transition-opacity duration-700"
         style={{
-          background: 'radial-gradient(closest-side, var(--ambient-blue-2), transparent)',
+          background: 'radial-gradient(circle, var(--ambient-blue-2), transparent 70%)',
         }}
       />
-      {/* Orb 3: Bottom-Center Deep Cobalt / Cerulean drifting orb */}
+      {/* Orb 3: Radiant Cyan / Turquoise (Bottom-Center) */}
       <div
-        className="ambient-orb-3 absolute -bottom-[20%] left-[22%] h-[50vmax] w-[50vmax] rounded-full opacity-45 dark:opacity-60 transition-opacity duration-700"
+        className="ambient-orb-3 absolute -bottom-[20%] left-[20%] h-[62vmax] w-[62vmax] rounded-full opacity-75 dark:opacity-80 filter blur-[60px] transition-opacity duration-700"
         style={{
-          background: 'radial-gradient(closest-side, var(--ambient-blue-3), transparent)',
+          background: 'radial-gradient(circle, var(--ambient-blue-3), transparent 70%)',
         }}
       />
-      {/* Orb 4: Mid-Right Soft Azure Glow */}
+      {/* Orb 4: Rich Indigo / Purple-Blue (Center-Right) */}
       <div
-        className="ambient-orb-4 absolute right-[10%] top-[45%] h-[40vmax] w-[40vmax] rounded-full opacity-40 dark:opacity-50 transition-opacity duration-700"
+        className="ambient-orb-4 absolute right-[5%] top-[35%] h-[55vmax] w-[55vmax] rounded-full opacity-65 dark:opacity-75 filter blur-[60px] transition-opacity duration-700"
         style={{
-          background: 'radial-gradient(closest-side, var(--ambient-blue-4), transparent)',
+          background: 'radial-gradient(circle, var(--ambient-blue-4), transparent 70%)',
         }}
       />
     </div>
