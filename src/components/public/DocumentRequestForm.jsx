@@ -238,10 +238,10 @@ export default function DocumentRequestForm() {
   if (sessionState === 'offline') {
     return (
       <div className="glass flex max-w-xl items-start gap-3 p-rhythm-4" role="status">
-        <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+        <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-500 dark:text-amber-300" aria-hidden="true" />
         <div>
-          <h2 className="text-base font-semibold text-slate-100">Needs a connection</h2>
-          <p className="mt-1 text-sm leading-relaxed text-slate-300">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Needs a connection</h2>
+          <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             Your resident session could not be checked. Reconnect to the barangay server and
             reload this page - nothing you type is sent while you are offline.
           </p>
@@ -253,29 +253,29 @@ export default function DocumentRequestForm() {
   if (result) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status" aria-live="polite">
-        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-300">
           <CircleCheck className="h-5 w-5" aria-hidden="true" />
           Request received
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Your tracking code</h2>
-        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Your tracking code</h2>
+        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-700 dark:text-cyan-300">
           {result.tracking_code}
         </p>
         <dl className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">Fee to settle</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-100">
+            <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Fee to settle</dt>
+            <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
               {peso(result.fee_amount)}
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">Applicant</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-100">
+            <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Applicant</dt>
+            <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
               {maskedName || 'Verified resident'}
             </dd>
           </div>
         </dl>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           Keep this code. It shows the status of your request at any time, even from another
           device.
         </p>
@@ -294,7 +294,7 @@ export default function DocumentRequestForm() {
               setPurpose('');
               setCtcNumber('');
             }}
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--glass-border)] bg-slate-100 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             File another request
           </button>
@@ -306,19 +306,19 @@ export default function DocumentRequestForm() {
   if (queued) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status" aria-live="polite">
-        <p className="flex items-center gap-2 text-sm font-semibold text-amber-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-amber-500 dark:text-amber-300">
           <WifiOff className="h-5 w-5" aria-hidden="true" />
           Saved on this device
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Queued until you reconnect</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Queued until you reconnect</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           The server could not be reached, so your request was written to this
           device&apos;s outbox. It is sent automatically when the barangay server answers
           again - you do not need to retype it.
         </p>
-        <p className="mt-3 text-sm text-slate-300">
+        <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
           Pending on this device:{' '}
-          <span className="font-semibold text-cyan-300">{pendingCount}</span>{' '}
+          <span className="font-semibold text-cyan-700 dark:text-cyan-300">{pendingCount}</span>{' '}
           {pendingCount === 1 ? 'item' : 'items'}.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -331,7 +331,7 @@ export default function DocumentRequestForm() {
           <button
             type="button"
             onClick={() => setQueued(false)}
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--glass-border)] bg-slate-100 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             Try sending again
           </button>
@@ -343,9 +343,9 @@ export default function DocumentRequestForm() {
   return (
     <form className="glass max-w-xl p-rhythm-4" onSubmit={handleSubmit} noValidate>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Filing as{' '}
-          <span className="font-mono font-semibold text-slate-200">
+          <span className="font-mono font-semibold text-slate-900 dark:text-slate-200">
             {maskedName || 'verified resident'}
           </span>
         </p>
@@ -356,7 +356,7 @@ export default function DocumentRequestForm() {
       </div>
 
       <fieldset className="mt-4">
-        <legend className="text-sm font-semibold text-slate-200">Document type</legend>
+        <legend className="text-sm font-semibold text-slate-800 dark:text-slate-200">Document type</legend>
         <div className="mt-2 grid gap-2">
           {TYPE_OPTIONS.map((option) => {
             const active = documentType === option.value;
@@ -366,8 +366,8 @@ export default function DocumentRequestForm() {
                 className={
                   'tap-target flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ' +
                   (active
-                    ? 'border-cyan-400/60 bg-cyan-400/10'
-                    : 'border-white/10 bg-white/[0.04] hover:border-white/25')
+                    ? 'border-cyan-500/60 bg-cyan-500/10 dark:border-cyan-400/60 dark:bg-cyan-400/10'
+                    : 'border-[var(--glass-border)] bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/[0.04] dark:hover:border-white/25')
                 }
               >
                 <input
@@ -376,16 +376,16 @@ export default function DocumentRequestForm() {
                   value={option.value}
                   checked={active}
                   onChange={() => setDocumentType(option.value)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-cyan-400"
+                  className="mt-1 h-4 w-4 shrink-0 accent-cyan-500"
                 />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-slate-100">
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {option.title}
                   </span>
-                  <span className="mt-0.5 block text-xs leading-relaxed text-slate-400">
+                  <span className="mt-0.5 block text-xs leading-relaxed text-slate-600 dark:text-slate-400">
                     {option.blurb}
                   </span>
-                  <span className="mt-1 block text-xs font-semibold text-cyan-300">
+                  <span className="mt-1 block text-xs font-semibold text-cyan-700 dark:text-cyan-300">
                     Fee: {peso(option.fee)}
                   </span>
                 </span>
@@ -437,15 +437,15 @@ export default function DocumentRequestForm() {
         </Field>
       </div>
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-slate-300">
+      <div className="mt-4 rounded-xl border border-[var(--glass-border)] bg-slate-100/60 p-3 text-sm text-slate-700 dark:bg-white/[0.04] dark:text-slate-300">
         Fee before you send:{' '}
-        <span className="font-semibold text-slate-100">{peso(FEES[documentType])}</span>
+        <span className="font-semibold text-slate-900 dark:text-slate-100">{peso(FEES[documentType])}</span>
         {documentType === 'CLEARANCE' ? ' - settled at the treasury counter.' : ' - no fee.'}
       </div>
 
       {formError ? (
         <p
-          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-600 dark:text-rose-300"
           role="alert"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -457,7 +457,7 @@ export default function DocumentRequestForm() {
         type="submit"
         disabled={submitting}
         aria-busy={submitting ? 'true' : 'false'}
-        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70"
+        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-white transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70 dark:bg-cyan-400 dark:text-slate-950"
       >
         {submitting ? (
           <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -467,7 +467,7 @@ export default function DocumentRequestForm() {
         {submitting ? 'Sending...' : 'Submit request'}
       </button>
 
-      <p className="mt-3 text-xs leading-relaxed text-slate-500">
+      <p className="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
         Your purpose and CTC number are encrypted on the server before they are stored.
       </p>
     </form>

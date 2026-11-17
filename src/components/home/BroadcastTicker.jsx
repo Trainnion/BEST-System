@@ -110,14 +110,14 @@ export default function BroadcastTicker() {
       className="ticker mx-auto w-full max-w-content px-gutter py-rhythm-5"
       aria-labelledby="ticker-title"
     >
-      <div className="glass-lite overflow-hidden p-3">
+      <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-fill)] overflow-hidden p-4 shadow-sm backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-3">
           <h2
             id="ticker-title"
-            className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-cyan-300"
+            className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-wide text-cyan-700 dark:text-cyan-300"
           >
             <Megaphone size={14} aria-hidden="true" />
-            Announcements
+            Live Bulletin Ticker
           </h2>
 
           {visible && looping ? (
@@ -125,7 +125,7 @@ export default function BroadcastTicker() {
               type="button"
               onClick={() => setPaused((current) => !current)}
               aria-pressed={paused}
-              className="tap-target inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition-colors duration-fast hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+              className="tap-target inline-flex items-center gap-1.5 rounded-full border border-[var(--glass-border)] bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-700 transition-colors duration-fast hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-white"
             >
               {paused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
               {paused ? 'Play' : 'Pause'}
@@ -134,13 +134,13 @@ export default function BroadcastTicker() {
 
           <Link
             href="/broadcasts"
-            className="ml-auto rounded text-[11px] font-semibold text-cyan-300 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            className="ml-auto rounded text-[11px] font-semibold text-cyan-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:text-cyan-300"
           >
             All announcements
           </Link>
         </div>
 
-        <div className="mt-2" data-paused={paused ? 'true' : 'false'}>
+        <div className="mt-2.5" data-paused={paused ? 'true' : 'false'}>
           {!loaded ? (
             <TickerSkeleton />
           ) : (
@@ -148,7 +148,7 @@ export default function BroadcastTicker() {
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-200"
+                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-800 dark:text-slate-200"
                 >
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
@@ -157,7 +157,7 @@ export default function BroadcastTicker() {
                   >
                     {item.category ?? 'News'}
                   </span>
-                  <span>{item.title}</span>
+                  <span className="font-medium">{item.title}</span>
                 </li>
               ))}
               {items.map((item) => (
@@ -165,7 +165,7 @@ export default function BroadcastTicker() {
                   key={`dup-${item.id}`}
                   data-dup="true"
                   aria-hidden="true"
-                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-200"
+                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-800 dark:text-slate-200"
                 >
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
@@ -174,7 +174,7 @@ export default function BroadcastTicker() {
                   >
                     {item.category ?? 'News'}
                   </span>
-                  <span>{item.title}</span>
+                  <span className="font-medium">{item.title}</span>
                 </li>
               ))}
             </ul>

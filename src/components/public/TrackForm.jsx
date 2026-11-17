@@ -137,13 +137,13 @@ export default function TrackForm() {
 
         {phase === 'not_found' ? (
           <div className="glass p-rhythm-4">
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               We could not find that request
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+            <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
               No request matches that code. Check the characters on your stub - codes look
-              like <span className="font-mono text-cyan-300">CLR-2026-XXXXXXXX</span> or{' '}
-              <span className="font-mono text-cyan-300">IND-2026-XXXXXXXX</span> - and try
+              like <span className="font-mono text-cyan-700 dark:text-cyan-300">CLR-2026-XXXXXXXX</span> or{' '}
+              <span className="font-mono text-cyan-700 dark:text-cyan-300">IND-2026-XXXXXXXX</span> - and try
               again. Nothing is shared when a code does not exist.
             </p>
           </div>
@@ -152,13 +152,13 @@ export default function TrackForm() {
         {phase === 'offline' || phase === 'error' ? (
           <div className="glass flex items-start gap-3 p-rhythm-4">
             {phase === 'offline' ? (
-              <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+              <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-500 dark:text-amber-300" aria-hidden="true" />
             ) : (
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" aria-hidden="true" />
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
             )}
             <div>
-              <h2 className="text-lg font-semibold text-slate-100">Needs a connection</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">{message}</p>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Needs a connection</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{message}</p>
             </div>
           </div>
         ) : null}
@@ -166,7 +166,7 @@ export default function TrackForm() {
         {phase === 'found' && result ? (
           <section className="glass p-rhythm-4" aria-label="Request status">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="font-mono text-sm font-semibold tracking-code text-cyan-300">
+              <p className="font-mono text-sm font-semibold tracking-code text-cyan-700 dark:text-cyan-300">
                 {result.tracking_code}
               </p>
               <StatusPill status={result.status} />
@@ -174,32 +174,32 @@ export default function TrackForm() {
 
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Applicant</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Applicant</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {result.masked_name}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Document</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Document</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {DOC_LABELS[result.document_type] || result.document_type}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Fee</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Fee</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {peso(result.fee_amount)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Filed</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Filed</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {formatDate(result.created_at)}
                 </dd>
               </div>
             </dl>
 
-            <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-relaxed text-slate-300">
+            <p className="mt-4 rounded-xl border border-[var(--glass-border)] bg-slate-100/60 p-3 text-sm leading-relaxed text-slate-700 dark:bg-white/[0.04] dark:text-slate-300">
               {result.pickup_advisory}
             </p>
           </section>

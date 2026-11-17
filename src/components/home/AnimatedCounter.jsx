@@ -102,18 +102,18 @@ export default function AnimatedCounter({
 
   return (
     <div ref={ref} className="flex flex-col gap-1">
-      <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {label}
       </dt>
-      <dd className="m-0 flex items-baseline gap-1 text-3xl font-bold tabular-nums text-slate-50" aria-label={ariaLabel}>
-        <span aria-hidden="true">{display}</span>
+      <dd className="m-0 flex items-baseline gap-1 text-3xl font-extrabold tabular-nums tracking-tight text-slate-900 dark:text-slate-50" aria-label={ariaLabel}>
+        <span aria-hidden="true" className="text-gradient-runtime">{display}</span>
         {suffix ? (
-          <span className="text-sm font-medium text-slate-400" aria-hidden="true">
+          <span className="text-sm font-semibold text-slate-500 dark:text-slate-400" aria-hidden="true">
             {suffix}
           </span>
         ) : null}
       </dd>
-      {hint ? <p className="text-[11px] leading-snug text-slate-500">{hint}</p> : null}
+      {hint ? <p className="text-[11px] leading-snug text-slate-500 dark:text-slate-400">{hint}</p> : null}
     </div>
   );
 }

@@ -11,7 +11,7 @@
   :root {
     color-scheme: dark;
 
-    /* Surfaces */
+    /* Surfaces - Dark Baseline */
     --bg-0: #0a0f1d;
     --bg-1: #0f172a;
     --text-0: #e2e8f0;
@@ -43,6 +43,44 @@
     --elev-2: 0 8px 24px rgba(0, 0, 0, 0.25);
     --elev-3: 0 16px 40px rgba(0, 0, 0, 0.35);
     --elev-4: 0 24px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  html.light,
+  html[data-theme='light'] {
+    color-scheme: light;
+
+    /* Surfaces - Light Mode */
+    --bg-0: #f8fafc;
+    --bg-1: #ffffff;
+    --text-0: #0f172a;
+    --text-1: #334155;
+    --text-2: #64748b;
+
+    /* Glass - Light Mode */
+    --glass-fill: rgba(255, 255, 255, 0.92);
+    --glass-fill-full: rgba(255, 255, 255, 0.78);
+    --glass-border: rgba(15, 23, 42, 0.09);
+    --glass-highlight: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 255, 255, 0.6)
+    );
+    --glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    --glass-blur: blur(14px) saturate(160%);
+
+    /* Ambient glows - Light Mode */
+    --ambient-cyan: rgba(14, 165, 233, 0.16);
+    --ambient-teal: rgba(16, 185, 129, 0.14);
+    --ambient-amber: rgba(245, 158, 11, 0.12);
+
+    /* Focus - Light Mode */
+    --focus-ring: #0284c7;
+
+    /* Elevation - Light Mode */
+    --elev-1: 0 2px 8px rgba(15, 23, 42, 0.04);
+    --elev-2: 0 8px 24px rgba(15, 23, 42, 0.06);
+    --elev-3: 0 16px 40px rgba(15, 23, 42, 0.09);
+    --elev-4: 0 24px 60px rgba(15, 23, 42, 0.13);
   }
 
   *,
@@ -181,6 +219,40 @@
     contain: layout paint;
   }
 
+  /* Light theme glass refinements */
+  html.light .glass-lite,
+  html[data-theme='light'] .glass-lite {
+    border-color: rgba(15, 23, 42, 0.08);
+    background: var(--glass-highlight), rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  }
+
+  html.light .glass-panel,
+  html[data-theme='light'] .glass-panel {
+    border-color: rgba(15, 23, 42, 0.1);
+    background: var(--glass-highlight), rgba(255, 255, 255, 0.98);
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  }
+
+  html.light .glass-input,
+  html[data-theme='light'] .glass-input {
+    background-color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(15, 23, 42, 0.15);
+    color: #0f172a;
+  }
+
+  html.light .glass-input::placeholder,
+  html[data-theme='light'] .glass-input::placeholder {
+    color: #94a3b8;
+  }
+
+  html.light .glass-input:focus,
+  html[data-theme='light'] .glass-input:focus {
+    border-color: #0284c7;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18);
+  }
+
   /* Glassmorphic skeleton loader (Sec. 3.2). Lite: opacity pulse only. */
   .glass-skeleton {
     position: relative;
@@ -287,6 +359,57 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  /* Light Theme Semantic State Overrides */
+  html.light .state-success,
+  html[data-theme='light'] .state-success {
+    color: #047857;
+    background-color: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+
+  html.light .state-warning,
+  html[data-theme='light'] .state-warning {
+    color: #b45309;
+    background-color: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+  }
+
+  html.light .state-danger,
+  html[data-theme='light'] .state-danger {
+    color: #be123c;
+    background-color: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.35);
+  }
+
+  html.light .state-info,
+  html[data-theme='light'] .state-info {
+    color: #0369a1;
+    background-color: rgba(6, 182, 212, 0.12);
+    border-color: rgba(6, 182, 212, 0.35);
+  }
+
+  html.light .state-official,
+  html[data-theme='light'] .state-official {
+    color: #854d0e;
+    background-color: rgba(234, 179, 8, 0.12);
+    border-color: rgba(234, 179, 8, 0.35);
+  }
+
+  html.light .state-neutral,
+  html[data-theme='light'] .state-neutral {
+    color: #334155;
+    background-color: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.14);
+  }
+
+  html.light .skip-link,
+  html[data-theme='light'] .skip-link {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #0284c7;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  }
+
   /* Skip link: visible only when focused. */
   .skip-link {
     position: fixed;
@@ -333,6 +456,38 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  html.light .text-gradient-glass,
+  html[data-theme='light'] .text-gradient-glass {
+    background-image: linear-gradient(120deg, #0f172a 12%, #0284c7 52%, #0d9488 88%);
+  }
+
+  /* AI Runtime high-tech micro-grid texture */
+  .bg-runtime-grid {
+    background-size: 32px 32px;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  }
+
+  html.light .bg-runtime-grid,
+  html[data-theme='light'] .bg-runtime-grid {
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
+  }
+
+  .text-gradient-runtime {
+    background-image: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 50%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  html.light .text-gradient-runtime,
+  html[data-theme='light'] .text-gradient-runtime {
+    background-image: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #d97706 100%);
   }
 }
 

@@ -16,13 +16,13 @@ export default function BroadcastsPage() {
   return (
     <main id="main" className="mx-auto w-full max-w-content px-gutter py-rhythm-6">
       <header className="max-w-prose">
-        <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-300">
+        <p className="inline-flex items-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-fill)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
           Community welfare notices
         </p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-50 sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl dark:text-slate-50">
           Barangay <span className="text-gradient-glass">announcements</span>
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-300">
           Only notices whose posting window is open are shown. Pinned notices stay at the top
           of the list.
         </p>

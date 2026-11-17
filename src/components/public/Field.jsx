@@ -20,17 +20,17 @@ export function Field({ htmlFor, label, hint, error, children }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={htmlFor} className="text-sm font-semibold text-slate-200">
+      <label htmlFor={htmlFor} className="text-sm font-semibold text-slate-800 dark:text-slate-200">
         {label}
       </label>
       {children}
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-rose-300" role="alert">
+        <p id={errorId} className="text-xs font-medium text-rose-600 dark:text-rose-300" role="alert">
           {error}
         </p>
       ) : null}
       {hint && !error ? (
-        <p id={hintId} className="text-xs leading-relaxed text-slate-400">
+        <p id={hintId} className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
           {hint}
         </p>
       ) : null}

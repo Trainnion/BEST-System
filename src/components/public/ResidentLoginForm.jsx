@@ -109,7 +109,7 @@ export default function ResidentLoginForm() {
 
   return (
     <form className="glass max-w-md p-rhythm-4" onSubmit={handleSubmit} noValidate>
-      <p className="flex items-center gap-2 text-sm font-semibold text-cyan-300">
+      <p className="flex items-center gap-2 text-sm font-semibold text-cyan-700 dark:text-cyan-300">
         <LogIn className="h-4 w-4" aria-hidden="true" />
         Verified resident access
       </p>

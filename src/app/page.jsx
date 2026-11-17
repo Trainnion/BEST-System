@@ -38,27 +38,31 @@ export default async function HomePage() {
   const stats = await loadStats();
 
   return (
-    <main id="main" className="relative">
+    <main id="main" className="relative bg-runtime-grid min-h-screen">
       <HeroAnimated />
 
-      {/* S2 - aggregate counters. Values are server-rendered; Full motion only
-          replays them as a count-up when the strip first scrolls into view. */}
+      {/* S2 - aggregate counters with ai-runtime telemetry styling */}
       <section
         className="mx-auto w-full max-w-content px-gutter py-rhythm-4"
         aria-labelledby="stats-title"
       >
-        <div className="glass-lite p-rhythm-4">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <h2
-              id="stats-title"
-              className="text-[11px] font-bold uppercase tracking-wide text-cyan-300"
-            >
-              Barangay service at a glance
-            </h2>
-            <p className="text-[11px] text-slate-400">Aggregates only - no personal data.</p>
+        <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-fill)] p-5 shadow-sm backdrop-blur-sm sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--glass-border)] pb-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse"></span>
+              <h2
+                id="stats-title"
+                className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300"
+              >
+                Municipal Throughput Telemetry
+              </h2>
+            </div>
+            <p className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+              Aggregated statistics · Zero resident PII transmitted
+            </p>
           </div>
 
-          <dl className="mt-rhythm-4 grid grid-cols-2 gap-rhythm-4 sm:grid-cols-4">
+          <dl className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-4">
             <AnimatedCounter
               label="Documents released this year"
               value={stats ? stats.documents_released_ytd : null}
