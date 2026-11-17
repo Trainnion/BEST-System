@@ -39,6 +39,54 @@
   }
 }
 
+@keyframes orb-drift-1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8vw, 6vh, 0) scale(1.14);
+  }
+  100% {
+    transform: translate3d(-4vw, 10vh, 0) scale(0.96);
+  }
+}
+
+@keyframes orb-drift-2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-7vw, 9vh, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(5vw, -5vh, 0) scale(1.05);
+  }
+}
+
+@keyframes orb-drift-3 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, -8vh, 0) scale(1.16);
+  }
+  100% {
+    transform: translate3d(-5vw, -3vh, 0) scale(0.94);
+  }
+}
+
+@keyframes orb-drift-4 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-6vw, -5vh, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(8vw, 4vh, 0) scale(1.14);
+  }
+}
+
 @keyframes draw-path {
   to {
     stroke-dashoffset: 0;
@@ -136,6 +184,26 @@
     will-change: transform;
   }
 
+  .ambient-orb-1 {
+    animation: orb-drift-1 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .ambient-orb-2 {
+    animation: orb-drift-2 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .ambient-orb-3 {
+    animation: orb-drift-3 20s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .ambient-orb-4 {
+    animation: orb-drift-4 28s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
   .cycle-3 > * {
     animation: cycle-3 var(--cycle, 9.6s) linear infinite both;
     animation-delay: calc(var(--i, 0) * var(--cycle, 9.6s) / 3);
@@ -216,7 +284,9 @@ html[data-fx='lite'] .ticker-track,
 html[data-motion='lite'] .cycle-3 > *,
 html[data-fx='lite'] .cycle-3 > *,
 html[data-motion='lite'] .ambient-orb,
-html[data-fx='lite'] .ambient-orb {
+html[data-fx='lite'] .ambient-orb,
+html[data-motion='lite'] [class*='ambient-orb-'],
+html[data-fx='lite'] [class*='ambient-orb-'] {
   animation: none !important;
 }
 
@@ -246,6 +316,7 @@ html[data-fx='lite'] .cycle-3 > :not(:first-child) {
 
 /* ---- 4. Pause when off-screen or tab hidden (useInView / visibilitychange). ---- */
 [data-paused='true'] .ambient-orb,
+[data-paused='true'] [class*='ambient-orb-'],
 [data-paused='true'] .ticker-track,
 [data-paused='true'] .cycle-3 > *,
 [data-paused='true'] .cta-pulse::after {

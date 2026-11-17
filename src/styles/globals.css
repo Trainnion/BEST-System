@@ -34,6 +34,10 @@
     --ambient-cyan: rgba(34, 211, 238, 0.35);
     --ambient-teal: rgba(20, 184, 166, 0.3);
     --ambient-amber: rgba(251, 191, 36, 0.22);
+    --ambient-blue-1: rgba(14, 165, 233, 0.28);
+    --ambient-blue-2: rgba(37, 99, 235, 0.32);
+    --ambient-blue-3: rgba(30, 58, 138, 0.45);
+    --ambient-blue-4: rgba(2, 132, 199, 0.22);
 
     /* Focus */
     --focus-ring: #22d3ee;
@@ -68,6 +72,10 @@
     --ambient-cyan: rgba(14, 165, 233, 0.12);
     --ambient-teal: rgba(16, 185, 129, 0.10);
     --ambient-amber: rgba(245, 158, 11, 0.08);
+    --ambient-blue-1: rgba(14, 165, 233, 0.18);
+    --ambient-blue-2: rgba(37, 99, 235, 0.13);
+    --ambient-blue-3: rgba(2, 132, 199, 0.14);
+    --ambient-blue-4: rgba(56, 189, 248, 0.15);
 
     /* Focus - Light Mode */
     --focus-ring: #0284c7;

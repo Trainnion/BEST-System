@@ -42,6 +42,12 @@ function formatWait(seconds) {
   return seconds + ' seconds';
 }
 
+const DEMO_RESIDENTS = [
+  { label: 'Demo Resident 1 (Maria)', no: 'RES-2026-0001', pass: 'ResidentPass2026!' },
+  { label: 'Demo Resident 2 (Juan)', no: 'RES-2026-0002', pass: 'ResidentPass2026!' },
+  { label: 'Demo Resident 3 (Ana)', no: 'RES-2026-0003', pass: 'ResidentPass2026!' },
+];
+
 export default function ResidentLoginForm() {
   const router = useRouter();
   const [residentNo, setResidentNo] = useState('');
@@ -49,6 +55,12 @@ export default function ResidentLoginForm() {
   const [error, setError] = useState('');
   const [wait, setWait] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  function fillDemoResident(acc) {
+    setResidentNo(acc.no);
+    setPassword(acc.pass);
+    setError('');
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -109,10 +121,34 @@ export default function ResidentLoginForm() {
 
   return (
     <form className="glass max-w-md p-rhythm-4" onSubmit={handleSubmit} noValidate>
-      <p className="flex items-center gap-2 text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+      <p className="flex items-center gap-2 text-sm font-bold text-sky-800 dark:text-cyan-300">
         <LogIn className="h-4 w-4" aria-hidden="true" />
-        Verified resident access
+        Verified resident access · Barangay Daro
       </p>
+
+      {/* Demo Quick-Fill */}
+      <div className="mt-3.5 p-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+          Quick-Select Resident
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {DEMO_RESIDENTS.map((acc) => (
+            <button
+              key={acc.no}
+              type="button"
+              onClick={() => fillDemoResident(acc)}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold text-left transition border ${
+                residentNo === acc.no
+                  ? 'border-sky-500 bg-sky-100 text-sky-900 dark:border-cyan-400 dark:bg-cyan-500/20 dark:text-cyan-200'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 dark:border-white/5 dark:bg-slate-900/60 dark:text-slate-300'
+              }`}
+            >
+              <span className="font-bold">{acc.label}</span>
+              <span className="ml-2 font-mono text-[11px] opacity-75">{acc.no}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="mt-4 flex flex-col gap-4">
         <Field htmlFor="resident-no" label="Resident number" hint="For example RES-2026-0001.">
@@ -145,18 +181,18 @@ export default function ResidentLoginForm() {
 
       {error ? (
         <div
-          className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 rounded-xl border border-rose-500/30 bg-rose-50 px-3 py-2 text-sm leading-relaxed text-rose-800 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           {error}
-          {wait ? <span className="mt-1 block text-rose-200">Try again in {formatWait(wait)}.</span> : null}
+          {wait ? <span className="mt-1 block font-semibold text-rose-900 dark:text-rose-200">Try again in {formatWait(wait)}.</span> : null}
         </div>
       ) : null}
 
       <button
         type="submit"
         disabled={submitting}
-        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 font-bold text-white shadow-sm transition hover:bg-sky-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
       >
         {submitting ? (
           <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -166,9 +202,9 @@ export default function ResidentLoginForm() {
         {submitting ? 'Signing in...' : 'Sign in'}
       </button>
 
-      <p className="mt-4 text-sm leading-relaxed text-slate-400">
+      <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
         No password yet?{' '}
-        <a href="/resident/activate" className="font-semibold text-cyan-300 underline">
+        <a href="/resident/activate" className="font-bold text-sky-700 underline dark:text-cyan-300">
           Activate your account with the slip from the barangay hall
         </a>
         .

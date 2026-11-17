@@ -117,14 +117,14 @@ export default function KaagapayChat() {
   return (
     <main id="main" className="mx-auto w-full max-w-2xl px-4 pb-24 pt-8" style={{ minWidth: 0 }}>
       <header className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-100">Kaagapay Concierge</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Kaagapay Concierge</h1>
+        <p className="mt-1 text-sm text-slate-700 dark:text-slate-400">
           Civic questions in English, Tagalog or Bisaya. Answers come from a
           local knowledge base pending team review — not legal advice.
         </p>
       </header>
 
-      <section className="glass rounded-2xl p-3" aria-label="Kaagapay conversation">
+      <section className="rounded-3xl border border-slate-300 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/80" aria-label="Kaagapay conversation">
         <div
           ref={listRef}
           className="max-h-[50vh] min-h-[220px] space-y-3 overflow-y-auto pr-1"
@@ -132,7 +132,7 @@ export default function KaagapayChat() {
           aria-live="polite"
         >
           {messages.length === 0 ? (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Ask a question below, or pick one of the sample questions.
             </p>
           ) : null}
@@ -141,15 +141,15 @@ export default function KaagapayChat() {
               key={message.id}
               className={
                 message.role === 'user'
-                  ? 'ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-cyan-500/20 px-3 py-2 text-sm text-cyan-50'
-                  : 'mr-auto max-w-[92%] rounded-2xl rounded-bl-sm bg-slate-800/70 px-3 py-2 text-sm text-slate-100'
+                  ? 'ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-sky-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm dark:bg-cyan-500/20 dark:text-cyan-50'
+                  : 'mr-auto max-w-[92%] rounded-2xl rounded-bl-sm border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm text-slate-900 dark:border-white/10 dark:bg-slate-800/80 dark:text-slate-100'
               }
             >
               <p className="whitespace-pre-wrap break-words">{message.text}</p>
 
               {message.role === 'assistant' ? (
                 <p className="mt-2">
-                  <span className="inline-block rounded-full border border-slate-500/40 px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-300">
+                  <span className="inline-block rounded-full border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 dark:border-slate-500/40 dark:bg-slate-900/60 dark:text-slate-300">
                     {message.source === 'gemini' ? 'AI-enhanced' : 'Offline assistant'}
                     {message.offline ? ' · device' : ''}
                   </span>
@@ -157,13 +157,13 @@ export default function KaagapayChat() {
               ) : null}
 
               {message.role === 'assistant' && message.checklist && message.checklist.length > 0 ? (
-                <div className="mt-2">
-                  <p className="text-[11px] uppercase tracking-wide text-slate-400">Requirements</p>
+                <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-white/10">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-slate-700 dark:text-slate-400">Requirements</p>
                   <ul className="mt-1 space-y-1">
                     {message.checklist.map((item, index) => (
                       <li key={`${message.id}-item-${index}`}>
                         <a
-                          className="text-cyan-300 underline decoration-dotted underline-offset-2"
+                          className="font-medium text-sky-700 underline decoration-dotted underline-offset-2 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
                           href={
                             (message.recommended_service && SERVICE_ROUTES[message.recommended_service]) ||
                             '/services/request'
@@ -179,28 +179,28 @@ export default function KaagapayChat() {
             </div>
           ))}
           {busy ? (
-            <p className="mr-auto rounded-2xl bg-slate-800/70 px-3 py-2 text-sm text-slate-400" role="status">
+            <p className="mr-auto rounded-2xl border border-slate-200 bg-slate-100 px-3.5 py-2 text-sm font-medium text-slate-600 dark:border-white/10 dark:bg-slate-800/70 dark:text-slate-400" role="status">
               Thinking…
             </p>
           ) : null}
         </div>
 
         <form
-          className="mt-3 flex flex-col gap-2"
+          className="mt-4 flex flex-col gap-2.5 pt-3 border-t border-slate-200 dark:border-white/10"
           onSubmit={(event) => {
             event.preventDefault();
             send(input);
           }}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-xs text-slate-400" htmlFor="kaagapay-language">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-400" htmlFor="kaagapay-language">
               Language
             </label>
             <select
               id="kaagapay-language"
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
-              className="rounded-lg border border-slate-600/60 bg-slate-900/80 px-2 py-1 text-xs text-slate-200"
+              className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-sm focus:border-sky-500 focus:outline-none dark:border-slate-600/60 dark:bg-slate-900/80 dark:text-slate-200"
             >
               {LANGUAGE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -221,26 +221,26 @@ export default function KaagapayChat() {
               autoComplete="off"
               placeholder="Ask about clearances, fees, hours, steps…"
               aria-label="Your question for Kaagapay"
-              className="min-w-0 flex-1 rounded-xl border border-slate-600/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-600/60 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
             <button
               type="submit"
               disabled={busy || input.trim().length === 0}
-              className="shrink-0 rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50"
+              className="shrink-0 rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-700 active:scale-[0.98] disabled:opacity-50 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"
             >
               Send
             </button>
           </div>
         </form>
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3.5 flex flex-wrap gap-2">
           {SAMPLE_QUESTIONS.map((sample) => (
             <button
               key={sample.label}
               type="button"
               onClick={() => send(sample.message)}
               disabled={busy}
-              className="rounded-full border border-slate-600/60 px-3 py-1 text-xs text-slate-300 disabled:opacity-50"
+              className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-800 transition hover:bg-slate-100 hover:border-slate-400 disabled:opacity-50 dark:border-slate-600/60 dark:bg-transparent dark:text-slate-300 dark:hover:border-slate-400"
             >
               {sample.label}
             </button>
@@ -248,7 +248,7 @@ export default function KaagapayChat() {
         </div>
       </section>
 
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-slate-600 dark:text-slate-500">
         Disclaimer: answers come from a local knowledge base that is sample
         copy pending team review — not legal advice. Fees and steps must be
         confirmed at the barangay hall. No personal information is stored.
