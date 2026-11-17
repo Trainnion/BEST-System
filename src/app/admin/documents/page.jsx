@@ -135,18 +135,18 @@ export default function AdminDocumentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <FileText className="w-7 h-7 text-cyan-400" />
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <FileText className="w-7 h-7 text-cyan-600 dark:text-cyan-400" />
             <span>Document Review Queue</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
             Review clearances, indigency applications, and process assisted desk intake.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowAssistedModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-semibold text-sm text-slate-950 shadow-lg shadow-cyan-600/20 transition"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 font-bold text-sm text-white shadow-lg shadow-cyan-600/20 transition"
         >
           <Plus className="w-4 h-4" />
           <span>Assisted Walk-In Intake</span>
@@ -161,14 +161,14 @@ export default function AdminDocumentsPage() {
       )}
 
       {/* Filters */}
-      <div className="p-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-wrap gap-3">
+      <div className="p-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm flex flex-wrap gap-3">
         <select
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="px-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400"
+          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-cyan-500"
         >
           <option value="">All Statuses</option>
           <option value="SUBMITTED">Submitted</option>
@@ -185,7 +185,7 @@ export default function AdminDocumentsPage() {
             setTypeFilter(e.target.value);
             setPage(1);
           }}
-          className="px-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400"
+          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-cyan-500"
         >
           <option value="">All Document Types</option>
           <option value="CLEARANCE">Barangay Clearance (₱50)</option>
@@ -194,11 +194,11 @@ export default function AdminDocumentsPage() {
       </div>
 
       {/* Queue Table */}
-      <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse text-base">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-950/40 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+              <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/40 text-slate-700 dark:text-slate-400 text-sm uppercase tracking-wider font-bold">
                 <th className="py-3.5 px-4">Tracking Code</th>
                 <th className="py-3.5 px-4">Type</th>
                 <th className="py-3.5 px-4">Resident</th>
@@ -207,7 +207,7 @@ export default function AdminDocumentsPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-slate-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-white/5 text-slate-800 dark:text-slate-200">
               {loading ? (
                 <tr>
                   <td colSpan="6" className="py-8 text-center text-slate-500">
@@ -222,27 +222,27 @@ export default function AdminDocumentsPage() {
                 </tr>
               ) : (
                 documents.map((doc) => (
-                  <tr key={doc.tracking_code} className="hover:bg-white/[0.02] transition">
-                    <td className="py-3.5 px-4 font-mono font-medium text-cyan-300">
+                  <tr key={doc.tracking_code} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition">
+                    <td className="py-3.5 px-4 font-mono font-bold text-cyan-700 dark:text-cyan-300">
                       {doc.tracking_code}
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-white">
+                    <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                       {doc.document_type === 'CLEARANCE' ? 'Barangay Clearance' : 'Indigency Certificate'}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">{doc.masked_name}</td>
-                    <td className="py-3.5 px-4 font-mono">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{doc.masked_name}</td>
+                    <td className="py-3.5 px-4 font-mono font-semibold">
                       {Number(doc.fee_amount) > 0 ? `₱${Number(doc.fee_amount).toFixed(2)}` : 'FREE'}
                     </td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                           doc.status === 'READY_FOR_PICKUP'
-                            ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20'
                             : doc.status === 'REJECTED'
-                            ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                            ? 'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20'
                             : doc.status === 'PAYMENT_PENDING'
-                            ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
-                            : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20'
+                            : 'bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/10 dark:text-cyan-300 dark:border-cyan-500/20'
                         }`}
                       >
                         {doc.status}
@@ -252,9 +252,9 @@ export default function AdminDocumentsPage() {
                       <button
                         type="button"
                         onClick={() => handleOpenDetail(doc.tracking_code)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-transparent text-sm font-semibold transition"
                       >
-                        <Eye className="w-3.5 h-3.5" />
+                        <Eye className="w-4 h-4" />
                         <span>Review</span>
                       </button>
 

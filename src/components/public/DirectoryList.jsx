@@ -162,27 +162,27 @@ export default function DirectoryList() {
     <div className="flex flex-col gap-rhythm-5">
       {groups.map((group) => (
         <section key={group.position} aria-label={group.position}>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-sky-800 dark:text-cyan-300">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-sky-800 dark:text-cyan-300">
             {group.position}
           </h2>
           <ul className="mt-3 grid gap-rhythm-3 sm:grid-cols-2">
             {group.rows.map((official) => (
               <li key={official.id} className="rounded-2xl border border-slate-300 bg-white p-rhythm-4 shadow-sm transition-all hover:border-sky-300 dark:border-white/10 dark:bg-slate-900/60 dark:hover:border-cyan-500/30">
-                <p className="text-base font-bold text-slate-900 dark:text-slate-50">{official.full_name}</p>
-                <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <p className="text-lg font-bold text-slate-900 dark:text-slate-50">{official.full_name}</p>
+                <p className="mt-1 text-base font-medium text-slate-700 dark:text-slate-300">
                   {official.position}
                   {official.committee ? ' · ' + official.committee : ''}
                 </p>
                 <p className="mt-3 flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-cyan-400" aria-hidden="true" />
-                  <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">{official.contact_info}</span>
+                  <span className="font-mono text-sm font-semibold text-slate-800 dark:text-slate-200">{official.contact_info}</span>
                 </p>
               </li>
             ))}
           </ul>
         </section>
       ))}
-      <p className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+      <p className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
         <MapPin className="h-3.5 w-3.5 text-sky-600 dark:text-cyan-400" aria-hidden="true" />
         Office contact numbers only. Personal contact details are never published here.
       </p>

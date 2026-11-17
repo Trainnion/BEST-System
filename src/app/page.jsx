@@ -58,7 +58,7 @@ export default async function HomePage() {
                 Barangay Daro Services at a Glance
               </h2>
             </div>
-            <p className="font-mono text-[11px] font-medium text-slate-600 dark:text-slate-400">
+            <p className="font-mono text-xs font-semibold text-slate-600 dark:text-slate-400">
               Official public aggregates · Zero personal data transmitted
             </p>
           </div>

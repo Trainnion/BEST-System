@@ -140,18 +140,18 @@ export default function AdminResidentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <Users className="w-7 h-7 text-indigo-400" />
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <Users className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
             <span>Resident Directory & Activation</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
             Issue 7-day one-time activation slips and register verified walk-in residents.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/20 transition"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-sm text-white shadow-lg shadow-indigo-600/20 transition"
         >
           <Plus className="w-4 h-4" />
           <span>Register New Resident</span>
@@ -166,7 +166,7 @@ export default function AdminResidentsPage() {
       )}
 
       {/* Filters */}
-      <div className="p-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col md:flex-row gap-3">
+      <div className="p-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
@@ -177,7 +177,7 @@ export default function AdminResidentsPage() {
               setPage(1);
             }}
             placeholder="Search by Resident ID (RES-...), name..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-400"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base focus:outline-none focus:border-indigo-500"
           />
         </div>
         <div className="w-full md:w-56">
@@ -189,17 +189,17 @@ export default function AdminResidentsPage() {
               setPage(1);
             }}
             placeholder="Filter by Purok (e.g. Purok 2)"
-            className="w-full px-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-400"
+            className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base focus:outline-none focus:border-indigo-500"
           />
         </div>
       </div>
 
       {/* Residents Table */}
-      <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse text-base">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-950/40 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+              <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/40 text-slate-700 dark:text-slate-400 text-sm uppercase tracking-wider font-bold">
                 <th className="py-3.5 px-4">Resident ID</th>
                 <th className="py-3.5 px-4">Full Name</th>
                 <th className="py-3.5 px-4">Purok</th>
@@ -208,7 +208,7 @@ export default function AdminResidentsPage() {
                 <th className="py-3.5 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-slate-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-white/5 text-slate-800 dark:text-slate-200">
               {loading ? (
                 <tr>
                   <td colSpan="6" className="py-8 text-center text-slate-500">
@@ -223,29 +223,29 @@ export default function AdminResidentsPage() {
                 </tr>
               ) : (
                 residents.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/[0.02] transition">
-                    <td className="py-3.5 px-4 font-mono font-medium text-indigo-300">{r.id}</td>
-                    <td className="py-3.5 px-4 font-semibold text-white">
+                  <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition">
+                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-700 dark:text-indigo-300">{r.id}</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                       {r.last_name}, {r.first_name} {r.middle_name ? `${r.middle_name[0]}.` : ''}{' '}
                       {r.suffix || ''}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">{r.purok}</td>
-                    <td className="py-3.5 px-4 text-slate-400">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-medium">{r.purok}</td>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-sm font-medium">
                       {new Date(r.birth_date).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-4">
                       {r.is_activated ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Activated
                         </span>
                       ) : r.has_pending_activation ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20">
                           <Clock className="w-3.5 h-3.5" />
                           Slip Pending
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20">
                           Unactivated
                         </span>
                       )}
@@ -255,9 +255,9 @@ export default function AdminResidentsPage() {
                         type="button"
                         onClick={() => handleIssueSlip(r.id)}
                         disabled={slipLoading}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 text-xs font-medium transition disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-800 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 dark:border-indigo-500/30 dark:text-indigo-300 text-sm font-bold transition disabled:opacity-50"
                       >
-                        <Key className="w-3.5 h-3.5" />
+                        <Key className="w-4 h-4" />
                         <span>Issue Slip</span>
                       </button>
                     </td>

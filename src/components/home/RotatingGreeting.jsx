@@ -8,7 +8,7 @@
  */
 export default function RotatingGreeting() {
   return (
-    <p className="text-lg font-medium text-cyan-200 sm:text-xl">
+    <p className="text-xl font-bold text-sky-800 sm:text-2xl dark:text-cyan-300">
       <span className="sr-only">
         Greetings in three languages: Maayong adlaw, Magandang araw, Good day.
       </span>

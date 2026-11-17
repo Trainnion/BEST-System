@@ -134,9 +134,9 @@ export default function BroadcastTicker() {
         <div className="flex flex-wrap items-center gap-3">
           <h2
             id="ticker-title"
-            className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-wide text-cyan-800 dark:text-cyan-300"
+            className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-cyan-800 dark:text-cyan-300"
           >
-            <Megaphone size={14} aria-hidden="true" />
+            <Megaphone size={15} aria-hidden="true" />
             Live Bulletin Ticker
           </h2>
 
@@ -145,7 +145,7 @@ export default function BroadcastTicker() {
               type="button"
               onClick={() => setPaused((current) => !current)}
               aria-pressed={paused}
-              className="tap-target inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-800 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-white"
+              className="tap-target inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3.5 py-1 text-xs font-bold text-slate-800 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-white"
             >
               {paused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
               {paused ? 'Play' : 'Pause'}
@@ -154,7 +154,7 @@ export default function BroadcastTicker() {
 
           <Link
             href="/broadcasts"
-            className="ml-auto rounded text-[11px] font-bold text-cyan-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:text-cyan-300"
+            className="ml-auto rounded text-xs font-bold text-cyan-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:text-cyan-300"
           >
             All announcements
           </Link>
@@ -165,10 +165,10 @@ export default function BroadcastTicker() {
             {items.map((item) => (
               <li
                 key={item.id}
-                className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+                className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
               >
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
                     CATEGORY_TONE[item.category] ?? 'state-neutral'
                   }`}
                 >
@@ -182,10 +182,10 @@ export default function BroadcastTicker() {
                 key={`dup-${item.id}`}
                 data-dup="true"
                 aria-hidden="true"
-                className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-slate-900 dark:text-slate-200"
+                className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
               >
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
                     CATEGORY_TONE[item.category] ?? 'state-neutral'
                   }`}
                 >

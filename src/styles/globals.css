@@ -571,94 +571,173 @@
 }
 
 /* =====================================================================
-   Admin Panel Light Mode High-Contrast Rules
+   Admin Portal Dual-Theme Engine (Light & Dark)
    ===================================================================== */
-html:not(.dark) main:has(div > .max-w-7xl),
-html[data-theme='light'] main:has(div > .max-w-7xl) {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
+
+/* Theme Variables for Admin */
+html.dark .admin-portal,
+html[data-theme='dark'] .admin-portal {
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-heading: #f8fafc;
+  --text-body: #e2e8f0;
+  --text-muted: #94a3b8;
+  --input-bg: rgba(2, 6, 23, 0.7);
+  --input-border: rgba(255, 255, 255, 0.15);
+  --btn-bg: rgba(255, 255, 255, 0.05);
 }
 
-html:not(.dark) main:has(div > .max-w-7xl) .border-white\/10,
-html:not(.dark) main:has(div > .max-w-7xl) .border-white\/5,
-html[data-theme='light'] main:has(div > .max-w-7xl) .border-white\/10,
-html[data-theme='light'] main:has(div > .max-w-7xl) .border-white\/5 {
-  border-color: #cbd5e1 !important;
+html.light .admin-portal,
+html:not(.dark) .admin-portal,
+html[data-theme='light'] .admin-portal {
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --text-heading: #0f172a;
+  --text-body: #1e293b;
+  --text-muted: #475569;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --btn-bg: #f8fafc;
 }
 
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-900\/60,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-900\/80,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-900,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-950\/60,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-950\/70,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-950\/80,
-html:not(.dark) main:has(div > .max-w-7xl) .bg-slate-950,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-900\/60,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-900\/80,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-900,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-950\/60,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-950\/70,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-950\/80,
-html[data-theme='light'] main:has(div > .max-w-7xl) .bg-slate-950 {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px 0 rgba(15, 23, 42, 0.04) !important;
-}
-
-html:not(.dark) main:has(div > .max-w-7xl) h1.text-white,
-html:not(.dark) main:has(div > .max-w-7xl) h2.text-white,
-html:not(.dark) main:has(div > .max-w-7xl) h3.text-white,
-html:not(.dark) main:has(div > .max-w-7xl) span.text-white,
-html:not(.dark) main:has(div > .max-w-7xl) div.text-white,
-html:not(.dark) main:has(div > .max-w-7xl) p.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) h1.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) h2.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) h3.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) span.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) div.text-white,
-html[data-theme='light'] main:has(div > .max-w-7xl) p.text-white {
-  color: #0f172a !important;
-}
-
-html:not(.dark) main:has(div > .max-w-7xl) .text-slate-400,
-html:not(.dark) main:has(div > .max-w-7xl) .text-slate-500,
-html[data-theme='light'] main:has(div > .max-w-7xl) .text-slate-400,
-html[data-theme='light'] main:has(div > .max-w-7xl) .text-slate-500 {
-  color: #475569 !important;
-}
-
-html:not(.dark) main:has(div > .max-w-7xl) .text-slate-300,
-html:not(.dark) main:has(div > .max-w-7xl) .text-slate-200,
-html[data-theme='light'] main:has(div > .max-w-7xl) .text-slate-300,
-html[data-theme='light'] main:has(div > .max-w-7xl) .text-slate-200 {
-  color: #334155 !important;
-}
-
-html:not(.dark) main:has(div > .max-w-7xl) table th,
-html[data-theme='light'] main:has(div > .max-w-7xl) table th {
+/* Light Mode Admin Surfaces & Elevation */
+html.light .admin-portal,
+html:not(.dark) .admin-portal,
+html[data-theme='light'] .admin-portal {
   background-color: #f1f5f9 !important;
-  color: #1e293b !important;
-  border-color: #cbd5e1 !important;
-}
-
-html:not(.dark) main:has(div > .max-w-7xl) table td,
-html[data-theme='light'] main:has(div > .max-w-7xl) table td {
-  border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
-html:not(.dark) main:has(div > .max-w-7xl) table tbody tr:hover,
-html[data-theme='light'] main:has(div > .max-w-7xl) table tbody tr:hover {
+html.light .admin-portal main,
+html:not(.dark) .admin-portal main,
+html[data-theme='light'] .admin-portal main {
   background-color: #f8fafc !important;
 }
 
-html:not(.dark) main:has(div > .max-w-7xl) input,
-html:not(.dark) main:has(div > .max-w-7xl) select,
-html:not(.dark) main:has(div > .max-w-7xl) textarea,
-html[data-theme='light'] main:has(div > .max-w-7xl) input,
-html[data-theme='light'] main:has(div > .max-w-7xl) select,
-html[data-theme='light'] main:has(div > .max-w-7xl) textarea {
+/* Light Mode Cards & Panels */
+html.light .admin-portal .border-white\/10,
+html.light .admin-portal .border-white\/5,
+html.light .admin-portal .border-white\/15,
+html.light .admin-portal .border-white\/20,
+html:not(.dark) .admin-portal .border-white\/10,
+html:not(.dark) .admin-portal .border-white\/5,
+html[data-theme='light'] .admin-portal .border-white\/10,
+html[data-theme='light'] .admin-portal .border-white\/5 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .admin-portal [class*='bg-slate-900'],
+html.light .admin-portal [class*='bg-slate-950'],
+html:not(.dark) .admin-portal [class*='bg-slate-900'],
+html:not(.dark) .admin-portal [class*='bg-slate-950'],
+html[data-theme='light'] .admin-portal [class*='bg-slate-900'],
+html[data-theme='light'] .admin-portal [class*='bg-slate-950'] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Light Mode Headings */
+html.light .admin-portal h1,
+html.light .admin-portal h2,
+html.light .admin-portal h3,
+html.light .admin-portal h4,
+html.light .admin-portal [class*='text-white'],
+html:not(.dark) .admin-portal h1,
+html:not(.dark) .admin-portal h2,
+html:not(.dark) .admin-portal h3,
+html:not(.dark) .admin-portal [class*='text-white'],
+html[data-theme='light'] .admin-portal h1,
+html[data-theme='light'] .admin-portal h2,
+html[data-theme='light'] .admin-portal h3,
+html[data-theme='light'] .admin-portal [class*='text-white'] {
+  color: #0f172a !important;
+}
+
+/* Light Mode Secondary Text */
+html.light .admin-portal .text-slate-400,
+html.light .admin-portal .text-slate-500,
+html:not(.dark) .admin-portal .text-slate-400,
+html:not(.dark) .admin-portal .text-slate-500,
+html[data-theme='light'] .admin-portal .text-slate-400,
+html[data-theme='light'] .admin-portal .text-slate-500 {
+  color: #475569 !important;
+  font-weight: 500;
+}
+
+html.light .admin-portal .text-slate-300,
+html.light .admin-portal .text-slate-200,
+html:not(.dark) .admin-portal .text-slate-300,
+html:not(.dark) .admin-portal .text-slate-200,
+html[data-theme='light'] .admin-portal .text-slate-300,
+html[data-theme='light'] .admin-portal .text-slate-200 {
+  color: #1e293b !important;
+}
+
+/* Light Mode Form Controls */
+html.light .admin-portal input:not([type="checkbox"]):not([type="radio"]),
+html.light .admin-portal select,
+html.light .admin-portal textarea,
+html:not(.dark) .admin-portal input:not([type="checkbox"]):not([type="radio"]),
+html:not(.dark) .admin-portal select,
+html:not(.dark) .admin-portal textarea,
+html[data-theme='light'] .admin-portal input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme='light'] .admin-portal select,
+html[data-theme='light'] .admin-portal textarea {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05) !important;
+}
+
+html.light .admin-portal input::placeholder,
+html.light .admin-portal textarea::placeholder,
+html:not(.dark) .admin-portal input::placeholder,
+html:not(.dark) .admin-portal textarea::placeholder,
+html[data-theme='light'] .admin-portal input::placeholder,
+html[data-theme='light'] .admin-portal textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Light Mode Tables */
+html.light .admin-portal table th,
+html:not(.dark) .admin-portal table th,
+html[data-theme='light'] .admin-portal table th {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+html.light .admin-portal table td,
+html:not(.dark) .admin-portal table td,
+html[data-theme='light'] .admin-portal table td {
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html.light .admin-portal table tbody tr:hover,
+html:not(.dark) .admin-portal table tbody tr:hover,
+html[data-theme='light'] .admin-portal table tbody tr:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .admin-portal .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+html.light .admin-portal .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .admin-portal .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .admin-portal .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Light Mode Modals & Overlays */
+html.light .admin-portal [role="dialog"],
+html.light .admin-portal .fixed.inset-0 > div > div,
+html:not(.dark) .admin-portal [role="dialog"],
+html:not(.dark) .admin-portal .fixed.inset-0 > div > div,
+html[data-theme='light'] .admin-portal [role="dialog"],
+html[data-theme='light'] .admin-portal .fixed.inset-0 > div > div {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 }

@@ -127,11 +127,11 @@ export default function AdminBlotterPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          <ShieldAlert className="w-7 h-7 text-rose-400" />
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <ShieldAlert className="w-7 h-7 text-rose-600 dark:text-rose-400" />
           <span>Anonymous Blotter Queue</span>
         </h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
           Review community incident reports, update investigation status, and log actions taken.
         </p>
       </div>
@@ -144,7 +144,7 @@ export default function AdminBlotterPage() {
       )}
 
       {/* Filters */}
-      <div className="p-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-wrap gap-3">
+      <div className="p-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px] relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
@@ -155,7 +155,7 @@ export default function AdminBlotterPage() {
               setPage(1);
             }}
             placeholder="Search tracking code (BLOT-...) or zone"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-400"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base focus:outline-none focus:border-rose-500"
           />
         </div>
 
@@ -165,7 +165,7 @@ export default function AdminBlotterPage() {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="px-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-400"
+          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-rose-500"
         >
           <option value="">All Statuses</option>
           <option value="FILED">Filed</option>
@@ -180,7 +180,7 @@ export default function AdminBlotterPage() {
             setUrgencyFilter(e.target.value);
             setPage(1);
           }}
-          className="px-4 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-400"
+          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-rose-500"
         >
           <option value="">All Urgency Levels</option>
           <option value="LOW">Low</option>
@@ -191,11 +191,11 @@ export default function AdminBlotterPage() {
       </div>
 
       {/* Blotter Queue Table */}
-      <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse text-base">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-950/40 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+              <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/40 text-slate-700 dark:text-slate-400 text-sm uppercase tracking-wider font-bold">
                 <th className="py-3.5 px-4">Tracking Code</th>
                 <th className="py-3.5 px-4">Incident Type</th>
                 <th className="py-3.5 px-4">Zone / Purok</th>
@@ -205,7 +205,7 @@ export default function AdminBlotterPage() {
                 <th className="py-3.5 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-slate-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-white/5 text-slate-800 dark:text-slate-200">
               {loading ? (
                 <tr>
                   <td colSpan="7" className="py-8 text-center text-slate-500">
@@ -220,20 +220,20 @@ export default function AdminBlotterPage() {
                 </tr>
               ) : (
                 reports.map((report) => (
-                  <tr key={report.tracking_code} className="hover:bg-white/[0.02] transition">
-                    <td className="py-3.5 px-4 font-mono font-medium text-rose-300">
+                  <tr key={report.tracking_code} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition">
+                    <td className="py-3.5 px-4 font-mono font-bold text-rose-700 dark:text-rose-300">
                       {report.tracking_code}
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-white">
+                    <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                       {report.incident_type.replace(/_/g, ' ')}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">{report.incident_zone}</td>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-medium">{report.incident_zone}</td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                           report.urgency === 'CRITICAL' || report.urgency === 'HIGH'
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse'
-                            : 'bg-slate-700/40 text-slate-300 border border-white/10'
+                            ? 'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30 animate-pulse'
+                            : 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700/40 dark:text-slate-300 dark:border-white/10'
                         }`}
                       >
                         {report.urgency}
@@ -241,29 +241,29 @@ export default function AdminBlotterPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                           report.status === 'CLOSED'
-                            ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20'
                             : report.status === 'ACTION_TAKEN'
-                            ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'
+                            ? 'bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/10 dark:text-cyan-300 dark:border-cyan-500/20'
                             : report.status === 'UNDER_REVIEW'
-                            ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
-                            : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20'
+                            : 'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20'
                         }`}
                       >
                         {report.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 text-xs">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-sm font-medium">
                       {new Date(report.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <button
                         type="button"
                         onClick={() => handleOpenDetail(report.tracking_code)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-medium transition"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-300 text-rose-800 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 dark:border-rose-500/30 dark:text-rose-300 text-sm font-bold transition"
                       >
-                        <Eye className="w-3.5 h-3.5" />
+                        <Eye className="w-4 h-4" />
                         <span>Inspect & Update</span>
                       </button>
                     </td>

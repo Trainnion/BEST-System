@@ -26,11 +26,11 @@ export default function HeroAnimated() {
         <div className="max-w-prose">
           {/* Top Telemetry Chip */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-600/30 bg-cyan-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-cyan-800 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-300">
-              <ShieldCheck size={14} aria-hidden="true" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-600/30 bg-cyan-50 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-cyan-800 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-300">
+              <ShieldCheck size={15} aria-hidden="true" />
               Barangay Daro E-Services
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-1 text-[11px] font-mono font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-3 py-1 text-xs font-mono font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
               <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
               Offline-Ready
             </span>
@@ -81,7 +81,7 @@ export default function HeroAnimated() {
             </Link>
             <Link
               href="/blotter"
-              className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800 transition-colors hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 sm:w-auto dark:border-rose-500/20 dark:bg-rose-500/5 dark:text-rose-300 dark:hover:bg-rose-500/10"
+              className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full border border-rose-300 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800 transition-colors hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 sm:w-auto dark:border-rose-500/20 dark:bg-rose-500/5 dark:text-rose-300 dark:hover:bg-rose-500/10"
             >
               <Lock size={14} aria-hidden="true" />
               Anonymous Blotter

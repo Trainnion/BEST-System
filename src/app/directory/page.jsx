@@ -16,13 +16,13 @@ export default function DirectoryPage() {
   return (
     <main id="main" className="mx-auto w-full max-w-content px-gutter py-rhythm-6">
       <header className="max-w-prose">
-        <p className="inline-flex items-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-fill)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-200">
+        <p className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 dark:border-[var(--glass-border)] dark:bg-[var(--glass-fill)] px-3.5 py-1 text-sm font-bold uppercase tracking-wide text-amber-800 dark:text-amber-200">
           Official barangay roster
         </p>
         <h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl dark:text-slate-50">
           Barangay <span className="text-gradient-glass">directory</span>
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-300">
+        <p className="mt-3 text-base leading-relaxed text-slate-700 sm:text-lg dark:text-slate-300">
           Who does what at the barangay hall, grouped by position, with the office numbers you
           can call during working hours.
         </p>

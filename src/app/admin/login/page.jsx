@@ -67,7 +67,7 @@ function AdminLoginForm() {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Barangay Staff Portal</h1>
-          <p className="text-xs font-medium text-slate-600 mt-1 dark:text-slate-400">Authorized personnel and officials only · Barangay Daro</p>
+          <p className="text-sm font-medium text-slate-600 mt-1 dark:text-slate-400">Authorized personnel and officials only · Barangay Daro</p>
         </div>
 
         {error && (
@@ -76,17 +76,17 @@ function AdminLoginForm() {
             className="mb-6 p-4 rounded-xl border border-rose-500/30 bg-rose-50 text-rose-800 text-sm flex items-start gap-3 dark:bg-rose-950/50 dark:text-rose-200"
           >
             <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5 dark:text-rose-400" />
-            <div>{error}</div>
+            <div className="font-semibold">{error}</div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 dark:text-slate-300">
+            <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-2 dark:text-slate-300">
               Staff Username
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
                 value={username}
@@ -94,17 +94,17 @@ function AdminLoginForm() {
                 placeholder="e.g. admin or staff"
                 required
                 autoComplete="username"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-sm dark:bg-slate-950/60 dark:border-white/10 dark:text-white dark:placeholder-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-400"
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-base focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-sm dark:bg-slate-950/60 dark:border-white/10 dark:text-white dark:placeholder-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-400"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 dark:text-slate-300">
+            <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-2 dark:text-slate-300">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="password"
                 value={password}
@@ -112,7 +112,7 @@ function AdminLoginForm() {
                 placeholder="••••••••••••"
                 required
                 autoComplete="current-password"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-sm dark:bg-slate-950/60 dark:border-white/10 dark:text-white dark:placeholder-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-400"
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-base focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition shadow-sm dark:bg-slate-950/60 dark:border-white/10 dark:text-white dark:placeholder-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-400"
               />
             </div>
           </div>
@@ -121,15 +121,15 @@ function AdminLoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-sky-600 hover:bg-sky-700 text-white flex items-center justify-center gap-2 shadow-md transition disabled:opacity-50 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950"
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-base bg-sky-600 hover:bg-sky-700 text-white flex items-center justify-center gap-2 shadow-md transition disabled:opacity-50 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950"
             >
               <span>{loading ? 'Authenticating...' : 'Sign In to Terminal'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 dark:border-white/5 dark:text-slate-400">
+        <div className="mt-8 pt-6 border-t border-slate-200 text-center text-xs text-slate-600 dark:border-white/5 dark:text-slate-400 font-medium">
           <p>R.A. 10173 Protected Terminal · All access is audited</p>
         </div>
       </div>

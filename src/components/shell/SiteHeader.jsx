@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import useTheme from '@/lib/hooks/useTheme';
+import useMotionPreference from '@/lib/hooks/useMotionPreference';
 
 /**
  * Atlas Nav Island Dock (plan Sec. 7 + Atlas Reference).
@@ -44,6 +45,7 @@ export default function SiteHeader() {
   const pathname = usePathname() || '/';
   const [open, setOpen] = useState(false);
   const { isDark, toggleTheme, mounted } = useTheme();
+  const { tier, setTier } = useMotionPreference();
 
   // Navigation always closes the small-screen panel.
   useEffect(() => {
@@ -73,18 +75,18 @@ export default function SiteHeader() {
                 <ShieldCheck size={18} aria-hidden="true" />
               </span>
               <span className="flex flex-col">
-                <span className="text-sm font-black tracking-tight leading-none text-slate-900 dark:text-white">
+                <span className="text-base font-black tracking-tight leading-none text-slate-900 dark:text-white">
                   BEST
                 </span>
-                <span className="hidden text-[9px] font-mono tracking-wider text-cyan-800 uppercase sm:inline dark:text-cyan-400">
+                <span className="hidden text-xs font-mono font-bold tracking-wider text-cyan-800 uppercase sm:inline dark:text-cyan-400">
                   BARANGAY DARO
                 </span>
               </span>
             </Link>
 
             {/* Offline-Ready Status Beacon */}
-            <div className="hidden items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-mono font-semibold text-emerald-800 sm:inline-flex dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
+            <div className="hidden items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-0.5 text-xs font-mono font-bold text-emerald-800 sm:inline-flex dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
               <span className="tracking-wide uppercase">LOCAL NETWORK ACTIVE</span>
             </div>
           </div>
@@ -98,7 +100,7 @@ export default function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   aria-current={current ? 'page' : undefined}
-                  className={`rounded-full px-3 py-1.5 text-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
+                  className={`rounded-full px-3 py-1.5 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
                     current
                       ? 'bg-cyan-100 text-cyan-900 font-bold ring-1 ring-cyan-500 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-400/40'
                       : 'text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
@@ -110,16 +112,50 @@ export default function SiteHeader() {
             })}
           </nav>
 
-          {/* Right: Quick Action Pill + Theme Switcher + Mobile Trigger */}
+          {/* Right: Quick Action Pill + Performance Tier (Lite/Full) + Theme Switcher + Mobile Trigger */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Quick Track Pill */}
             <Link
               href="/track"
-              className="hidden items-center gap-1.5 rounded-full border border-cyan-600/30 bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-800 transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 sm:inline-flex dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20 dark:hover:text-white"
+              className="hidden items-center gap-1.5 rounded-full border border-cyan-600/30 bg-cyan-50 px-3.5 py-1 text-sm font-bold text-cyan-800 transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 sm:inline-flex dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20 dark:hover:text-white"
             >
-              <Search size={13} aria-hidden="true" />
+              <Search size={14} aria-hidden="true" />
               <span>Track</span>
             </Link>
+
+            {/* Performance Tier Toggle (Lite / Full) */}
+            <div
+              className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 p-0.5 text-xs font-semibold dark:border-white/10 dark:bg-white/[0.05]"
+              role="group"
+              aria-label="Graphics Performance Tier"
+            >
+              <button
+                type="button"
+                onClick={() => setTier('lite')}
+                className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors ${
+                  tier === 'lite'
+                    ? 'bg-amber-500 text-white shadow-sm dark:bg-amber-400 dark:text-slate-950'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                }`}
+                title="Lite Mode: Fast, static, battery saver (zero lag)"
+                aria-pressed={tier === 'lite'}
+              >
+                Lite
+              </button>
+              <button
+                type="button"
+                onClick={() => setTier('full')}
+                className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors ${
+                  tier === 'full'
+                    ? 'bg-cyan-600 text-white shadow-sm dark:bg-cyan-400 dark:text-slate-950'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                }`}
+                title="Full Mode: Rich ambient gradients & smooth motion"
+                aria-pressed={tier === 'full'}
+              >
+                Full
+              </button>
+            </div>
 
             {/* Theme Switcher (Dark / Light) */}
             <button
@@ -161,14 +197,14 @@ export default function SiteHeader() {
             aria-label="Primary"
             className="mt-3 max-h-[75dvh] overflow-y-auto border-t border-slate-200 pt-3 md:hidden dark:border-white/10"
           >
-            <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-mono text-slate-600 uppercase dark:text-slate-400">
+            <div className="mb-2 flex items-center justify-between px-1 text-xs font-mono font-bold text-slate-600 uppercase dark:text-slate-400">
               <span>Barangay Daro Services</span>
               <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
+                <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                 Connected
               </span>
             </div>
-            <ul className="grid grid-cols-2 gap-1.5">
+            <ul className="grid grid-cols-2 gap-2">
               {NAV_LINKS.map((link) => {
                 const current = isCurrent(pathname, link.href);
                 return (
@@ -176,7 +212,7 @@ export default function SiteHeader() {
                     <Link
                       href={link.href}
                       aria-current={current ? 'page' : undefined}
-                      className={`flex min-h-[44px] items-center rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
+                      className={`flex min-h-[44px] items-center rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
                         current
                           ? 'bg-cyan-100 text-cyan-900 font-bold ring-1 ring-cyan-500 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-400/40'
                           : 'text-slate-800 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
@@ -189,25 +225,61 @@ export default function SiteHeader() {
               })}
             </ul>
 
-            <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-2.5 px-1 dark:border-white/10">
-              <span className="text-xs text-slate-600 dark:text-slate-400">Color Appearance</span>
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="tap-target inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-800 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200"
-              >
-                {isDark ? (
-                  <>
-                    <Sun size={14} className="text-amber-400" />
-                    <span>Light Mode</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon size={14} className="text-slate-700" />
-                    <span>Dark Mode</span>
-                  </>
-                )}
-              </button>
+            <div className="mt-3 flex flex-col gap-2.5 border-t border-slate-200 pt-3 px-1 dark:border-white/10">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Graphics Tier</span>
+                <div
+                  className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 p-0.5 text-xs font-semibold dark:border-white/10 dark:bg-white/[0.05]"
+                  role="group"
+                  aria-label="Performance Tier"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setTier('lite')}
+                    className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+                      tier === 'lite'
+                        ? 'bg-amber-500 text-white shadow-sm dark:bg-amber-400 dark:text-slate-950'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                    }`}
+                    aria-pressed={tier === 'lite'}
+                  >
+                    Lite
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTier('full')}
+                    className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+                      tier === 'full'
+                        ? 'bg-cyan-600 text-white shadow-sm dark:bg-cyan-400 dark:text-slate-950'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                    }`}
+                    aria-pressed={tier === 'full'}
+                  >
+                    Full
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Color Theme</span>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="tap-target inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-800 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200"
+                >
+                  {isDark ? (
+                    <>
+                      <Sun size={15} className="text-amber-400" />
+                      <span>Light Theme</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={15} className="text-slate-700" />
+                      <span>Dark Theme</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </nav>
         ) : null}

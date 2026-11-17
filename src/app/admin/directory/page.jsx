@@ -127,18 +127,18 @@ export default function AdminDirectoryPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <BookOpen className="w-7 h-7 text-emerald-400" />
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <BookOpen className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             <span>Barangay Leadership Directory</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
             Manage the official leadership roster displayed to citizens.
           </p>
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm text-white shadow-lg shadow-emerald-600/20 transition"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-sm text-white shadow-lg shadow-emerald-600/20 transition"
         >
           <Plus className="w-4 h-4" />
           <span>Add Official</span>
@@ -162,49 +162,49 @@ export default function AdminDirectoryPage() {
       {/* Officials Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
-          <div className="col-span-full py-12 text-center text-slate-500 text-sm">
+          <div className="col-span-full py-12 text-center text-slate-500 text-base">
             Loading leadership directory...
           </div>
         ) : officials.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-slate-500 text-sm">
+          <div className="col-span-full py-12 text-center text-slate-500 text-base">
             No active officials listed.
           </div>
         ) : (
           officials.map((official) => (
             <div
               key={official.id}
-              className="p-5 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-white/20 transition"
+              className="p-5 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-white/5">
                     Order #{official.display_order || 1}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => openEditModal(official)}
-                      className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(official.id)}
-                      className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition"
+                      className="p-1.5 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/20 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                <h3 className="text-base font-bold text-white">{official.full_name}</h3>
-                <div className="text-xs font-semibold text-emerald-400 mt-0.5">{official.position}</div>
-                <div className="text-xs text-slate-400 mt-1">
-                  Committee: <span className="text-slate-300">{official.committee}</span>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{official.full_name}</h3>
+                <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">{official.position}</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  Committee: <span className="text-slate-900 dark:text-slate-200 font-semibold">{official.committee}</span>
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">
-                  Contact: <span className="text-slate-300">{official.contact_info}</span>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                  Contact: <span className="text-slate-900 dark:text-slate-200 font-semibold">{official.contact_info}</span>
                 </div>
               </div>
             </div>

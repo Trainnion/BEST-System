@@ -132,11 +132,11 @@ export default function AdminBroadcastsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          <Radio className="w-7 h-7 text-amber-400" />
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <Radio className="w-7 h-7 text-amber-600 dark:text-amber-400" />
           <span>Community Broadcast Publisher</span>
         </h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
           Draft announcements, generate simplified citizen summaries, and create megaphone audio scripts.
         </p>
       </div>
@@ -158,15 +158,15 @@ export default function AdminBroadcastsPage() {
       {/* Grid: Publisher Form + Active Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Publisher Form (7 cols) */}
-        <div className="lg:col-span-7 p-6 rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-amber-400" />
+        <div className="lg:col-span-7 p-6 rounded-3xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <Plus className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <span>Compose Announcement</span>
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Announcement Title *
               </label>
               <input
@@ -175,19 +175,19 @@ export default function AdminBroadcastsPage() {
                 placeholder="e.g. Libreng Anti-Rabies Vaccination Caravan"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base focus:outline-none focus:border-amber-500"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Category *
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-amber-500"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>
@@ -198,7 +198,7 @@ export default function AdminBroadcastsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Expiration / End Date *
                 </label>
                 <input
@@ -206,7 +206,7 @@ export default function AdminBroadcastsPage() {
                   required
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-white text-sm focus:outline-none focus:border-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-amber-500"
                 >
                 </input>
               </div>
@@ -214,14 +214,14 @@ export default function AdminBroadcastsPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Full Announcement Narrative *
                 </label>
                 <button
                   type="button"
                   onClick={handleAiSimplify}
                   disabled={aiLoading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-medium transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 dark:border-amber-500/30 dark:text-amber-300 text-xs font-bold transition disabled:opacity-50"
                 >
                   <Sparkles className={`w-3.5 h-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
                   <span>{aiLoading ? 'Generating AI...' : 'AI Simplify & Megaphone'}</span>
@@ -233,14 +233,14 @@ export default function AdminBroadcastsPage() {
                 placeholder="Enter complete announcement details, dates, venue, requirements, and instructions for barangay residents..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-950/60 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                className="w-full p-3.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base focus:outline-none focus:border-amber-500"
               />
             </div>
 
             {/* AI Generated Previews */}
             <div className="space-y-3 pt-2">
               <div>
-                <label className="block text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <label className="block text-xs font-bold text-cyan-800 dark:text-cyan-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Simplified Citizen Summary (Kiosk & Ticker Display)</span>
                 </label>
@@ -249,12 +249,12 @@ export default function AdminBroadcastsPage() {
                   placeholder="Extractive plain-language summary for citizen kiosks..."
                   value={simplifiedSummary}
                   onChange={(e) => setSimplifiedSummary(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-950/40 border border-cyan-500/20 text-slate-200 text-xs focus:outline-none focus:border-cyan-400"
+                  className="w-full p-3 rounded-xl bg-cyan-50/50 dark:bg-slate-950/40 border border-cyan-300 dark:border-cyan-500/20 text-slate-900 dark:text-slate-200 text-sm focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <label className="block text-xs font-bold text-purple-800 dark:text-purple-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <Volume2 className="w-3.5 h-3.5" />
                   <span>Megaphone / Audio Broadcast Script (Barangay Patrol Speaker)</span>
                 </label>
@@ -263,21 +263,21 @@ export default function AdminBroadcastsPage() {
                   placeholder="Audio script for patrol mobile megaphone..."
                   value={audioScript}
                   onChange={(e) => setAudioScript(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-950/40 border border-purple-500/20 text-slate-200 text-xs focus:outline-none focus:border-purple-400"
+                  className="w-full p-3 rounded-xl bg-purple-50/50 dark:bg-slate-950/40 border border-purple-300 dark:border-purple-500/20 text-slate-900 dark:text-slate-200 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-              <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-white/10">
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isPinned}
                   onChange={(e) => setIsPinned(e.target.checked)}
-                  className="w-4 h-4 rounded bg-slate-950 border-white/20 text-amber-500 focus:ring-0"
+                  className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-0"
                 />
                 <span className="flex items-center gap-1">
-                  <Pin className="w-3.5 h-3.5 text-amber-400" />
+                  <Pin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   Pin to top of public portal
                 </span>
               </label>
@@ -285,7 +285,7 @@ export default function AdminBroadcastsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md transition disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
                 <span>{submitting ? 'Publishing...' : 'Publish Broadcast'}</span>
@@ -296,8 +296,8 @@ export default function AdminBroadcastsPage() {
 
         {/* Live Broadcast Feed (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-5 rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
-            <h2 className="text-base font-bold text-white mb-4 flex items-center justify-between">
+          <div className="p-5 rounded-3xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/60 shadow-sm">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center justify-between">
               <span>Active Broadcasts</span>
               <span className="text-xs font-mono text-slate-400">{broadcasts.length} live</span>
             </h2>
@@ -313,23 +313,23 @@ export default function AdminBroadcastsPage() {
                 {broadcasts.map((b) => (
                   <div
                     key={b.id}
-                    className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-2 hover:border-white/15 transition"
+                    className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 space-y-2 hover:border-slate-300 dark:hover:border-white/15 transition"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20">
                         {b.category}
                       </span>
                       {b.is_pinned && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-cyan-400">
-                          <Pin className="w-3 h-3" /> Pinned
+                        <span className="flex items-center gap-1 text-xs font-bold text-cyan-700 dark:text-cyan-400">
+                          <Pin className="w-3.5 h-3.5" /> Pinned
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm text-white">{b.title}</h3>
-                    <p className="text-xs text-slate-400 line-clamp-2">
+                    <h3 className="font-bold text-base text-slate-900 dark:text-white">{b.title}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
                       {b.simplified_summary || b.content}
                     </p>
-                    <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                    <div className="text-xs text-slate-500 flex items-center gap-1 font-medium">
                       <Clock className="w-3 h-3" />
                       <span>Expires: {new Date(b.end_date).toLocaleDateString()}</span>
                     </div>

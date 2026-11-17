@@ -192,9 +192,9 @@
 
   .ambient-orb-1,
   .ambient-orb-2,
-  .ambient-orb-3,
-  .ambient-orb-4 {
-    transform: translateZ(0);
+  .ambient-orb-3 {
+    contain: layout paint;
+    transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
   }
 
@@ -210,11 +210,6 @@
 
   .ambient-orb-3 {
     animation: orb-drift-3 16s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-
-  .ambient-orb-4 {
-    animation: orb-drift-4 20s ease-in-out infinite alternate;
     will-change: transform;
   }
 
@@ -289,18 +284,12 @@
 /* ---- 3. Motion-lite (Save-Data / low-memory phones / manual best:fx=lite):
          keep one-shot reveals, drop ambient loops, ticker loop and cycling. ---- */
 html[data-motion='lite'] .ambient,
-html[data-fx='lite'] .ambient {
-  display: none;
-}
-
-html[data-motion='lite'] .ticker-track,
-html[data-fx='lite'] .ticker-track,
-html[data-motion='lite'] .cycle-3 > *,
-html[data-fx='lite'] .cycle-3 > *,
-html[data-motion='lite'] .ambient-orb,
-html[data-fx='lite'] .ambient-orb,
+html[data-fx='lite'] .ambient,
 html[data-motion='lite'] [class*='ambient-orb-'],
-html[data-fx='lite'] [class*='ambient-orb-'] {
+html[data-fx='lite'] [class*='ambient-orb-'],
+html[data-motion='lite'] .ambient-orb,
+html[data-fx='lite'] .ambient-orb {
+  display: none !important;
   animation: none !important;
 }
 
