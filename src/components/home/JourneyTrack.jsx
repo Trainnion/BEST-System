@@ -5,7 +5,7 @@ import { ClipboardCheck, PackageCheck, Send, ShieldCheck, Wallet } from 'lucide-
 import useInView from '@/lib/hooks/useInView';
 
 /**
- * AI Runtime Request Lifecycle Pipeline (plan Sec. 8.2 + ai-runtime Reference).
+ * Service Request Lifecycle Track (Barangay Daro).
  *
  * Demonstrates the 4-step statutory document lifecycle:
  * 1. Apply: Intake online or at hall counter.
@@ -13,7 +13,7 @@ import useInView from '@/lib/hooks/useInView';
  * 3. Assessment: Fee payment at Treasurer or statutory ₱0 indigency waiver.
  * 4. Pickup: Physical document release with vector QR validation.
  *
- * SVG connection path with compositor-safe drawing, high-contrast dark/light tokens.
+ * High-contrast light and dark styling, zero lag.
  */
 
 const STEPS = [
@@ -56,18 +56,14 @@ export default function JourneyTrack() {
       className="journey cv-auto mx-auto w-full max-w-content px-gutter py-rhythm-6"
       aria-labelledby="journey-title"
     >
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[var(--glass-border)] pb-4">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-slate-300 pb-4 dark:border-white/10">
         <div>
           <h2 id="journey-title" className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-100">
             Civic Service Lifecycle
           </h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Predictable, transparent 4-stage progression for all barangay clearances.
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            Predictable, transparent 4-stage progression for all Barangay Daro document requests.
           </p>
-        </div>
-        <div className="hidden items-center gap-1.5 font-mono text-[11px] text-emerald-600 sm:flex dark:text-emerald-400">
-          <ShieldCheck size={14} />
-          <span>R.A. 11032 Anti-Red Tape Guarantee</span>
         </div>
       </div>
 
@@ -87,7 +83,7 @@ export default function JourneyTrack() {
             fill="none"
             stroke="currentColor"
             strokeWidth="0.8"
-            className="text-cyan-500/40 dark:text-cyan-400/40"
+            className="text-cyan-600/40 dark:text-cyan-400/40"
           />
         </svg>
 
@@ -97,35 +93,35 @@ export default function JourneyTrack() {
             return (
               <li
                 key={step.title}
-                className="journey-node group flex flex-col justify-between rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-fill)] p-4 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/40 dark:hover:border-cyan-400/40"
+                className="journey-node group flex flex-col justify-between rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-cyan-600 hover:shadow-md dark:border-white/10 dark:bg-slate-900 dark:hover:border-cyan-400/40"
                 style={{ '--i': index }}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-600 shadow-sm transition-transform duration-200 group-hover:scale-105 dark:text-cyan-300">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-600/30 bg-cyan-50 text-cyan-800 shadow-sm transition-transform duration-150 group-hover:scale-105 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-300">
                       <Icon size={18} aria-hidden="true" />
                     </span>
-                    <span className="font-mono text-xs font-black text-cyan-600/70 dark:text-cyan-400/70">
+                    <span className="font-mono text-xs font-black text-cyan-800 dark:text-cyan-400">
                       {step.step}
                     </span>
                   </div>
 
                   <div className="mt-3">
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       {step.badge}
                     </p>
                     <h3 className="mt-0.5 text-sm font-bold text-slate-900 dark:text-slate-100">
                       {step.title}
                     </h3>
-                    <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-600 font-medium dark:text-slate-400">
                       {step.copy}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-1.5 border-t border-[var(--glass-border)] pt-2.5 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-500"></span>
-                  <span>Validated by system</span>
+                <div className="mt-4 flex items-center gap-1.5 border-t border-slate-200 pt-2.5 font-mono text-[10px] font-medium text-slate-500 dark:border-white/10 dark:text-slate-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 dark:bg-cyan-400"></span>
+                  <span>Official Hall Window</span>
                 </div>
               </li>
             );

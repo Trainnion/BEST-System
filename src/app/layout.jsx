@@ -1,4 +1,6 @@
-import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource/poppins';
+import '@fontsource/public-sans';
+import '@fontsource/source-sans-3';
 import '@fontsource-variable/jetbrains-mono';
 import '@/styles/globals.css';
 import '@/styles/motion.css';

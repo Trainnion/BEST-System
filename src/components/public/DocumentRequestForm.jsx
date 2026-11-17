@@ -364,10 +364,10 @@ export default function DocumentRequestForm() {
               <label
                 key={option.value}
                 className={
-                  'tap-target flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ' +
+                  'tap-target flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition ' +
                   (active
-                    ? 'border-cyan-500/60 bg-cyan-500/10 dark:border-cyan-400/60 dark:bg-cyan-400/10'
-                    : 'border-[var(--glass-border)] bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/[0.04] dark:hover:border-white/25')
+                    ? 'border-cyan-600 bg-cyan-50 ring-1 ring-cyan-600 dark:border-cyan-400/60 dark:bg-cyan-400/10 dark:ring-0'
+                    : 'border-slate-300 bg-white hover:border-slate-400 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/25')
                 }
               >
                 <input
@@ -376,16 +376,16 @@ export default function DocumentRequestForm() {
                   value={option.value}
                   checked={active}
                   onChange={() => setDocumentType(option.value)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-cyan-500"
+                  className="mt-1 h-4 w-4 shrink-0 accent-cyan-600 dark:accent-cyan-400"
                 />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <span className="block text-sm font-bold text-slate-900 dark:text-slate-100">
                     {option.title}
                   </span>
                   <span className="mt-0.5 block text-xs leading-relaxed text-slate-600 dark:text-slate-400">
                     {option.blurb}
                   </span>
-                  <span className="mt-1 block text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+                  <span className="mt-1 block text-xs font-bold text-cyan-800 dark:text-cyan-300">
                     Fee: {peso(option.fee)}
                   </span>
                 </span>
@@ -437,15 +437,15 @@ export default function DocumentRequestForm() {
         </Field>
       </div>
 
-      <div className="mt-4 rounded-xl border border-[var(--glass-border)] bg-slate-100/60 p-3 text-sm text-slate-700 dark:bg-white/[0.04] dark:text-slate-300">
+      <div className="mt-4 rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm text-slate-800 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
         Fee before you send:{' '}
-        <span className="font-semibold text-slate-900 dark:text-slate-100">{peso(FEES[documentType])}</span>
+        <span className="font-bold text-slate-900 dark:text-slate-100">{peso(FEES[documentType])}</span>
         {documentType === 'CLEARANCE' ? ' - settled at the treasury counter.' : ' - no fee.'}
       </div>
 
       {formError ? (
         <p
-          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-600 dark:text-rose-300"
+          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-700 dark:text-rose-300"
           role="alert"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -457,7 +457,7 @@ export default function DocumentRequestForm() {
         type="submit"
         disabled={submitting}
         aria-busy={submitting ? 'true' : 'false'}
-        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-white transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70 dark:bg-cyan-400 dark:text-slate-950"
+        className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 font-bold text-white shadow-sm transition hover:bg-cyan-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
       >
         {submitting ? (
           <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -467,7 +467,7 @@ export default function DocumentRequestForm() {
         {submitting ? 'Sending...' : 'Submit request'}
       </button>
 
-      <p className="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+      <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
         Your purpose and CTC number are encrypted on the server before they are stored.
       </p>
     </form>

@@ -16,42 +16,42 @@ import {
 import useInView from '@/lib/hooks/useInView';
 
 /**
- * AI Runtime Civic Bento Grid (plan Sec. 8.2 + ai-runtime Reference).
+ * Civic Action Bento Grid (Barangay Daro).
  *
- * Asymmetric bento grid with individual semantic color accents:
- * - Document Request: Featured wide card with Emerald/Cyan gradient.
- * - Anonymous Blotter: Rose encrypted intake badge.
+ * High-contrast, zero-lag bento grid with individual semantic color accents:
+ * - Document Request: Featured wide card with Emerald highlight.
+ * - Anonymous Blotter: Rose intake badge.
  * - Business Clearance: Amber in-person Treasurer screening badge.
  * - Kaagapay AI Concierge: Purple civic assistant badge.
  * - Digital Barangay ID: Violet view-only badge.
  *
- * Full dark and light theme fidelity, compositor-only hover lift, accessible focus rings.
+ * Full dark and light theme fidelity, solid white cards on light canvas.
  */
 
 const ACTIONS = [
   {
     href: '/services/request',
     label: 'Request a document',
-    copy: 'Barangay clearance or certificate of indigency, filed online on the local network or at the counter window.',
+    copy: 'Barangay clearance or certificate of indigency, filed online or at the hall window.',
     icon: FileText,
     featured: true,
     tag: 'R.A. 11261 ₱0 Eligible',
     theme: {
-      border: 'border-emerald-500/30 hover:border-emerald-500/50',
-      iconBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-      badge: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+      border: 'border-slate-300 hover:border-emerald-600 dark:border-emerald-500/30 dark:hover:border-emerald-500/50',
+      iconBg: 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+      badge: 'bg-emerald-100 text-emerald-950 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30',
     },
   },
   {
     href: '/track',
     label: 'Track a request',
-    copy: 'Check live review and pickup status with your 12-character tracking code.',
+    copy: 'Check review and pickup status with your 12-character tracking code.',
     icon: Search,
-    tag: 'Anonymous Lookups',
+    tag: 'Public Lookup',
     theme: {
-      border: 'border-cyan-500/30 hover:border-cyan-500/50',
-      iconBg: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
-      badge: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
+      border: 'border-slate-300 hover:border-cyan-600 dark:border-cyan-500/30 dark:hover:border-cyan-500/50',
+      iconBg: 'bg-cyan-50 text-cyan-800 border-cyan-300 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20',
+      badge: 'bg-cyan-100 text-cyan-950 border-cyan-300 dark:bg-cyan-500/10 dark:text-cyan-300 dark:border-cyan-500/30',
     },
   },
   {
@@ -59,11 +59,11 @@ const ACTIONS = [
     label: 'File a blotter report',
     copy: 'Confidential incident intake encrypted on the server with zero IP logging.',
     icon: ShieldAlert,
-    tag: 'AES-256 Encrypted',
+    tag: 'Encrypted Intake',
     theme: {
-      border: 'border-rose-500/30 hover:border-rose-500/50',
-      iconBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
-      badge: 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30',
+      border: 'border-slate-300 hover:border-rose-600 dark:border-rose-500/30 dark:hover:border-rose-500/50',
+      iconBg: 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
+      badge: 'bg-rose-100 text-rose-950 border-rose-300 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/30',
     },
   },
   {
@@ -73,9 +73,9 @@ const ACTIONS = [
     icon: Store,
     tag: 'Treasurer Screening',
     theme: {
-      border: 'border-amber-500/30 hover:border-amber-500/50',
-      iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-      badge: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      border: 'border-slate-300 hover:border-amber-600 dark:border-amber-500/30 dark:hover:border-amber-500/50',
+      iconBg: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+      badge: 'bg-amber-100 text-amber-950 border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30',
     },
   },
   {
@@ -85,33 +85,33 @@ const ACTIONS = [
     icon: IdCard,
     tag: 'View-Only',
     theme: {
-      border: 'border-indigo-500/30 hover:border-indigo-500/50',
-      iconBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
-      badge: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+      border: 'border-slate-300 hover:border-indigo-600 dark:border-indigo-500/30 dark:hover:border-indigo-500/50',
+      iconBg: 'bg-indigo-50 text-indigo-800 border-indigo-300 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+      badge: 'bg-indigo-100 text-indigo-950 border-indigo-300 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30',
     },
   },
   {
     href: '/broadcasts',
     label: 'Announcements',
-    copy: 'Ayuda, community health drives, scholarship schedules, and urgent notices.',
+    copy: 'Ayuda, health drives, scholarship schedules, and urgent community bulletins.',
     icon: Megaphone,
     tag: 'Public Notices',
     theme: {
-      border: 'border-sky-500/30 hover:border-sky-500/50',
-      iconBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
-      badge: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30',
+      border: 'border-slate-300 hover:border-sky-600 dark:border-sky-500/30 dark:hover:border-sky-500/50',
+      iconBg: 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20',
+      badge: 'bg-sky-100 text-sky-950 border-sky-300 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30',
     },
   },
   {
     href: '/directory',
     label: 'Barangay directory',
-    copy: 'Official contact list of Barangay Kagawads, SK Federation, and hall staff.',
+    copy: 'Official contact list of Barangay Daro Kagawads, SK Federation, and hall staff.',
     icon: Users,
     tag: 'Hall Staff',
     theme: {
-      border: 'border-teal-500/30 hover:border-teal-500/50',
-      iconBg: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
-      badge: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/30',
+      border: 'border-slate-300 hover:border-teal-600 dark:border-teal-500/30 dark:hover:border-teal-500/50',
+      iconBg: 'bg-teal-50 text-teal-800 border-teal-300 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20',
+      badge: 'bg-teal-100 text-teal-950 border-teal-300 dark:bg-teal-500/10 dark:text-teal-300 dark:border-teal-500/30',
     },
   },
   {
@@ -121,9 +121,9 @@ const ACTIONS = [
     icon: Sparkles,
     tag: 'Civic Assistant',
     theme: {
-      border: 'border-purple-500/30 hover:border-purple-500/50',
-      iconBg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-      badge: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30',
+      border: 'border-slate-300 hover:border-purple-600 dark:border-purple-500/30 dark:hover:border-purple-500/50',
+      iconBg: 'bg-purple-50 text-purple-800 border-purple-300 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20',
+      badge: 'bg-purple-100 text-purple-950 border-purple-300 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/30',
     },
   },
 ];
@@ -136,17 +136,14 @@ export default function QuickActionGrid() {
       className="cv-auto mx-auto w-full max-w-content px-gutter py-rhythm-6"
       aria-labelledby="quick-actions-title"
     >
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[var(--glass-border)] pb-4">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-slate-300 pb-4 dark:border-white/10">
         <div>
           <h2 id="quick-actions-title" className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-100">
-            Citizen Action Hub
+            Barangay Daro Services Hub
           </h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Eight essential barangay e-services, unified under one offline-capable counter.
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            Seven essential public services, accessible online or at the barangay hall counter.
           </p>
-        </div>
-        <div className="hidden items-center gap-2 font-mono text-[11px] text-slate-500 sm:flex dark:text-slate-400">
-          <span>● R.A. 7160 / 11032 COMPLIANT</span>
         </div>
       </div>
 
@@ -156,7 +153,7 @@ export default function QuickActionGrid() {
       >
         {ACTIONS.map((action, index) => {
           const Icon = action.icon;
-          const linkClass = `group relative flex h-full flex-col rounded-2xl border bg-[var(--glass-fill)] p-4 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+          const linkClass = `group relative flex h-full flex-col rounded-2xl border bg-white p-4 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-slate-900 dark:border-white/10 ${
             action.theme.border
           } ${action.featured ? 'justify-between sm:col-span-2 sm:row-span-2 p-5 sm:p-6' : 'gap-3'}`;
 
@@ -164,7 +161,7 @@ export default function QuickActionGrid() {
             <>
               <div className="flex items-start justify-between gap-2">
                 <span
-                  className={`inline-flex items-center justify-center rounded-xl border p-2.5 transition-transform duration-200 group-hover:scale-105 ${
+                  className={`inline-flex items-center justify-center rounded-xl border p-2.5 transition-transform duration-150 group-hover:scale-105 ${
                     action.theme.iconBg
                   } ${action.featured ? 'h-12 w-12' : 'h-10 w-10'}`}
                 >
@@ -172,7 +169,7 @@ export default function QuickActionGrid() {
                 </span>
 
                 <span
-                  className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase ${action.theme.badge}`}
+                  className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider uppercase ${action.theme.badge}`}
                 >
                   {action.tag}
                 </span>
@@ -180,14 +177,14 @@ export default function QuickActionGrid() {
 
               <div className="flex flex-col gap-1.5 mt-2">
                 <span
-                  className={`font-bold tracking-tight text-slate-900 transition-colors group-hover:text-cyan-600 dark:text-slate-100 dark:group-hover:text-cyan-300 ${
+                  className={`font-bold tracking-tight text-slate-900 transition-colors group-hover:text-cyan-700 dark:text-slate-100 dark:group-hover:text-cyan-300 ${
                     action.featured ? 'text-lg sm:text-xl' : 'text-sm'
                   }`}
                 >
                   {action.label}
                 </span>
                 <span
-                  className={`leading-relaxed text-slate-600 dark:text-slate-400 ${
+                  className={`leading-relaxed text-slate-600 font-medium dark:text-slate-400 ${
                     action.featured ? 'text-sm' : 'text-xs'
                   }`}
                 >
@@ -196,18 +193,18 @@ export default function QuickActionGrid() {
               </div>
 
               {action.featured ? (
-                <div className="mt-4 flex items-center justify-between border-t border-[var(--glass-border)] pt-3">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-600 dark:text-cyan-300">
+                <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 dark:border-white/10">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-300">
                     File Application Online
                     <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </span>
-                  <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                  <span className="font-mono text-[11px] font-semibold text-slate-600 dark:text-slate-400">
                     Est. 5-7 mins
                   </span>
                 </div>
               ) : (
                 <div className="mt-auto flex items-center justify-end pt-1">
-                  <span className="text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cyan-500 dark:text-slate-500">
+                  <span className="text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cyan-700 dark:text-slate-500">
                     <ArrowUpRight size={14} aria-hidden="true" />
                   </span>
                 </div>

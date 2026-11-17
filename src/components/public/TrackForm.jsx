@@ -115,7 +115,7 @@ export default function TrackForm() {
         <button
           type="submit"
           disabled={phase === 'loading' || !code.trim()}
-          className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          className="tap-target mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 font-bold text-white shadow-sm transition hover:bg-cyan-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
         >
           {phase === 'loading' ? (
             <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />

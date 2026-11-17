@@ -23,7 +23,7 @@ export default function PrintIndigency({ documentData }) {
             <div className="text-xs uppercase tracking-wider">Province of Laguna</div>
             <div className="text-xs uppercase tracking-wider">Municipality / City of Santa Rosa</div>
             <div className="text-sm font-bold uppercase tracking-widest mt-1">
-              BARANGAY SAN GABRIEL
+              BARANGAY DARO
             </div>
             <div className="text-xs font-semibold tracking-wide italic mt-0.5">
               OFFICE OF THE PUNONG BARANGAY
@@ -49,7 +49,7 @@ export default function PrintIndigency({ documentData }) {
               <strong className="uppercase underline font-bold">{residentName}</strong>, of legal age,{' '}
               {resident.civil_status ? resident.civil_status.toLowerCase() : 'single'}, Filipino, is a bona fide
               resident of {resident.street_address ? `${resident.street_address}, ` : ''}
-              {resident.purok || 'Purok 1'}, Barangay San Gabriel.
+              {resident.purok || 'Purok 1'}, Barangay Daro.
             </p>
 
             <p className="indent-8">
@@ -69,7 +69,7 @@ export default function PrintIndigency({ documentData }) {
 
             <p className="indent-8">
               Issued this <strong>{day}th</strong> day of <strong>{month}</strong>, <strong>{year}</strong>{' '}
-              at the Office of the Punong Barangay, Barangay San Gabriel.
+              at the Office of the Punong Barangay, Barangay Daro.
             </p>
 
             <p className="text-xs italic text-black/70">

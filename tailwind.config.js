@@ -76,12 +76,28 @@ export default {
       },
       fontFamily: {
         sans: [
-          '"Plus Jakarta Sans Variable"',
-          '"Plus Jakarta Sans"',
+          '"Public Sans"',
+          '"Source Sans 3"',
+          '"Source Sans Pro"',
           'ui-sans-serif',
           'system-ui',
           '-apple-system',
           '"Segoe UI"',
+          'sans-serif',
+        ],
+        display: [
+          '"Poppins"',
+          '"Public Sans"',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
+        body: [
+          '"Source Sans 3"',
+          '"Source Sans Pro"',
+          '"Public Sans"',
+          'ui-sans-serif',
+          'system-ui',
           'sans-serif',
         ],
         mono: [

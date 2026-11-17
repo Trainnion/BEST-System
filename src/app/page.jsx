@@ -38,27 +38,28 @@ export default async function HomePage() {
   const stats = await loadStats();
 
   return (
-    <main id="main" className="relative bg-runtime-grid min-h-screen">
+    <main id="main" className="relative min-h-screen">
       <HeroAnimated />
+      <BroadcastTicker />
 
-      {/* S2 - aggregate counters with ai-runtime telemetry styling */}
+      {/* S2 - aggregate counters */}
       <section
         className="mx-auto w-full max-w-content px-gutter py-rhythm-4"
         aria-labelledby="stats-title"
       >
-        <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-fill)] p-5 shadow-sm backdrop-blur-sm sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--glass-border)] pb-3">
+        <div className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm sm:p-6 dark:border-white/10 dark:bg-slate-900">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse"></span>
+              <span className="h-2 w-2 rounded-full bg-cyan-600 dark:bg-cyan-400"></span>
               <h2
                 id="stats-title"
-                className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300"
+                className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-cyan-300"
               >
-                Municipal Throughput Telemetry
+                Barangay Daro Services at a Glance
               </h2>
             </div>
-            <p className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
-              Aggregated statistics · Zero resident PII transmitted
+            <p className="font-mono text-[11px] font-medium text-slate-600 dark:text-slate-400">
+              Official public aggregates · Zero personal data transmitted
             </p>
           </div>
 
@@ -91,7 +92,6 @@ export default async function HomePage() {
 
       <QuickActionGrid />
       <JourneyTrack />
-      <BroadcastTicker />
     </main>
   );
 }
