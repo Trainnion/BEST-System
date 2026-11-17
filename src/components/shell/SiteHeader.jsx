@@ -20,8 +20,7 @@ import useMotionPreference from '@/lib/hooks/useMotionPreference';
  *
  * Fast, lightweight floating island dock for Barangay Daro:
  * - Floating centered island dock geometry with rounded-full pill elevation.
- * - Live sovereign status indicator (Offline-Ready Local Network).
- * - Instant Dark/Light theme switcher with zero layout shift.
+ * - Instant Dark/Light theme switcher and Performance Tier (Lite/Full) toggle.
  * - Quick "Track" action pill for instant citizen access.
  * - Responsive mobile island drawer with grouped civic actions.
  */
@@ -63,10 +62,10 @@ export default function SiteHeader() {
 
   return (
     <div className="site-header sticky top-3.5 z-40 px-3 sm:px-6">
-      <header className="mx-auto w-full max-w-5xl rounded-full border border-slate-300 bg-white/95 px-3.5 py-1.5 shadow-md transition-all sm:px-4 sm:py-2 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-lg dark:shadow-black/20">
+      <header className="mx-auto w-full max-w-6xl rounded-full border border-slate-300 bg-white/95 px-3.5 py-1.5 shadow-md transition-all sm:px-5 sm:py-2 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-lg dark:shadow-black/20">
         <div className="flex items-center justify-between gap-2">
           {/* Left: Brand + Barangay Daro Beacon */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex shrink-0 items-center gap-2.5">
             <Link
               href="/"
               className="flex shrink-0 items-center gap-2 rounded-full py-1 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:text-slate-50"
@@ -83,12 +82,6 @@ export default function SiteHeader() {
                 </span>
               </span>
             </Link>
-
-            {/* Offline-Ready Status Beacon */}
-            <div className="hidden items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-0.5 text-xs font-mono font-bold text-emerald-800 sm:inline-flex dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
-              <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
-              <span className="tracking-wide uppercase">LOCAL NETWORK ACTIVE</span>
-            </div>
           </div>
 
           {/* Center: Primary Navigation Links */}
@@ -113,7 +106,7 @@ export default function SiteHeader() {
           </nav>
 
           {/* Right: Quick Action Pill + Performance Tier (Lite/Full) + Theme Switcher + Mobile Trigger */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Quick Track Pill */}
             <Link
               href="/track"

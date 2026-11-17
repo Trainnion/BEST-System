@@ -30,10 +30,6 @@ export default function HeroAnimated() {
               <ShieldCheck size={15} aria-hidden="true" />
               Barangay Daro E-Services
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-3 py-1 text-xs font-mono font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
-              <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
-              Offline-Ready
-            </span>
           </div>
 
           {/* Large Headline */}
