@@ -1,0 +1,43 @@
+{
+  "name": "best-barangay-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Barangay E-Services System Terminal [BEST] - offline-first citizen services on the barangay LAN",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "postbuild": "node scripts/gen-precache.js",
+    "start": "next start",
+    "check:policy": "node scripts/check-agent-policy.js",
+    "check:demo-creds": "node scripts/check-no-demo-creds.js",
+    "bootstrap:admin": "node scripts/bootstrap-admin.js",
+    "keys:generate": "node scripts/generate-field-key.js",
+    "test:restore": "bash scripts/test-restore.sh",
+    "test:e2e": "playwright test",
+    "bundle:offline": "bash scripts/make-offline-bundle.sh"
+  },
+  "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "5.3.0",
+    "@prisma/client": "5.21.1",
+    "bcryptjs": "2.4.3",
+    "jose": "5.9.6",
+    "jsbarcode": "3.11.6",
+    "lucide-react": "0.453.0",
+    "next": "14.2.25",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.48.1",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.47",
+    "prisma": "5.21.1",
+    "tailwindcss": "3.4.14"
+  }
+}

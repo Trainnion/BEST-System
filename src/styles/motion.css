@@ -1,0 +1,353 @@
+/* BEST - motion tokens, keyframes and the reduced-motion contract (plan Sec. 3.3).
+   Compositor-only: every keyframe animates transform and/or opacity.
+   Rule order matters: tokens -> keyframes -> no-motion baseline -> opt-in motion ->
+   reduced motion -> motion-lite -> pause -> print. */
+
+:root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-base: 600ms;
+  --dur-slow: 1200ms;
+  --cycle: 9.6s;
+  --ticker-dur: 40s;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes orb-drift {
+  to {
+    transform: translate3d(var(--dx, 6vw), var(--dy, -4vh), 0) scale(1.12);
+  }
+}
+
+@keyframes draw-path {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes node-glow {
+  from {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-ring {
+  from {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes ticker {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* One of three stacked children is visible at a time. */
+@keyframes cycle-3 {
+  0%,
+  4% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  8%,
+  30% {
+    opacity: 1;
+    transform: none;
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+/* ---- Baselines (no motion): everything readable in its final state. ---- */
+.cycle-3 {
+  position: relative;
+}
+
+.cycle-3 > * {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.cycle-3 > :first-child {
+  opacity: 1;
+  position: relative;
+}
+
+.journey-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+}
+
+/* ---- 1. Motion is opt-in. "Before" states exist ONLY when JS ran (html.js) AND
+         motion is allowed, so content is never stuck invisible without JS or
+         under reduced motion / motion-lite. ---- */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal]:not(.is-visible) {
+    opacity: 0;
+  }
+
+  [data-reveal].is-visible {
+    animation: rise-in var(--dur-base) var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  .ambient-orb {
+    animation: orb-drift 32s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .cycle-3 > * {
+    animation: cycle-3 var(--cycle, 9.6s) linear infinite both;
+    animation-delay: calc(var(--i, 0) * var(--cycle, 9.6s) / 3);
+  }
+
+  .ticker-track {
+    animation: ticker var(--ticker-dur, 40s) linear infinite;
+  }
+
+  html.js .journey:not(.is-visible) .journey-path {
+    stroke-dashoffset: 1;
+  }
+
+  .journey.is-visible .journey-path {
+    animation: draw-path 1.6s var(--ease-out-expo) forwards;
+  }
+
+  .journey.is-visible .journey-node {
+    animation: node-glow var(--dur-base) var(--ease-spring) both;
+    animation-delay: calc(var(--i, 0) * 350ms);
+  }
+
+  /* 3 pulse rings, then stop. */
+  .cta-pulse::after {
+    animation: pulse-ring 2.8s ease-out 3;
+  }
+}
+
+/* ---- 2. Reduced motion: no animation anywhere; final, readable state. ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+  }
+
+  .ticker-track {
+    animation: none !important;
+    width: auto;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .ticker-track [data-dup] {
+    display: none;
+  }
+
+  .cycle-3 > * {
+    position: relative;
+    opacity: 1;
+    transform: none;
+  }
+
+  .cycle-3 > :not(:first-child) {
+    display: none;
+  }
+
+  .journey-path {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ---- 3. Motion-lite (Save-Data / low-memory phones / manual best:fx=lite):
+         keep one-shot reveals, drop ambient loops, ticker loop and cycling. ---- */
+html[data-motion='lite'] .ambient,
+html[data-fx='lite'] .ambient {
+  display: none;
+}
+
+html[data-motion='lite'] .ticker-track,
+html[data-fx='lite'] .ticker-track,
+html[data-motion='lite'] .cycle-3 > *,
+html[data-fx='lite'] .cycle-3 > *,
+html[data-motion='lite'] .ambient-orb,
+html[data-fx='lite'] .ambient-orb {
+  animation: none !important;
+}
+
+html[data-motion='lite'] .ticker-track [data-dup],
+html[data-fx='lite'] .ticker-track [data-dup] {
+  display: none;
+}
+
+html[data-motion='lite'] .ticker-track,
+html[data-fx='lite'] .ticker-track {
+  width: auto;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+html[data-motion='lite'] .cycle-3 > *,
+html[data-fx='lite'] .cycle-3 > * {
+  position: relative;
+  opacity: 1;
+  transform: none;
+}
+
+html[data-motion='lite'] .cycle-3 > :not(:first-child),
+html[data-fx='lite'] .cycle-3 > :not(:first-child) {
+  display: none;
+}
+
+/* ---- 4. Pause when off-screen or tab hidden (useInView / visibilitychange). ---- */
+[data-paused='true'] .ambient-orb,
+[data-paused='true'] .ticker-track,
+[data-paused='true'] .cycle-3 > *,
+[data-paused='true'] .cta-pulse::after {
+  animation-play-state: paused;
+}
+
+/* ---- 5. Print: zero motion, zero decoration (supports NFR-05). The print layout
+         itself is owned by print.css (WP-15); this block only kills motion. ---- */
+@media print {
+  .ambient,
+  .ticker,
+  .cycle-3 > :not(:first-child) {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+  }
+
+  .journey-path {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* =====================================================================
+   Homepage entrance timeline (plan Sec. 8.3) - appended by WP-07.
+   Every "before" state below is gated on html.js (the inline bootstrap) and
+   on prefers-reduced-motion: no-preference, so a no-JS or reduced-motion
+   visitor sees the final layout and never an invisible headline.
+   ===================================================================== */
+
+.hero-word {
+  display: inline-block;
+}
+
+/* Pulse rings for the primary CTA. The element is the ring itself; the
+   keyframes (3 iterations, then stop) live in section 1 above. */
+.cta-pulse {
+  position: relative;
+}
+
+.cta-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 100 ms: headline words rise, 70 ms stagger (plan Sec. 8.3). */
+  html.js .hero-word {
+    animation: rise-in 620ms var(--ease-out-expo) both;
+    animation-delay: calc(100ms + var(--i, 0) * 70ms);
+  }
+
+  /* 500 ms: sub-headline and greeting. */
+  html.js .hero-sub {
+    animation: fade-in 520ms var(--ease-out-expo) both;
+    animation-delay: 500ms;
+  }
+
+  /* 700 ms: CTAs spring in. */
+  html.js .hero-cta {
+    animation: rise-in 640ms var(--ease-spring) both;
+    animation-delay: 700ms;
+  }
+
+  /* The ring belongs to the CTA wrapper, so align it with the CTA entrance. */
+  html.js .cta-pulse::after {
+    animation-delay: 700ms;
+  }
+
+  /* 900 ms: the sample ticket card slides in. */
+  html.js .hero-ticket {
+    animation: rise-in 680ms var(--ease-out-expo) both;
+    animation-delay: 900ms;
+  }
+
+  /* Quick actions: one-shot stagger on first view, driven by useInView. */
+  html.js .qa-grid:not(.is-visible) .qa-card {
+    opacity: 0;
+  }
+
+  html.js .qa-grid.is-visible .qa-card {
+    animation: rise-in var(--dur-base) var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+}
+
+/* Lite drops the decorative pulse; the entrance itself is one-shot and stays.
+   The finite ring would still cost paint on entry-level GPUs. */
+html[data-motion='lite'] .cta-pulse::after,
+html[data-fx='lite'] .cta-pulse::after {
+  animation: none !important;
+}

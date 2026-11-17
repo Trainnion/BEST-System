@@ -1,0 +1,385 @@
+/**
+ * BEST - IndexedDB outbox (WP-09, plan Sec. 7.4).
+ *
+ * Offline submissions queue here and replay oldest-first when the hall
+ * server is reachable again. The Service Worker never touches POST
+ * requests; replay runs from the open page so it works everywhere,
+ * including iOS Safari (no Background Sync).
+ *
+ * Database `best-outbox`, store `requests`, entry shape:
+ *   { id, kind: 'document'|'business'|'blotter', payload, created_at,
+ *     attempts, status: 'PENDING'|'SENDING'|'NEEDS_ATTENTION'|'NEEDS_LOGIN',
+ *     last_error, next_attempt_at }
+ *
+ * Rules (Sec. 7.4 / Sec. 6.4):
+ *  - Max 10 entries; when full the OLDEST non-sending entry is evicted.
+ *  - 7-day TTL pruning on every open/list/enqueue.
+ *  - Exponential backoff 5s -> 5min on network failures.
+ *  - Any 4xx is final: NEEDS_ATTENTION, never retried - EXCEPT 401 on
+ *    resident-bound requests, which parks as NEEDS_LOGIN until the next
+ *    sign-in (the page calls replayOutbox() after login).
+ *  - 201 (or an idempotent 200) deletes the entry immediately.
+ *  - A queued blotter report never reuses the proof from filing time: the
+ *    replay fetches a FRESH challenge, solves it on this device and sends
+ *    it with the report. If a fresh proof cannot be obtained deterministically
+ *    (4xx from the challenge endpoint), the entry is parked as
+ *    NEEDS_ATTENTION; a transient failure retries with the usual backoff.
+ *  - Kiosk mode (NEXT_PUBLIC_KIOSK=1): every call resolves to a disabled
+ *    result and never touches IndexedDB.
+ *  - Never stored: passwords, session data, admin data or unmasked PII.
+ *
+ * Client-side helper. Exports exactly the names WP-08 imports:
+ *   OUTBOX_EVENT, enqueue, listOutbox, removeEntry, replayOutbox
+ */
+
+import { solveProofOfWork } from '../blotter/pow-client.js';
+
+export const OUTBOX_EVENT = 'best:outbox';
+
+const DB_NAME = 'best-outbox';
+const STORE_NAME = 'requests';
+const MAX_ENTRIES = 10;
+const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const BASE_BACKOFF_MS = 5000; // 5 s
+const MAX_BACKOFF_MS = 5 * 60 * 1000; // 5 min
+
+/** Replay endpoints per kind (Sec. 6.4). Blotter dedupes via a header. */
+const ENDPOINTS = {
+  document: '/api/documents',
+  business: '/api/business',
+  blotter: '/api/blotter',
+};
+
+/** Kinds whose request carries a resident session on replay. */
+const RESIDENT_BOUND = new Set(['document', 'business']);
+
+/** Keys that must never be persisted even if a caller passes them. */
+const FORBIDDEN_PAYLOAD_KEYS = ['password', 'session', 'cookie', 'token'];
+
+/** Kiosk mode reads a build-time public env var only. */
+function isKiosk() {
+  return typeof process !== 'undefined' && process.env.NEXT_PUBLIC_KIOSK === '1';
+}
+
+function dispatchOutboxEvent() {
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new CustomEvent(OUTBOX_EVENT));
+  }
+}
+
+function sanitizePayload(payload) {
+  if (!payload || typeof payload !== 'object') return {};
+  const clean = {};
+  for (const [key, value] of Object.entries(payload)) {
+    if (FORBIDDEN_PAYLOAD_KEYS.includes(key.toLowerCase())) continue;
+    clean[key] = value;
+  }
+  return clean;
+}
+
+/** Open the DB (creating the store once). Null when unavailable. */
+function openDb() {
+  if (typeof indexedDB === 'undefined' || isKiosk()) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      // A failed open means the outbox is unavailable; never throw.
+      request.onerror = () => resolve(null);
+      request.onblocked = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function tx(db, mode) {
+  return db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
+}
+
+function reqAsPromise(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('IndexedDB error'));
+  });
+}
+
+/** Drop entries older than the TTL. Best effort. */
+async function pruneExpired(db) {
+  try {
+    const store = tx(db, 'readwrite');
+    const all = await reqAsPromise(store.getAll());
+    const now = Date.now();
+    for (const entry of all) {
+      if (!entry || typeof entry.created_at !== 'number') continue;
+      if (now - entry.created_at > TTL_MS) store.delete(entry.id);
+    }
+  } catch {
+    // Pruning is best effort.
+  }
+}
+
+/**
+ * Queue an offline submission.
+ *
+ * @param {'document'|'business'|'blotter'} kind
+ * @param {object} payload request body (no passwords, no session data)
+ * @param {string} clientRequestId UUID v4 generated by the caller; it is
+ *   also the outbox id, so replay is idempotent on the server
+ * @returns {Promise<{ok: boolean, entry?: object, disabled?: boolean,
+ *                     evicted?: object|null, error?: string}>}
+ */
+export async function enqueue(kind, payload, clientRequestId) {
+  if (isKiosk()) return { ok: false, disabled: true };
+  if (!ENDPOINTS[kind]) {
+    return { ok: false, error: `Unknown outbox kind "${kind}".` };
+  }
+  const id = String(clientRequestId || '').trim();
+  if (!id) return { ok: false, error: 'A client_request_id is required.' };
+
+  const db = await openDb();
+  if (!db) return { ok: false, disabled: true, error: 'Storage is unavailable on this device.' };
+
+  await pruneExpired(db);
+
+  let evicted = null;
+  const store = tx(db, 'readwrite');
+  const existing = await reqAsPromise(store.getAll());
+  const fresh = existing
+    .filter(Boolean)
+    .sort((a, b) => a.created_at - b.created_at);
+
+  if (fresh.some((entry) => entry.id === id)) {
+    return { ok: false, error: 'This client_request_id is already in the outbox.' };
+  }
+
+  while (fresh.length >= MAX_ENTRIES) {
+    const oldest = fresh.shift();
+    if (!oldest) break;
+    if (oldest.status === 'SENDING') continue; // never evict an in-flight entry
+    store.delete(oldest.id);
+    evicted = { id: oldest.id, kind: oldest.kind };
+    break;
+  }
+
+  const entry = {
+    id,
+    kind,
+    payload: sanitizePayload(payload),
+    created_at: Date.now(),
+    attempts: 0,
+    status: 'PENDING',
+    last_error: null,
+    next_attempt_at: 0,
+  };
+  try {
+    await reqAsPromise(store.put(entry));
+    dispatchOutboxEvent();
+    return { ok: true, entry, evicted };
+  } catch (error) {
+    return { ok: false, error: `Could not save the request on this device: ${error?.message || 'storage error'}` };
+  }
+}
+
+/**
+ * List all entries, oldest first.
+ * @returns {Promise<Array>}
+ */
+export async function listOutbox() {
+  if (isKiosk()) return [];
+  const db = await openDb();
+  if (!db) return [];
+  await pruneExpired(db);
+  try {
+    const all = await reqAsPromise(tx(db, 'readonly').getAll());
+    return all.filter(Boolean).sort((a, b) => a.created_at - b.created_at);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Remove one entry by id.
+ * @param {string} id
+ * @returns {Promise<{ok: boolean, disabled?: boolean, error?: string}>}
+ */
+export async function removeEntry(id) {
+  if (isKiosk()) return { ok: false, disabled: true };
+  const db = await openDb();
+  if (!db) return { ok: false, disabled: true };
+  try {
+    await reqAsPromise(tx(db, 'readwrite').delete(String(id)));
+    dispatchOutboxEvent();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: `Could not remove the entry: ${error?.message || 'storage error'}` };
+  }
+}
+
+/**
+ * Obtain a FRESH proof-of-work for a queued blotter report.
+ *
+ * The proof from filing time expires after five minutes, so it is never
+ * reused on replay. The plaintext stays on this device until the report is
+ * accepted; purging happens in replayOne() on a 2xx answer.
+ *
+ * @returns {Promise<{nonce: string, solution: string, signature: string}>}
+ * @throws {Error & {powHttpStatus?: number}} network/5xx and challenge-shape
+ *   failures are retryable; a 4xx answer from the challenge endpoint is
+ *   deterministic and carries `powHttpStatus`.
+ */
+async function freshBlotterPow() {
+  const challengeResponse = await fetch('/api/blotter/challenge', { cache: 'no-store' });
+  if (!challengeResponse.ok) {
+    const error = new Error(`The proof challenge request failed with code ${challengeResponse.status}.`);
+    error.powHttpStatus = challengeResponse.status;
+    throw error;
+  }
+  const challenge = await challengeResponse.json();
+  if (
+    !challenge ||
+    typeof challenge.nonce !== 'string' ||
+    typeof challenge.signature !== 'string'
+  ) {
+    throw new Error('The proof challenge could not be read.');
+  }
+  const difficulty = Number.isFinite(Number(challenge.difficulty)) ? Number(challenge.difficulty) : 4;
+  const solution = await solveProofOfWork(challenge.nonce, difficulty);
+  return { nonce: challenge.nonce, solution, signature: challenge.signature };
+}
+
+/** One replay attempt for one entry. Returns the updated entry (or null when deleted). */
+async function replayOne(db, entry) {
+  const store = tx(db, 'readwrite');
+  const isResidentBound = RESIDENT_BOUND.has(entry.kind);
+
+  // Mark as sending so a concurrent page cannot double-replay it.
+  entry.status = 'SENDING';
+  entry.last_error = null;
+  await reqAsPromise(store.put(entry));
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (entry.kind === 'blotter') {
+      // Blotter dedup uses a header only (24h in-memory, hashed server-side).
+      headers['X-Client-Request-Id'] = entry.id;
+    }
+
+    const body = isResidentBound
+      ? { ...entry.payload, client_request_id: entry.id }
+      : { ...entry.payload };
+    if (entry.kind === 'blotter') {
+      // The queued proof is expired; replace it with a fresh one. The stale
+      // `pow` from filing time never leaves this device.
+      delete body.pow;
+      try {
+        body.pow = await freshBlotterPow();
+      } catch (error) {
+        if (
+          error &&
+          typeof error.powHttpStatus === 'number' &&
+          error.powHttpStatus >= 400 &&
+          error.powHttpStatus < 500
+        ) {
+          // Deterministic rejection (for example the daily filing limit):
+          // park it and never burn the limit retrying.
+          entry.status = 'NEEDS_ATTENTION';
+          entry.last_error = `A fresh anti-spam proof could not be obtained (code ${error.powHttpStatus}). Resubmit at the barangay hall or when the limit resets.`;
+          await reqAsPromise(store.put(entry));
+          return entry;
+        }
+        // Network/5xx/solve failure: the shared catch below applies backoff.
+        throw error;
+      }
+    }
+
+    const response = await fetch(ENDPOINTS[entry.kind], {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (response.status === 201 || response.status === 200) {
+      // Purge the instant the server accepts (blotter entries especially).
+      await reqAsPromise(store.delete(entry.id));
+      return null;
+    }
+
+    if (response.status === 401 && isResidentBound) {
+      // Park until the resident signs in again; the page replays on login.
+      entry.status = 'NEEDS_LOGIN';
+      entry.last_error = 'Sign in to your resident account to send this.';
+      await reqAsPromise(store.put(entry));
+      return entry;
+    }
+
+    if (response.status >= 400 && response.status < 500) {
+      // Final failure, never retried.
+      entry.status = 'NEEDS_ATTENTION';
+      entry.last_error = `The server rejected this request (code ${response.status}). Please review and resubmit at the hall or online.`;
+      await reqAsPromise(store.put(entry));
+      return entry;
+    }
+
+    // 5xx and anything odd: treat like a network failure with backoff.
+    throw new Error(`Server responded with ${response.status}`);
+  } catch (error) {
+    entry.attempts = (entry.attempts || 0) + 1;
+    const backoff = Math.min(BASE_BACKOFF_MS * 2 ** entry.attempts, MAX_BACKOFF_MS);
+    entry.status = 'PENDING';
+    entry.next_attempt_at = Date.now() + backoff;
+    entry.last_error = 'The server is not reachable yet. Saved safely; it will retry automatically.';
+    await reqAsPromise(store.put(entry));
+    return entry;
+  }
+}
+
+/**
+ * Replay every eligible entry, oldest first. Called on the online event,
+ * on tab focus, on /api/health probe success, and after a resident sign-in.
+ *
+ * @returns {Promise<{disabled?: boolean, sent: number, remaining: number,
+ *                     needs_attention: number, needs_login: number}>}
+ */
+export async function replayOutbox() {
+  if (isKiosk()) return { disabled: true, sent: 0, remaining: 0, needs_attention: 0, needs_login: 0 };
+  const db = await openDb();
+  if (!db) return { disabled: true, sent: 0, remaining: 0, needs_attention: 0, needs_login: 0 };
+
+  await pruneExpired(db);
+  const all = await reqAsPromise(tx(db, 'readonly').getAll());
+  const entries = all
+    .filter(Boolean)
+    .sort((a, b) => a.created_at - b.created_at)
+    .filter((entry) => {
+      if (entry.status === 'NEEDS_ATTENTION') return false;
+      if (entry.status === 'SENDING') return false; // in-flight elsewhere
+      if (entry.status === 'PENDING' && entry.next_attempt_at > Date.now()) return false;
+      return true; // NEEDS_LOGIN is retried once the page replays after login
+    });
+
+  let sent = 0;
+  let needsAttention = 0;
+  let needsLogin = 0;
+
+  for (const entry of entries) {
+    const result = await replayOne(db, entry);
+    if (result === null) {
+      sent += 1;
+    } else if (result.status === 'NEEDS_ATTENTION') {
+      needsAttention += 1;
+    } else if (result.status === 'NEEDS_LOGIN') {
+      needsLogin += 1;
+    }
+    dispatchOutboxEvent();
+  }
+
+  const remaining = (await reqAsPromise(tx(db, 'readonly').count())) || 0;
+  return { sent, remaining, needs_attention: needsAttention, needs_login: needsLogin };
+}

@@ -1,0 +1,52 @@
+# BEST-SYSTEM reliability overlay (WP-16, plan Sec. 11.4).
+# Applied with:
+#   docker compose -f docker-compose.yml -f docker-compose.reliability.yml up -d --no-build --pull never
+
+services:
+  best_app:
+    mem_limit: 768m
+    volumes:
+      - /mnt/backupdisk/dumps:/backups:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  best_postgres:
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  best_backup:
+    build: ./ops/backup
+    container_name: best_backup
+    restart: unless-stopped
+    depends_on:
+      best_postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_AGE_PUBKEY: ${BACKUP_AGE_PUBKEY}
+      SPARE_HOST: ${SPARE_HOST:-}
+    volumes:
+      - /mnt/backupdisk/dumps:/backups
+    networks:
+      - best_network
+
+  best_monitor:
+    image: louislam/uptime-kuma:1
+    container_name: best_monitor
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - best_monitor_data:/app/data
+    networks:
+      - best_network
+
+volumes:
+  best_monitor_data:
+    name: best_monitor_data

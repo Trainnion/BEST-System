@@ -1,0 +1,409 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"] // native for dev, musl for the Alpine container
+}
+
+// ----------------------------------------------------
+// ENUMS
+// ----------------------------------------------------
+
+enum DocumentType {
+  CLEARANCE
+  INDIGENCY
+}
+
+enum DocumentStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  PAYMENT_PENDING
+  READY_FOR_PICKUP
+  RELEASED
+  REJECTED
+}
+
+enum BlotterStatus {
+  FILED
+  UNDER_REVIEW
+  ACTION_TAKEN
+  CLOSED
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BusinessStatus {
+  INTAKE_SCHEDULED
+  IN_PERSON_SCREENING
+  TREASURER_ASSESSED
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  TREASURER
+  OFFICIAL
+}
+
+enum BroadcastCategory {
+  AYUDA
+  HEALTH
+  VETERINARY
+  SCHOLARSHIP
+  URGENT
+}
+
+enum CardStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum PaymentMethod {
+  CASH
+  GCASH_MOCK
+  LANDBANK_MOCK
+}
+
+enum CivilStatus {
+  SINGLE
+  MARRIED
+  WIDOWED
+  SEPARATED
+}
+
+// ----------------------------------------------------
+// 1. RESIDENT DEMOGRAPHIC PROFILE (R.A. 10173 & R.A. 7160)
+// ----------------------------------------------------
+model Resident {
+  id                      String      @id // Format: RES-2026-XXXX
+  first_name              String
+  last_name               String
+  middle_name             String?
+  suffix                  String?
+  birth_date              DateTime
+  gender                  String
+  civil_status            CivilStatus @default(SINGLE)
+  blood_type              String      @default("Unknown")
+  contact_number          String      // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  email                   String?     // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  purok                   String
+  street_address          String      // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  emergency_contact_name  String      // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  emergency_contact_phone String      // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  photo_url               String?
+  is_registered_voter     Boolean     @default(true)
+  years_of_residency      Int         @default(1)
+  data_privacy_consent_at DateTime    @default(now())
+  is_verified             Boolean     @default(true)
+  is_demo                 Boolean     @default(false) // DEV/TEST seed only (SEED-01)
+  created_at              DateTime    @default(now())
+  updated_at              DateTime    @updatedAt
+
+  // Relational Connections
+  credential              ResidentCredential?
+  barangay_id_card        BarangayIDCard?
+  document_requests       DocumentRequest[]
+  businesses              BusinessClearanceEntry[]
+
+  @@index([last_name, first_name])
+  @@index([purok])
+}
+
+// ----------------------------------------------------
+// 1b. RESIDENT CREDENTIAL (verified at the hall, Sec. 13)
+// ----------------------------------------------------
+model ResidentCredential {
+  resident_id         String     @id
+  password_hash       String?
+  activation_hash     String?
+  activation_expires  DateTime?
+  activated_at        DateTime?
+  issued_by_id        String
+  failed_attempts     Int        @default(0)
+  locked_until        DateTime?
+  session_valid_after DateTime?
+  password_changed_at DateTime?
+  created_at          DateTime   @default(now())
+
+  resident Resident   @relation(fields: [resident_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  issuer   SystemUser @relation("IssuedActivations", fields: [issued_by_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([issued_by_id])
+}
+
+// ----------------------------------------------------
+// 2. BARANGAY DIGITAL ID MODULE (FR-02, view only)
+// ----------------------------------------------------
+model BarangayIDCard {
+  id           String     @id // Format: BID-2026-XXXX
+  resident_id  String     @unique // 1-to-1 FK -> Resident.id
+  card_number  String     @unique
+  barcode_data String     @unique // Code128 standard
+  issued_date  DateTime   @default(now())
+  valid_until  DateTime
+  status       CardStatus @default(ACTIVE)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+
+  resident     Resident   @relation(fields: [resident_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([card_number])
+  @@index([resident_id])
+}
+
+// ----------------------------------------------------
+// 3. DOCUMENT INTAKE & ISSUANCE (FR-01, FR-04)
+// ----------------------------------------------------
+model DocumentRequest {
+  tracking_code     String         @id // Format: CLR-2026-XXXXXXXX or IND-2026-XXXXXXXX (8 random chars)
+  resident_id       String         // FK -> Resident.id
+  document_type     DocumentType
+  purpose           String         // server-encrypted at rest: v1.<kid>.<iv>.<ct>.<tag> (Sec. 12)
+  ctc_number        String?        // Cedula Number; server-encrypted at rest (Sec. 12)
+  ctc_issued_date   DateTime?
+  status            DocumentStatus @default(SUBMITTED)
+  rejection_reason  String?
+  fee_amount        Decimal        @default(50.00) @db.Decimal(10, 2)
+  qr_hash           String         @unique // HMAC-SHA256 signature
+  client_request_id String?        @unique // Offline outbox idempotency key (UUID v4)
+  ai_verification   String?        // AI purpose synopsis / flags
+  reviewed_by_id    String?        // FK -> SystemUser.id
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+
+  // Relationships
+  resident          Resident       @relation(fields: [resident_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  reviewed_by       SystemUser?    @relation("ReviewedDocs", fields: [reviewed_by_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  payment           PaymentRecord? // 1-to-1 Relationship
+
+  @@index([resident_id])
+  @@index([status])
+  @@index([document_type])
+  @@index([reviewed_by_id])
+}
+
+// ----------------------------------------------------
+// 4. BUSINESS CLEARANCE IN-PERSON GATEWAY (FR-06)
+// ----------------------------------------------------
+model BusinessClearanceEntry {
+  // business_name, nature_of_business and business_address are server-encrypted
+  // at rest as v1.<kid>.<iv>.<ct>.<tag> (Sec. 12.5)
+  id                         String                  @id // Format: BIZ-2026-XXXX
+  resident_id                String                  // FK -> Resident.id (Owner)
+  business_name              String
+  nature_of_business         String
+  business_address           String
+  declared_gross_income      Decimal                 @default(0.00) @db.Decimal(12, 2)
+  physical_appointment_date  DateTime
+  status                     BusinessStatus          @default(INTAKE_SCHEDULED)
+  assessed_by_id             String?                 // FK -> SystemUser.id (Treasurer)
+  assessed_fee               Decimal                 @default(0.00) @db.Decimal(10, 2)
+  assessment_notes           String?
+  client_request_id          String?                 @unique // Offline outbox idempotency key (UUID v4)
+  created_at                 DateTime                @default(now())
+  updated_at                 DateTime                @updatedAt
+
+  // Relationships
+  owner                      Resident                @relation(fields: [resident_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  assessor                   SystemUser?             @relation("AssessedBusinesses", fields: [assessed_by_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  checklist_items            BusinessChecklistItem[]
+  payment                    PaymentRecord?          // 1-to-1 Relationship
+
+  @@index([resident_id])
+  @@index([status])
+  @@index([assessed_by_id])
+}
+
+// ----------------------------------------------------
+// 5. BUSINESS CHECKLIST ITEMS (Normalized FR-06)
+// ----------------------------------------------------
+model BusinessChecklistItem {
+  id             String                 @id // Format: CHK-2026-XXXX
+  business_id    String                 // FK -> BusinessClearanceEntry.id
+  item_code      String                 // DTI_SEC | LEASE | FIRE | SANITARY | INSPECTION
+  title          String
+  is_complied    Boolean                @default(false)
+  verified_by_id String?                // FK -> SystemUser.id
+  verified_at    DateTime?
+  remarks        String?
+
+  business       BusinessClearanceEntry @relation(fields: [business_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  verified_by    SystemUser?            @relation("VerifiedChecklists", fields: [verified_by_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([business_id])
+  @@index([verified_by_id])
+}
+
+// ----------------------------------------------------
+// 6. FEE SETTLEMENT (Counter-Recorded - works fully offline on the LAN)
+// ----------------------------------------------------
+model PaymentRecord {
+  id                     String                  @id // Format: PAY-2026-XXXX
+  document_request_id    String?                 @unique // 1-to-1 FK -> DocumentRequest
+  business_clearance_id  String?                 @unique // 1-to-1 FK -> BusinessClearanceEntry
+  amount                 Decimal                 @db.Decimal(10, 2)
+  receipt_or_no          String                  @unique // Official Receipt Number
+  payment_method         PaymentMethod           @default(CASH)
+  collected_by_id        String                  // FK -> SystemUser.id (Treasurer)
+  remarks                String?
+  collected_at           DateTime                @default(now())
+
+  // Relationships
+  document               DocumentRequest?        @relation(fields: [document_request_id], references: [tracking_code], onDelete: Cascade, onUpdate: Cascade)
+  business               BusinessClearanceEntry? @relation(fields: [business_clearance_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  collector              SystemUser              @relation("CollectedPayments", fields: [collected_by_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([collected_by_id])
+  @@index([receipt_or_no])
+}
+
+// ----------------------------------------------------
+// 7. ANONYMOUS BLOTTER ENGINE (FR-03 & NFR-02)
+// NOTE: Strictly ZERO complainant FK to ensure whistleblower protection!
+// The blotter is ANONYMOUS, not zero-knowledge: the server holds
+// FIELD_ENC_KEY and decrypts for authorized staff (Sec. 12).
+// ----------------------------------------------------
+model BlotterReport {
+  tracking_code        String          @id // Format: BLT-XXXX-XXXX
+  incident_type        String
+  incident_zone        String?         // coarse purok/zone (plaintext)
+  incident_date        DateTime        @db.Date // date only (plaintext)
+  enc_payload          String          @db.Text // server-encrypted "v1.<kid>.<iv>.<ct>.<tag>": narrative + exact location/time (client-scrubbed first)
+  urgency_level        UrgencyLevel    @default(MEDIUM)
+  status               BlotterStatus   @default(FILED)
+  assigned_officer_id  String?         // FK -> SystemUser.id (Desk Officer)
+  created_at           DateTime        @default(now()) // written truncated to the hour (Sec. 15)
+  updated_at           DateTime        @updatedAt
+
+  // Relationships
+  assigned_officer     SystemUser?     @relation("AssignedBlotters", fields: [assigned_officer_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updates              BlotterUpdate[]
+
+  @@index([status])
+  @@index([urgency_level])
+  @@index([assigned_officer_id])
+}
+
+// ----------------------------------------------------
+// 8. BLOTTER STATUS UPDATES
+// ----------------------------------------------------
+model BlotterUpdate {
+  id                    String        @id // Format: BUP-XXXX
+  blotter_tracking_code String        // FK -> BlotterReport.tracking_code
+  action_taken          String
+  public_notes          String?       @db.Text // Visible to citizen tracking key
+  internal_notes        String?       @db.Text // Staff-only notes; server-encrypted at rest (Sec. 12)
+  recorded_by_id        String        // FK -> SystemUser.id
+  created_at            DateTime      @default(now())
+
+  // Relationships
+  blotter               BlotterReport @relation(fields: [blotter_tracking_code], references: [tracking_code], onDelete: Cascade, onUpdate: Cascade)
+  officer               SystemUser    @relation("RecordedBlotterUpdates", fields: [recorded_by_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([blotter_tracking_code])
+  @@index([recorded_by_id])
+}
+
+// ----------------------------------------------------
+// 9. PUBLIC WELFARE BROADCASTS (FR-05)
+// ----------------------------------------------------
+model CommunityBroadcast {
+  id                  String            @id // Format: BCAST-XXXX
+  author_id           String            // FK -> SystemUser.id
+  category            BroadcastCategory
+  title               String
+  content             String            @db.Text
+  simplified_summary  String?           @db.Text // AI generated
+  audio_script        String?           @db.Text // AI megaphone script
+  is_pinned           Boolean           @default(false)
+  start_date          DateTime          @default(now())
+  end_date            DateTime
+  created_at          DateTime          @default(now())
+
+  // Relationships
+  author              SystemUser        @relation("AuthoredBroadcasts", fields: [author_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([category])
+  @@index([is_pinned])
+  @@index([author_id])
+}
+
+// ----------------------------------------------------
+// 10. BARANGAY OFFICIALS DIRECTORY (FR-07)
+// ----------------------------------------------------
+model BarangayOfficial {
+  id            String      @id // Format: OFF-XXXX
+  user_id       String?     @unique // Optional 1-to-1 FK -> SystemUser.id
+  full_name     String
+  position      String
+  committee     String
+  contact_info  String
+  display_order Int         @default(1)
+  photo_url     String?
+  is_active     Boolean     @default(true)
+
+  system_user   SystemUser? @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+// ----------------------------------------------------
+// 11. SYSTEM USER (RBAC Multi-Role Authentication)
+// ----------------------------------------------------
+model SystemUser {
+  id                  String                   @id // Format: USR-XXXX
+  username            String                   @unique
+  password_hash       String
+  full_name           String
+  role                UserRole                 @default(STAFF)
+  is_active           Boolean                  @default(true)
+  last_login          DateTime?
+  is_demo             Boolean                  @default(false) // DEV/TEST seed only (SEED-01)
+  must_change_password Boolean                  @default(false)
+  session_valid_after DateTime?                // cookies issued before this are rejected (Sec. 16.3)
+  created_at          DateTime                 @default(now())
+
+  // Reverse Relationships
+  issued_activations  ResidentCredential[]     @relation("IssuedActivations")
+  official_profile    BarangayOfficial?
+  reviewed_documents  DocumentRequest[]        @relation("ReviewedDocs")
+  assessed_businesses BusinessClearanceEntry[] @relation("AssessedBusinesses")
+  verified_checklists BusinessChecklistItem[]  @relation("VerifiedChecklists")
+  collected_payments  PaymentRecord[]          @relation("CollectedPayments")
+  assigned_blotters   BlotterReport[]          @relation("AssignedBlotters")
+  blotter_updates     BlotterUpdate[]          @relation("RecordedBlotterUpdates")
+  authored_broadcasts CommunityBroadcast[]     @relation("AuthoredBroadcasts")
+  audit_logs          AuditLog[]
+
+  @@index([username])
+  @@index([role])
+}
+
+// ----------------------------------------------------
+// 12. AUDIT LOG (R.A. 10173 & Accountability Trail)
+// ----------------------------------------------------
+model AuditLog {
+  id            String     @id // Format: LOG-XXXX
+  user_id       String     // FK -> SystemUser.id
+  action        String     // e.g. APPROVE_DOC, RECORD_PAYMENT, VERIFY_INCOME, VIEW_ENCRYPTED
+  target_entity String
+  target_id     String
+  metadata      Json?
+  ip_address    String?    // Staff workstation IP address
+  performed_at  DateTime   @default(now())
+
+  user          SystemUser @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([user_id])
+  @@index([action])
+  @@index([target_entity, target_id])
+}

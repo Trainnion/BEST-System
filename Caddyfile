@@ -1,0 +1,46 @@
+# BEST-SYSTEM reverse proxy (docs/implementation-plan.md Sec. 12.2).
+# - No access logging anywhere (ZK-LOG-01 / Sec. 15): output discard.
+# - Admin API disabled.
+# - HTTPS only; plain HTTP exists solely to redirect (E2E-01: no plain-HTTP mode).
+{
+	admin off
+	log {
+		output discard
+	}
+}
+
+# Port 80 only redirects to HTTPS.
+http://{$BEST_HOST} {
+	redir https://{$BEST_HOST}{uri} permanent
+}
+
+{$BEST_HOST} {
+	# Default: local HTTPS via Caddy's internal CA (Sec. 12.2 Option B).
+	# Install the Caddy root CA on kiosks and staff PCs once; citizen phones use
+	# the kiosk or Option A. Playwright HTTPS runs use ignoreHTTPSErrors.
+	tls internal
+
+	# Production (Option A): publicly trusted certificate issued with ACME
+	# DNS-01 (renew every 60 days, warn at 21 days left) and copied to ./certs.
+	# To switch, comment out "tls internal" above and uncomment these two lines:
+	# tls /certs/fullchain.pem /certs/privkey.pem
+
+	encode zstd gzip
+
+	# Zero-knowledge blotter paths (ZK-LOG-01): strip every identifying header
+	# before the app sees them. No cookies, User-Agent, Referer or client IP
+	# reach the app; spam control is proof-of-work, not IP (Sec. 15).
+	@zk path /blotter* /api/blotter*
+	handle @zk {
+		reverse_proxy best_app:3000 {
+			header_up -Cookie
+			header_up -User-Agent
+			header_up -Referer
+			header_up -X-Forwarded-For
+		}
+	}
+
+	handle {
+		reverse_proxy best_app:3000
+	}
+}

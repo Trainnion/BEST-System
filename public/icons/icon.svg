@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BEST logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f1d"/>
+      <stop offset="1" stop-color="#101a33"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Stylized barangay hall / sun-ray mark -->
+  <g fill="none" stroke="url(#mark)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M148 332 L256 236 L364 332"/>
+    <path d="M172 332 V404 H340 V332"/>
+    <path d="M256 236 V148"/>
+    <path d="M188 172 L210 194" />
+    <path d="M324 172 L302 194" />
+    <path d="M256 108 V148"/>
+  </g>
+  <text x="256" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#e2e8f0" letter-spacing="10">BEST</text>
+</svg>

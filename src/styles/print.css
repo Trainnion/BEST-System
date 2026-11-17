@@ -1,0 +1,70 @@
+/* BEST System - Print Fidelity Engine (NFR-05)
+   Pure Black & White A4 / Letter certificate output.
+   Completely strips glassmorphism, background colors, shadows, and screen UI. */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 20mm 15mm 20mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Strip all screen chrome, glassmorphism, and navigation */
+  nav,
+  aside,
+  header,
+  footer,
+  button,
+  .no-print,
+  [role="alert"] {
+    display: none !important;
+  }
+
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-color: transparent !important;
+  }
+
+  .certificate-sheet {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .certificate-border {
+    border: 2pt solid #000000 !important;
+    padding: 18mm 15mm !important;
+    min-height: 250mm;
+  }
+
+  .certificate-inner-border {
+    border: 0.75pt solid #000000 !important;
+    padding: 12mm 10mm !important;
+  }
+
+  /* Crisp high-contrast QR display */
+  .print-qr-code {
+    width: 110px !important;
+    height: 110px !important;
+    image-rendering: pixelated;
+  }
+}
