@@ -190,23 +190,31 @@
     will-change: transform;
   }
 
+  .ambient-orb-1,
+  .ambient-orb-2,
+  .ambient-orb-3,
+  .ambient-orb-4 {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
   .ambient-orb-1 {
-    animation: orb-drift-1 16s ease-in-out infinite alternate;
+    animation: orb-drift-1 18s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-2 {
-    animation: orb-drift-2 20s ease-in-out infinite alternate;
+    animation: orb-drift-2 22s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-3 {
-    animation: orb-drift-3 14s ease-in-out infinite alternate;
+    animation: orb-drift-3 16s ease-in-out infinite alternate;
     will-change: transform;
   }
 
   .ambient-orb-4 {
-    animation: orb-drift-4 18s ease-in-out infinite alternate;
+    animation: orb-drift-4 20s ease-in-out infinite alternate;
     will-change: transform;
   }
 
@@ -216,7 +224,7 @@
   }
 
   .ticker-track {
-    animation: ticker var(--ticker-dur, 40s) linear infinite;
+    animation: ticker 32s linear infinite;
   }
 
   html.js .journey:not(.is-visible) .journey-path {
