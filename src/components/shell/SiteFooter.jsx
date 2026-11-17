@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   ArrowUp,
   Clock,
@@ -33,6 +34,13 @@ import useTheme from '@/lib/hooks/useTheme';
  */
 
 export default function SiteFooter() {
+  const pathname = usePathname() || '/';
+
+  // Do not render public civic footer on admin portal pages
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const { tier, setTier } = useMotionPreference();
   const { theme, isDark, toggleTheme, mounted } = useTheme();
 
@@ -163,6 +171,14 @@ export default function SiteFooter() {
                   className="font-medium text-slate-700 hover:text-cyan-700 dark:text-slate-400 dark:hover:text-cyan-300 transition-colors"
                 >
                   Kaagapay Civic Concierge
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/login"
+                  className="font-medium text-slate-700 hover:text-cyan-700 dark:text-slate-400 dark:hover:text-cyan-300 transition-colors"
+                >
+                  Unified Portal Sign In
                 </Link>
               </li>
               <li>

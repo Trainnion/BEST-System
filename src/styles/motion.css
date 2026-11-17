@@ -116,6 +116,9 @@
 }
 
 @keyframes ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
   to {
     transform: translate3d(-50%, 0, 0);
   }
@@ -291,18 +294,6 @@ html[data-motion='lite'] .ambient-orb,
 html[data-fx='lite'] .ambient-orb {
   display: none !important;
   animation: none !important;
-}
-
-html[data-motion='lite'] .ticker-track [data-dup],
-html[data-fx='lite'] .ticker-track [data-dup] {
-  display: none;
-}
-
-html[data-motion='lite'] .ticker-track,
-html[data-fx='lite'] .ticker-track {
-  width: auto;
-  max-width: 100%;
-  overflow-x: auto;
 }
 
 html[data-motion='lite'] .cycle-3 > *,

@@ -10,10 +10,7 @@ import {
   Activity,
   PlusCircle,
   Radio,
-  Clock,
   ArrowUpRight,
-  CheckCircle2,
-  AlertTriangle,
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -23,7 +20,6 @@ export default function AdminDashboardPage() {
     residentsCount: 0,
     broadcastsCount: 0,
   });
-  const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,20 +27,18 @@ export default function AdminDashboardPage() {
 
     async function loadData() {
       try {
-        const [docsRes, blotterRes, resRes, bcastRes, healthRes] = await Promise.all([
+        const [docsRes, blotterRes, resRes, bcastRes] = await Promise.all([
           fetch('/api/documents?status=UNDER_REVIEW&limit=1').catch(() => null),
           fetch('/api/admin/blotter?status=FILED&limit=1').catch(() => null),
           fetch('/api/admin/residents?size=1').catch(() => null),
           fetch('/api/broadcasts?limit=1').catch(() => null),
-          fetch('/api/health').catch(() => null),
         ]);
 
-        const [docsData, blotterData, resData, bcastData, healthData] = await Promise.all([
+        const [docsData, blotterData, resData, bcastData] = await Promise.all([
           docsRes?.ok ? docsRes.json() : { total: 0 },
           blotterRes?.ok ? blotterRes.json() : { total: 0 },
           resRes?.ok ? resRes.json() : { total: 0 },
           bcastRes?.ok ? bcastRes.json() : { broadcasts: [] },
-          healthRes?.ok ? healthRes.json() : null,
         ]);
 
         if (active) {
@@ -54,7 +48,6 @@ export default function AdminDashboardPage() {
             residentsCount: resData.total || 0,
             broadcastsCount: bcastData.broadcasts?.length || 0,
           });
-          setHealth(healthData);
           setLoading(false);
         }
       } catch {
@@ -81,13 +74,8 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-300 text-xs font-bold">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
-            <span>Local Server Healthy</span>
+            <span>System Online</span>
           </div>
-          {health?.ai_mode && (
-            <div className="px-3.5 py-1.5 rounded-full bg-cyan-50 border border-cyan-300 text-cyan-800 dark:bg-cyan-500/10 dark:border-cyan-500/20 dark:text-cyan-300 text-xs font-mono uppercase font-bold">
-              AI: {health.ai_mode}
-            </div>
-          )}
         </div>
       </div>
 

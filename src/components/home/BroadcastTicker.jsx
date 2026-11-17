@@ -70,12 +70,26 @@ function toItems(payload) {
   return valid.length > 0 ? valid : FALLBACK_BROADCASTS;
 }
 
+function expandItemsForLoop(raw) {
+  if (!raw || raw.length === 0) return FALLBACK_BROADCASTS;
+  let expanded = [...raw];
+  // Repeat items so the primary track has at least 8 items.
+  // This guarantees the primary track spans > 2,500px, completely filling
+  // any screen width before the duplicate track begins, eliminating any gap.
+  while (expanded.length < 8) {
+    expanded = expanded.concat(raw);
+  }
+  return expanded;
+}
+
 export default function BroadcastTicker() {
   const [hydrated, setHydrated] = useState(false);
   const [items, setItems] = useState(FALLBACK_BROADCASTS);
   const [loaded, setLoaded] = useState(true);
   const [paused, setPaused] = useState(false);
   const [looping, setLooping] = useState(true);
+
+  const loopItems = expandItemsForLoop(items);
 
   useEffect(() => {
     setHydrated(true);
@@ -161,40 +175,50 @@ export default function BroadcastTicker() {
         </div>
 
         <div className="mt-2.5 overflow-hidden" data-paused={paused ? 'true' : 'false'}>
-          <ul className="ticker-track hide-scrollbar items-center gap-6 py-1">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
-              >
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
-                    CATEGORY_TONE[item.category] ?? 'state-neutral'
-                  }`}
+          <div
+            className="ticker-track flex items-center py-1"
+            style={{
+              animationDuration: `${Math.max(24, loopItems.length * 3.5)}s`,
+            }}
+          >
+            {/* Primary Track Set */}
+            <ul className="flex shrink-0 items-center gap-6 pr-6">
+              {loopItems.map((item, idx) => (
+                <li
+                  key={`primary-${item.id}-${idx}`}
+                  className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
                 >
-                  {item.category ?? 'News'}
-                </span>
-                <span className="font-semibold">{item.title}</span>
-              </li>
-            ))}
-            {items.map((item) => (
-              <li
-                key={`dup-${item.id}`}
-                data-dup="true"
-                aria-hidden="true"
-                className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
-              >
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
-                    CATEGORY_TONE[item.category] ?? 'state-neutral'
-                  }`}
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
+                      CATEGORY_TONE[item.category] ?? 'state-neutral'
+                    }`}
+                  >
+                    {item.category ?? 'News'}
+                  </span>
+                  <span className="font-semibold">{item.title}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Duplicate Track Set for seamless gapless continuous loop */}
+            <ul className="flex shrink-0 items-center gap-6 pr-6" aria-hidden="true">
+              {loopItems.map((item, idx) => (
+                <li
+                  key={`dup-${item.id}-${idx}`}
+                  className="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm text-slate-900 dark:text-slate-200"
                 >
-                  {item.category ?? 'News'}
-                </span>
-                <span className="font-semibold">{item.title}</span>
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
+                      CATEGORY_TONE[item.category] ?? 'state-neutral'
+                    }`}
+                  >
+                    {item.category ?? 'News'}
+                  </span>
+                  <span className="font-semibold">{item.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

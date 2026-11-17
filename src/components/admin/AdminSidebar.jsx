@@ -44,19 +44,23 @@ export default function AdminSidebar({ user }) {
   return (
     <aside className="w-64 shrink-0 flex flex-col min-h-screen border-r border-slate-200 bg-white text-slate-800 transition-colors dark:border-white/10 dark:bg-slate-950/80 dark:text-slate-200">
       <div className="p-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-black shadow-md shadow-sky-500/20">
+        <Link
+          href="/"
+          title="Return to Public Homepage"
+          className="group flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 transition-transform active:scale-95"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-black shadow-md shadow-sky-500/20 group-hover:shadow-sky-500/40 group-hover:scale-105 transition-all">
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
-            <div className="text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+            <div className="text-base font-bold tracking-tight text-slate-900 group-hover:text-sky-600 dark:text-white dark:group-hover:text-cyan-400 flex items-center gap-1.5 transition-colors">
               BEST Admin
             </div>
             <div className="text-xs text-sky-700 dark:text-cyan-400 font-mono tracking-wider uppercase font-semibold">
               {user?.role || 'Staff Portal'}
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Theme Toggle Button */}
         <button

@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import AdminSidebar from '../../components/admin/AdminSidebar.jsx';
 import SessionGuard from '../../components/admin/SessionGuard.jsx';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isLoginPage = pathname === '/admin/login';
 
   const [user, setUser] = useState(null);
@@ -23,6 +24,8 @@ export default function AdminLayout({ children }) {
           if (active && data?.user) {
             setUser(data.user);
           }
+        } else if (res.status === 401 || res.status === 403) {
+          router.replace('/admin/login');
         }
       } catch {
         // offline
@@ -33,7 +36,7 @@ export default function AdminLayout({ children }) {
     return () => {
       active = false;
     };
-  }, [isLoginPage]);
+  }, [isLoginPage, router]);
 
   if (isLoginPage) {
     return <main className="admin-portal min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">{children}</main>;
@@ -43,7 +46,7 @@ export default function AdminLayout({ children }) {
     <SessionGuard>
       <div className="admin-portal flex min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
         <AdminSidebar user={user} />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-100 dark:bg-gradient-to-b dark:from-slate-900/40 dark:via-slate-950 dark:to-slate-950">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-100 dark:bg-slate-950">
           <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>

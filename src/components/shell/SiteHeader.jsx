@@ -32,7 +32,7 @@ const NAV_LINKS = [
   { href: '/broadcasts', label: 'Announcements' },
   { href: '/directory', label: 'Directory' },
   { href: '/services/kaagapay', label: 'Kaagapay' },
-  { href: '/resident/login', label: 'Resident' },
+  { href: '/login', label: 'Portal Login' },
 ];
 
 function isCurrent(pathname, href) {
@@ -42,6 +42,12 @@ function isCurrent(pathname, href) {
 
 export default function SiteHeader() {
   const pathname = usePathname() || '/';
+
+  // Do not render public navigation header on admin portal pages
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const [open, setOpen] = useState(false);
   const { isDark, toggleTheme, mounted } = useTheme();
   const { tier, setTier } = useMotionPreference();
