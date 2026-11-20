@@ -26,6 +26,6 @@ test.describe('Offline-First Architecture & Service Worker (OFFLINE-01, OFFLINE-
 
   test('offline shell page renders with offline notice', async ({ page }) => {
     await page.goto('/offline');
-    await expect(page.locator('h1, h2')).toContainText(['Offline', 'No Connection', 'Terminal']);
+    await expect(page.locator('h1, h2, p')).toContainText(['Offline fallback', 'without a connection', 'How the pending queue behaves']);
   });
 });

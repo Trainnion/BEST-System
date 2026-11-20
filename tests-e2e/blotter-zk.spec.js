@@ -26,7 +26,7 @@ test.describe('Anonymous Blotter & Zero-Knowledge Transport (FR-03, NFR-02, ZK-L
 
     // 2. Submit anonymous blotter report
     const blotterPayload = {
-      incident_type: 'NOISE_DISTURBANCE',
+      incident_type: 'NOISE',
       incident_zone: 'Purok 1',
       incident_date: '2026-11-17',
       urgency_level: 'NORMAL',
@@ -74,7 +74,7 @@ test.describe('Anonymous Blotter & Zero-Knowledge Transport (FR-03, NFR-02, ZK-L
     });
 
     await page.goto('/blotter');
-    await expect(page.locator('h1, h2')).toContainText(['Blotter', 'Report', 'Anonymous']);
+    await expect(page.locator('h1, h2, p')).toContainText(['Anonymous report', 'File a blotter report', 'No login and no name']);
     expect(externalRequests).toHaveLength(0);
   });
 });

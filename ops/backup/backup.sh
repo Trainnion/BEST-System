@@ -25,7 +25,7 @@ fi
 
 # Rotations
 [ "$(date +%H)" = "01" ] && cp "$H/best-$TS.dump.age" /backups/daily/
-[ "$(date +%u%H)" = "701" ] && cp "$H/best-$TS.dump.age" /backups/weekly/
+[ "$(date +%u)" = "7" ] && [ "$(date +%H)" = "01" ] && cp "$H/best-$TS.dump.age" /backups/weekly/
 [ "$(date +%d%H)" = "0101" ] && cp "$H/best-$TS.dump.age" /backups/monthly/
 
 # Retention pruning

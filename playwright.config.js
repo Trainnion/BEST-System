@@ -46,7 +46,9 @@ export default defineConfig({
     command: 'npm run build && npm run start',
     port: 3000,
     timeout: 240000,
-    reuseExistingServer: !process.env.CI,
+    // CI runners boot the stack (best_app listens on 127.0.0.1:3000); reuse that
+    // running server so playwright does not collide with the same port.
+    reuseExistingServer: true,
     env: {
       NEXT_TELEMETRY_DISABLED: '1',
     },

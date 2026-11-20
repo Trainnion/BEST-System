@@ -4,15 +4,16 @@ test.describe('Citizen Services & Intake Flow (FR-01, FR-04, NFR-04)', () => {
   test('citizen can visit services and track documents with masked PII', async ({ page }) => {
     // 1. Visit Document Request page
     await page.goto('/services/request');
-    await expect(page.locator('h1, h2')).toContainText(['Document', 'Request', 'Intake']);
+    // Banner "Document Intake" + heading "Request a barangay document"
+    await expect(page.locator('h1, h2, p')).toContainText(['Document Intake', 'Request a barangay document']);
 
     // 2. Public document tracking lookup
     await page.goto('/track');
     const trackInput = page.locator('input[placeholder*="CLR-"], input[placeholder*="IND-"], input[type="text"]').first();
     await expect(trackInput).toBeVisible();
 
-    // 3. Test public tracking endpoint directly
-    const trackRes = await page.request.get('/api/documents/track?code=CLR-2026-DEMO01');
+    // 3. Test public tracking endpoint directly (use a seeded code)
+    const trackRes = await page.request.get('/api/documents/track?code=CLR-2026-DEMO0001');
     if (trackRes.ok()) {
       const data = await trackRes.json();
       expect(data).toHaveProperty('masked_name');
