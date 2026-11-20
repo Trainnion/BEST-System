@@ -1,8 +1,8 @@
-# Setup Guide — Best-Barangay-System (for AI agent)
+# Setup Guide — Best-Barangay-System (Local-Only, no Docker)
 
 > This file is a step-by-step checklist an AI agent can follow to deploy the
-> Best-Barangay-System to a new PC. It assumes the target PC has Docker
-> Desktop + WSL2 and Git installed.
+> Best-Barangay-System on a new PC **without Docker**. It assumes the target PC
+> has Node.js ≥ 18, PostgreSQL ≥ 16, and Git installed.
 
 ---
 
@@ -10,17 +10,20 @@
 
 | Tool | Version | Why |
 |---|---|---|
-| Docker Desktop | ≥ 29.8.0 | Runs the containers |
-| WSL2 | — | Docker needs WSL2 |
+| Node.js + npm | ≥ 18 | Runs the Next.js app |
+| PostgreSQL | ≥ 16 | Database server |
 | Git | — | Clone the repo |
-| Node.js | ≥ 18 (optional) | Build the Next.js app (Docker does it) |
+
+Install (Windows):
+- **Node.js**: [nodejs.org](https://nodejs.org/) (installer includes npm)
+- **PostgreSQL**: [postgresql.org](https://www.postgresql.org/download/windows/) (or via winget: `winget install PostgreSQL`)
 
 Verify:
 ```bash
-docker --version        # 29.8+
-docker compose version  # 5.5+
-git --version
-node --version          # 18+ (optional)
+node --version      # 18+
+npm --version
+psql --version      # 16+
+pg_isready
 ```
 
 ---
@@ -36,7 +39,36 @@ If you just need the current state (no git history), copy the entire folder.
 
 ---
 
-## 3. Environment Variables (.env)
+## 3. PostgreSQL Setup
+
+### Start PostgreSQL
+
+```bash
+# Windows service (if installed as a service)
+NET START postgresql-16
+
+# Or, if using a portable/standalone install:
+pg_ctl -D "C:\Program Files\PostgreSQL\16\data" start
+```
+
+### Create the database and user
+
+```bash
+# Log in as the postgres superuser (change password as needed)
+psql -U postgres -c "CREATE DATABASE best_barangay_db;"
+psql -U postgres -c "CREATE USER best_admin WITH PASSWORD 'YOUR_STRONG_PASSWORD_HERE';"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE best_barangay_db TO best_admin;"
+```
+
+### Verify
+
+```bash
+psql -U best_admin -d best_barangay_db -c "SELECT 1;"
+```
+
+---
+
+## 4. Environment Variables (.env)
 
 The `.env` file contains secrets. **Do not commit it** (gitignored).
 
@@ -49,9 +81,9 @@ Then edit `.env` and fill in these values:
 | Variable | Required? | How to generate | Notes |
 |---|---|---|---|
 | `BEST_ENV` | Yes | `development` (or `production`) | `production` refuses demo data |
-| `BEST_HOST` | Yes | LAN hostname, e.g. `best.lan` | Used by Caddyfile |
+| `BEST_HOST` | No | `localhost` (or LAN hostname) | Used by Caddyfile |
 | `NEXT_PUBLIC_KIOSK` | No | `false` | Kiosk mode flag |
-| `POSTGRES_PASSWORD` | Yes | `openssl rand -base64 32` | 32+ random chars |
+| `POSTGRES_PASSWORD` | Yes | (your choice) | Matches the PostgreSQL password you set |
 | `SESSION_SECRET` | Yes | `openssl rand -base64 32` | Session cookie secret |
 | `QR_HMAC_SECRET` | Yes | `openssl rand -base64 32` | Blotter proof-of-work nonces |
 | `FIELD_ENC_KEY` | Yes* | `npm run keys:generate` | 44-char base64; *required if restoring an existing DB (encrypted data) |
@@ -62,7 +94,7 @@ Then edit `.env` and fill in these values:
 | `SEED_DEMO_DATA` | No | `false` | Production refuses demo data |
 | `BACKUP_AGE_PUBKEY` | No | `age-keygen -y` | Encrypted backups |
 | `SPARE_HOST` | No | — | Warm spare for rsync |
-| `DATABASE_URL` | No | — | Host-side Prisma only |
+| `DATABASE_URL` | **Yes** | `postgresql://best_admin:YOUR_PASSWORD@localhost:5432/best_barangay_db` | **Required for local Prisma** |
 
 > ⚠️ Important: The `FIELD_ENC_KEY` is what decrypts the data in the database.
 > If the database already has data (from a previous run), you **must copy the
@@ -71,7 +103,7 @@ Then edit `.env` and fill in these values:
 
 ---
 
-## 4. Generate the Field Key
+## 5. Generate the Field Key
 
 ```bash
 npm run keys:generate
@@ -81,7 +113,7 @@ This prints a 44-character base64 string. Paste it into `.env` as `FIELD_ENC_KEY
 
 ---
 
-## 5. Install Dependencies & Build
+## 6. Install Dependencies & Build
 
 ```bash
 npm ci
@@ -94,49 +126,43 @@ npm run build
 
 ---
 
-## 6. Database
+## 7. Database Migrations
 
-The database is a Docker container (`best_postgres`).
-
-### If you have a database dump from the old PC
+Run Prisma migrations to set up the database schema:
 
 ```bash
-# 1. Start the stack (creates an empty database)
-docker compose up -d
-
-# 2. Wait for health
-curl -sf http://127.0.0.1:3000/api/health
-
-# 3. Restore the dump
-docker compose exec best_postgres pg_restore -Fc -d best_barangay_db backup.dump
+npx prisma migrate dev --name init
 ```
 
-### If you're starting fresh (no dump)
-
-```bash
-# The stack auto-creates the database
-docker compose up -d
-```
+This creates the tables in the `best_barangay_db` database.
 
 ---
 
-## 7. Start the Stack
+## 8. Start the App
 
 ```bash
-docker compose up -d --build
+npm run dev
 ```
+
+The Next.js app will be available at `http://localhost:3000`.
 
 ### Verify
 
 ```bash
-docker compose ps
-# best_app should be "healthy"
-curl -sf http://127.0.0.1:3000/api/health
+curl -sf http://localhost:3000/api/health
+# → 200 OK
+```
+
+Alternatively, for production:
+
+```bash
+npm run build
+npm start
 ```
 
 ---
 
-## 8. Run the Tests
+## 9. Run the Tests
 
 ```bash
 bash ./scripts/run-tests.sh
@@ -151,19 +177,20 @@ RESULT: PASSED
 
 ---
 
-## 9. Verify the Setup
+## 10. Verify the Setup
 
 | Check | Command | Expected |
 |---|---|---|
-| App healthy | `curl -sf http://127.0.0.1:3000/api/health` | `200 OK` |
-| Containers | `docker compose ps` | `best_app` healthy |
-| Field key | `docker compose exec best_app env \| grep FIELD_ENC_KEY` | 34-char base64 |
+| App healthy | `curl -sf http://localhost:3000/api/health` | `200 OK` |
+| PostgreSQL | `pg_isready` | `accepting connections` |
+| Prisma client | `npx prisma status` | `Healthy` |
+| Field key in `.env` | `grep FIELD_ENC_KEY .env` | 44-char base64 |
 | Policy check | `npm run check:policy` | Exit 0 |
 | Demo-creds check | `npm run check:demo-creds` | Exit 0 |
 
 ---
 
-## 10. Cleanup (after moving)
+## 11. Cleanup (after moving)
 
 ```bash
 # Local dev artifacts (gitignored)
@@ -173,13 +200,14 @@ npm ci
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom | Fix |
 |---|---|
-| `best_app` unhealthy | Probing `localhost` resolves to IPv6 `::1`; use `127.0.0.1` in the healthcheck |
+| `database URL is not configured` | Set `DATABASE_URL` in `.env` to `postgresql://best_admin:YOUR_PASSWORD@localhost:5432/best_barangay_db` |
+| `no pg_hba.conf entry for host` | Add `host all all 127.0.0.1/32 scram-sha-256` to `postgresql.conf` or `pg_hba.conf` |
+| `port 3000 already in use` | Kill the existing process or change `PORT` in `.env` to `3001` |
 | `FIELD_ENC_KEY` not configured | Generated key not in `.env` OR not in the right place at module load |
-| `prisma migrate` fails | Run `npx prisma migrate dev --name init` |
 | Tests fail on `localhost` | Use `127.0.0.1` (IPv4) in the healthcheck |
 | Playwright can't connect | `reuseExistingServer: true` in `playwright.config.js` (reuse existing `:3000` server) |
 
@@ -187,9 +215,8 @@ npm ci
 
 ## Reference
 
-- `docker-compose.yml` — stack definition (3 services: best_postgres, best_app, best_proxy)
-- `Dockerfile` — Next.js image
-- `Caddyfile` — HTTPS reverse proxy
+- `.env.example` — environment template
+- `prisma/schema.prisma` — database schema
 - `scripts/run-tests.sh` — strict CI test runner
 - `ops/README.md` — reliability/backup skeleton (WP-16)
 - `docs/implementation-plan.md` — full spec (V5 encryption, invariants)
