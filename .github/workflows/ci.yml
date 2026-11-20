@@ -26,6 +26,9 @@ jobs:
     env:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+      QR_HMAC_SECRET: ${{ secrets.QR_HMAC_SECRET }}
+      FIELD_ENC_KEY: ${{ secrets.FIELD_ENC_KEY }}
+      BEST_HOST: ${{ secrets.BEST_HOST }}
     steps:
       - uses: actions/checkout@v4
 
