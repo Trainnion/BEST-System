@@ -18,7 +18,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: 20.18.1
+  NODE_VERSION: 24.0.0
 
 jobs:
   delivery:
