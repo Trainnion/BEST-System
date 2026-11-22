@@ -43,11 +43,6 @@ function isCurrent(pathname, href) {
 export default function SiteHeader() {
   const pathname = usePathname() || '/';
 
-  // Do not render public navigation header on admin portal pages
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
-
   const [open, setOpen] = useState(false);
   const { isDark, toggleTheme, mounted } = useTheme();
   const { tier, setTier } = useMotionPreference();
@@ -65,6 +60,13 @@ export default function SiteHeader() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open]);
+
+  // Do not render public navigation header on admin portal pages. The early
+  // return sits after every hook so the hook order is stable when a client
+  // navigation crosses between the public site and the admin portal.
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <div className="site-header sticky top-3.5 z-40 px-3 sm:px-6">

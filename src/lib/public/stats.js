@@ -35,9 +35,10 @@ export async function readPublicStats() {
         where: { status: 'RELEASED', created_at: { gte: yearStart } },
       }),
       prisma.communityBroadcast.count({
-        where: { end_date: { gte: now } },
+        where: { start_date: { lte: now }, end_date: { gte: now } },
       }),
-      prisma.barangayOfficial.count(),
+      // Count only the roster the public directory actually shows (FR-07).
+      prisma.barangayOfficial.count({ where: { is_active: true } }),
       // Two timestamp columns are the minimum needed for an average. They are
       // consumed in-process and never returned, so no row data is exposed.
       prisma.documentRequest.findMany({

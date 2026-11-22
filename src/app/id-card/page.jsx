@@ -12,6 +12,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import IDCardViewer from '@/components/id-card/IDCardViewer.jsx';
+import ResidentSignOutButton from '@/components/id-card/ResidentSignOutButton.jsx';
 import {
   AuthError,
   BUSINESS_APPLICANT_ROLE,
@@ -69,6 +70,8 @@ export default async function IdCardPage() {
       <div className="mt-rhythm-5">
         <IDCardViewer />
       </div>
+
+      <ResidentSignOutButton />
 
       <noscript>
         <p className="mx-auto mt-4 w-full max-w-[26rem] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-relaxed text-slate-300">

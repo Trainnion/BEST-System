@@ -394,14 +394,10 @@ export default function AdminDocumentsPage() {
               )}
 
               {selectedDoc.status === 'PAYMENT_PENDING' && (
-                <button
-                  type="button"
-                  disabled={actionLoading}
-                  onClick={() => handleUpdateStatus('READY_FOR_PICKUP')}
-                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition"
-                >
-                  Mark Ready for Pickup
-                </button>
+                <p className="text-xs text-amber-300/90 max-w-xs">
+                  Waiting for the Treasurer to record payment. The document moves to
+                  Ready for Pickup automatically after settlement.
+                </p>
               )}
 
               {selectedDoc.status === 'READY_FOR_PICKUP' && (

@@ -58,7 +58,7 @@ export async function GET(request) {
 
     const where = {};
     if (BLOTTER_STATUSES.includes(status)) where.status = status;
-    if (URGENCY_LEVELS.includes(urgency)) where.urgency = urgency;
+    if (URGENCY_LEVELS.includes(urgency)) where.urgency_level = urgency;
     if (INCIDENT_TYPES.includes(incidentType)) where.incident_type = incidentType;
     if (INCIDENT_ZONES.includes(zone)) where.incident_zone = zone;
     if (search) {
@@ -76,14 +76,12 @@ export async function GET(request) {
         skip: (page - 1) * size,
         take: size,
         select: {
-          id: true,
           tracking_code: true,
           incident_type: true,
           incident_date: true,
           incident_zone: true,
-          urgency: true,
+          urgency_level: true,
           status: true,
-          public_notes: true,
           created_at: true,
           updated_at: true,
           _count: { select: { updates: true } },
@@ -92,14 +90,13 @@ export async function GET(request) {
     ]);
 
     const items = reports.map((r) => ({
-      id: r.id,
+      id: r.tracking_code,
       tracking_code: r.tracking_code,
       incident_type: r.incident_type,
       incident_date: r.incident_date,
       incident_zone: r.incident_zone,
-      urgency: r.urgency,
+      urgency: r.urgency_level,
       status: r.status,
-      public_notes: r.public_notes,
       update_count: r._count.updates,
       created_at: r.created_at,
       updated_at: r.updated_at,

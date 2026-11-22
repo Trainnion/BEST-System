@@ -368,7 +368,7 @@ const DEMO_BUSINESSES = [
 /** Anonymous demo reports; enc_payload is plaintext here and encrypted by the extension. */
 const DEMO_BLOTTERS = [
   {
-    tracking_code: 'BLT-DEMO-01',
+    tracking_code: 'BLT-DEM0-01',
     incident_type: 'Noise Complaint',
     incident_zone: 'Purok 1',
     incident_date: '2026-11-10',
@@ -381,7 +381,7 @@ const DEMO_BLOTTERS = [
     exact_time: '22:15',
   },
   {
-    tracking_code: 'BLT-DEMO-02',
+    tracking_code: 'BLT-DEM0-02',
     incident_type: 'Stray Animals',
     incident_zone: 'Purok 3',
     incident_date: '2026-11-11',
@@ -398,7 +398,7 @@ const DEMO_BLOTTERS = [
 const DEMO_BLOTTER_UPDATES = [
   {
     id: 'BUP-DEMO01',
-    blotter_tracking_code: 'BLT-DEMO-01',
+    blotter_tracking_code: 'BLT-DEM0-01',
     action_taken: 'Received at the desk',
     public_notes: 'Demo public note: the desk officer will follow up.',
     internal_notes: 'Demo staff-only note: verify the quiet-hours schedule.',
@@ -407,7 +407,7 @@ const DEMO_BLOTTER_UPDATES = [
   },
   {
     id: 'BUP-DEMO02',
-    blotter_tracking_code: 'BLT-DEMO-02',
+    blotter_tracking_code: 'BLT-DEM0-02',
     action_taken: 'Assigned for review',
     public_notes: 'Demo public note: the report is under review.',
     internal_notes: 'Demo staff-only note: coordinate with the barangay veterinary desk.',

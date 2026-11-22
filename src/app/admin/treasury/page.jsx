@@ -298,13 +298,14 @@ export default function TreasuryPage() {
       if (!id || !draft) return;
       const currentStatus = item.status || draft.status;
       const allowed =
+        (currentStatus === 'INTAKE_SCHEDULED' && nextStatus === 'IN_PERSON_SCREENING') ||
         (currentStatus === 'IN_PERSON_SCREENING' && nextStatus === 'TREASURER_ASSESSED') ||
         (currentStatus === 'TREASURER_ASSESSED' && (nextStatus === 'APPROVED' || nextStatus === 'REJECTED'));
       if (!allowed) return;
 
       const declared = Number(draft.declared_gross_income);
       const assessed = Number(draft.assessed_fee);
-      if (nextStatus !== 'REJECTED') {
+      if (nextStatus !== 'REJECTED' && nextStatus !== 'IN_PERSON_SCREENING') {
         if (!Number.isFinite(declared) || declared < 0) return;
         if (!Number.isFinite(assessed) || assessed < 0) return;
       }
@@ -318,13 +319,20 @@ export default function TreasuryPage() {
         return base;
       });
 
-      const payload = {
-        status: nextStatus,
-        checklist_items: checklistPayload,
-        assessment_notes: (draft.assessment_notes || '').trim() || undefined,
-      };
-      if (draft.declared_gross_income !== '') payload.declared_gross_income = Number(draft.declared_gross_income);
-      if (draft.assessed_fee !== '') payload.assessed_fee = Number(draft.assessed_fee);
+      // Starting the screening only moves the state; it must not overwrite the
+      // checklist verification that happens during the face-to-face meeting.
+      const payload =
+        nextStatus === 'IN_PERSON_SCREENING'
+          ? { status: nextStatus }
+          : {
+              status: nextStatus,
+              checklist_items: checklistPayload,
+              assessment_notes: (draft.assessment_notes || '').trim() || undefined,
+            };
+      if (nextStatus !== 'IN_PERSON_SCREENING') {
+        if (draft.declared_gross_income !== '') payload.declared_gross_income = Number(draft.declared_gross_income);
+        if (draft.assessed_fee !== '') payload.assessed_fee = Number(draft.assessed_fee);
+      }
 
       setBizSubmitting((prev) => ({ ...prev, [id]: true }));
       try {
@@ -531,6 +539,7 @@ export default function TreasuryPage() {
             const draft = bizDrafts[item.id] || { checklist: normalizeChecklist(item), declared_gross_income: '', assessed_fee: '', assessment_notes: '', status: item.status };
             const busy = !!bizSubmitting[item.id];
             const status = item.status || draft.status;
+            const canScreen = status === 'INTAKE_SCHEDULED';
             const canAssess = status === 'IN_PERSON_SCREENING';
             const canDecide = status === 'TREASURER_ASSESSED';
             return (
@@ -600,6 +609,11 @@ export default function TreasuryPage() {
                 </label>
 
                 <div style={styles.actions}>
+                  {canScreen ? (
+                    <button type="button" style={styles.primaryButton} disabled={busy} onClick={() => submitBiz(item, 'IN_PERSON_SCREENING')}>
+                      {busy ? 'Saving...' : 'Start In-Person Screening'}
+                    </button>
+                  ) : null}
                   {canAssess ? (
                     <button type="button" style={styles.primaryButton} disabled={busy} onClick={() => submitBiz(item, 'TREASURER_ASSESSED')}>
                       {busy ? 'Saving...' : 'Mark Treasurer Assessed'}
@@ -615,7 +629,7 @@ export default function TreasuryPage() {
                       </button>
                     </>
                   ) : null}
-                  {!canAssess && !canDecide ? (
+                  {!canScreen && !canAssess && !canDecide ? (
                     <p style={styles.pMuted}>No screening transition available for this status.</p>
                   ) : null}
                 </div>

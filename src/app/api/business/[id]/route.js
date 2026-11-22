@@ -18,11 +18,16 @@
  *   404 -> business not found.
  *   409 -> disallowed status transition or unmet assessment requirements.
  *
- * The endpoint records the in-person screening outcome. The allowed terminal
- * state is TREASURER_ASSESSED (plan decision in docs/ai-work-distribution.md
- * Sec. 6.1: REVENUE_ASSESSED / INSPECTION_VERIFIED are stored as
- * TREASURER_ASSESSED): there is NO automated online approval and APPROVED /
- * REJECTED are never written here.
+ * Nothing is approved automatically. The Treasurer records the in-person
+ * screening as TREASURER_ASSESSED, then explicitly approves or rejects the
+ * application at the counter. APPROVED additionally requires the recorded
+ * income, fee, notes and a fully complied checklist (plan Phase 5 gate).
+ *
+ * The endpoint records the in-person screening outcome and the Treasurer's
+ * explicit counter decision (plan Sec. 6.1 maps REVENUE_ASSESSED /
+ * INSPECTION_VERIFIED to TREASURER_ASSESSED). Nothing is approved by an
+ * automated process; every write below is an authenticated Treasurer/Admin
+ * action after the face-to-face assessment.
  *
  * The answer never carries the encrypted fields back; it returns operational
  * metadata plus the checklist.
@@ -198,20 +203,15 @@ export async function PATCH(request, { params }) {
       }
     }
 
-    // --- status: only the in-person screening outcome may be recorded online.
+    // --- status: the Treasurer records the in-person screening and the
+    // counter decision. Nothing is set automatically, and the transition map
+    // rejects skips or moves backwards.
     let requestedStatus = null;
     const statusProvided = body.status !== undefined && body.status !== null && body.status !== '';
     if (statusProvided) {
       requestedStatus = String(body.status).trim().toUpperCase();
       if (!BUSINESS_STATUSES.includes(requestedStatus)) {
         throw new AuthError(400, 'Unknown business status.', 'STATUS_INVALID');
-      }
-      if (requestedStatus !== 'TREASURER_ASSESSED') {
-        throw new AuthError(
-          400,
-          'Only the in-person screening outcome can be recorded online.',
-          'STATUS_NOT_ALLOWED',
-        );
       }
       if (!canTransitionBusinessStatus(existing.status, requestedStatus)) {
         throw new AuthError(409, 'That status transition is not allowed.', 'STATUS_TRANSITION_INVALID');
@@ -235,6 +235,37 @@ export async function PATCH(request, { params }) {
           !newNotes
         ) {
           throw new AuthError(409, 'Income, fee and notes are required for the in-person screening.', 'ASSESSMENT_INCOMPLETE');
+        }
+      }
+      if (finalStatus === 'APPROVED') {
+        // Approval is only the Treasurer's counter decision after the
+        // face-to-face assessment: the assessment core must already exist and
+        // every checklist item must be complied. Merge pending checklist
+        // edits so an approval cannot race a just-cleared requirement.
+        const mergedChecklist = (existing.checklist_items || []).map((item) => {
+          const patch = checklistUpdates.find((update) => update.id.trim() === item.id);
+          return {
+            is_complied:
+              patch && patch.is_complied !== undefined ? patch.is_complied : item.is_complied,
+          };
+        });
+        const complete =
+          Number.isFinite(newIncome) &&
+          newIncome >= 0 &&
+          Number.isFinite(newFee) &&
+          newFee >= 0 &&
+          typeof newNotes === 'string' &&
+          newNotes.trim() !== '' &&
+          typeof existing.assessed_by_id === 'string' &&
+          existing.assessed_by_id.trim() !== '' &&
+          mergedChecklist.length > 0 &&
+          mergedChecklist.every((item) => item.is_complied === true);
+        if (!complete) {
+          throw new AuthError(
+            409,
+            'Approval requires the recorded assessment and a fully complied checklist.',
+            'APPROVAL_REQUIREMENTS_UNMET',
+          );
         }
       }
     }
@@ -263,7 +294,7 @@ export async function PATCH(request, { params }) {
     if (finalStatus !== existing.status) {
       updateData.status = finalStatus;
     }
-    const isAssessmentAction = assessmentSubmitted || requestedStatus !== null;
+    const isAssessmentAction = assessmentSubmitted || finalStatus === 'TREASURER_ASSESSED';
     if (isAssessmentAction) {
       updateData.assessed_by_id = user.id;
     }

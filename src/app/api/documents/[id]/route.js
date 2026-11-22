@@ -140,7 +140,13 @@ export async function PATCH(request, { params }) {
 
     const existing = await prisma.documentRequest.findUnique({
       where: { tracking_code: id },
-      select: { tracking_code: true, status: true, fee_amount: true, rejection_reason: true },
+      select: {
+        tracking_code: true,
+        status: true,
+        fee_amount: true,
+        rejection_reason: true,
+        payment: { select: { id: true } },
+      },
     });
     if (!existing) {
       throw new AuthError(404, 'That document could not be found.', 'DOCUMENT_NOT_FOUND');
@@ -197,6 +203,20 @@ export async function PATCH(request, { params }) {
     }
 
     const updateData = {};
+    // A fee-bearing document may not be marked ready for pickup until the
+    // Treasurer has recorded its payment (plan line 216: PAYMENT_PENDING ->
+    // PAID -> READY_FOR_PICKUP). Zero-fee indigency skips this branch.
+    if (
+      requestedStatus === 'READY_FOR_PICKUP' &&
+      Number(newFee) > 0 &&
+      !existing.payment
+    ) {
+      throw new AuthError(
+        409,
+        'Payment must be recorded before the document is marked ready for pickup.',
+        'PAYMENT_REQUIRED',
+      );
+    }
     if (requestedStatus !== null) updateData.status = requestedStatus;
     if (hasRejectionReason) updateData.rejection_reason = newRejectionReason;
     if (hasFee) updateData.fee_amount = newFee;
