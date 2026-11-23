@@ -8,11 +8,11 @@
  *   401 -> no verified resident session.
  *
  * GET - staff list (STAFF_ROLES).
- *   200 -> { items, total, page }. Allow-list metadata only: the encrypted
- *          business fields are never selected, never decrypted and never
- *          returned.
+ *   200 -> { items, total, page }. Staff receive the applicant's full name;
+ *          encrypted business fields are never selected, decrypted or returned.
  *
- * Nothing about the request is logged; no PII leaves this handler unmasked.
+ * Nothing about the request is logged. Public business views do not use this
+ * staff-only handler.
  */
 
 import { randomBytes } from 'node:crypto';
@@ -26,7 +26,6 @@ import {
   assertNoResidentId,
   errorResponse,
   jsonResponse,
-  maskName,
   readJsonBody,
   requireSession,
 } from '../../../lib/auth.js';
@@ -251,7 +250,7 @@ export async function GET(request) {
           physical_appointment_date: true,
           assessed_fee: true,
           declared_gross_income: true,
-          owner: { select: { first_name: true, last_name: true } },
+          owner: { select: { first_name: true, middle_name: true, last_name: true, suffix: true } },
           checklist_items: {
             select: { id: true, item_code: true, title: true, is_complied: true, remarks: true },
           },
@@ -266,7 +265,10 @@ export async function GET(request) {
       physical_appointment_date: row.physical_appointment_date,
       assessed_fee: formatMoney(row.assessed_fee),
       declared_gross_income: formatMoney(row.declared_gross_income),
-      owner_masked: maskName(row.owner.first_name, row.owner.last_name),
+      owner_name: [row.owner.first_name, row.owner.middle_name, row.owner.last_name, row.owner.suffix]
+        .filter((part) => typeof part === 'string' && part.trim())
+        .map((part) => part.trim())
+        .join(' '),
       has_payment: !!row.payment,
       checklist: mapChecklist(row.checklist_items),
     }));

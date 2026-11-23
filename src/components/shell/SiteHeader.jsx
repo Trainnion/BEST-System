@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   Menu,
   Moon,
+  LogOut,
   Search,
   ShieldCheck,
   Sun,
@@ -42,14 +43,33 @@ function isCurrent(pathname, href) {
 
 export default function SiteHeader() {
   const pathname = usePathname() || '/';
+  const router = useRouter();
 
   const [open, setOpen] = useState(false);
+  const [residentSignedIn, setResidentSignedIn] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
   const { isDark, toggleTheme, mounted } = useTheme();
   const { tier, setTier } = useMotionPreference();
 
   // Navigation always closes the small-screen panel.
   useEffect(() => {
     setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname.startsWith('/admin')) return undefined;
+    let active = true;
+    fetch('/api/resident/me', { cache: 'no-store', credentials: 'same-origin' })
+      .then((response) => {
+        if (active) setResidentSignedIn(response.ok);
+      })
+      .catch(() => {
+        if (active) setResidentSignedIn(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [pathname]);
 
   useEffect(() => {
@@ -61,12 +81,38 @@ export default function SiteHeader() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open]);
 
+  async function handleResidentSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    setSignOutError('');
+    try {
+      const response = await fetch('/api/resident/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        cache: 'no-store',
+      });
+      if (!response.ok) throw new Error('Sign out failed. Please try again.');
+      setResidentSignedIn(false);
+      setOpen(false);
+      router.replace('/resident/login');
+      router.refresh();
+    } catch {
+      setSignOutError('Could not sign out. Check the connection and try again.');
+    } finally {
+      setSigningOut(false);
+    }
+  }
+
   // Do not render public navigation header on admin portal pages. The early
   // return sits after every hook so the hook order is stable when a client
   // navigation crosses between the public site and the admin portal.
   if (pathname.startsWith('/admin')) {
     return null;
   }
+
+  const navLinks = residentSignedIn
+    ? NAV_LINKS.map((link) => link.href === '/login' ? { href: '/resident/account', label: 'My account' } : link)
+    : NAV_LINKS;
 
   return (
     <div className="site-header sticky top-3.5 z-40 px-3 sm:px-6">
@@ -94,7 +140,7 @@ export default function SiteHeader() {
 
           {/* Center: Primary Navigation Links */}
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const current = isCurrent(pathname, link.href);
               return (
                 <Link
@@ -115,6 +161,17 @@ export default function SiteHeader() {
 
           {/* Right: Quick Action Pill + Performance Tier (Lite/Full) + Theme Switcher + Mobile Trigger */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {residentSignedIn ? (
+              <button
+                type="button"
+                onClick={handleResidentSignOut}
+                disabled={signingOut}
+                className="hidden min-h-9 items-center gap-1.5 rounded-full border border-rose-300 px-3 text-xs font-bold text-rose-800 hover:bg-rose-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 xl:inline-flex dark:border-rose-400/30 dark:text-rose-200 dark:hover:bg-rose-500/10"
+              >
+                <LogOut size={14} aria-hidden="true" />
+                {signingOut ? 'Signing out…' : 'Sign out'}
+              </button>
+            ) : null}
             {/* Quick Track Pill */}
             <Link
               href="/track"
@@ -206,7 +263,7 @@ export default function SiteHeader() {
               </span>
             </div>
             <ul className="grid grid-cols-2 gap-2">
-              {NAV_LINKS.map((link) => {
+              {navLinks.map((link) => {
                 const current = isCurrent(pathname, link.href);
                 return (
                   <li key={link.href}>
@@ -225,6 +282,15 @@ export default function SiteHeader() {
                 );
               })}
             </ul>
+
+            {residentSignedIn ? (
+              <div className="mt-3 border-t border-slate-200 pt-3 px-1 dark:border-white/10">
+                <button type="button" onClick={handleResidentSignOut} disabled={signingOut} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-300 px-4 text-sm font-bold text-rose-800 hover:bg-rose-50 disabled:opacity-60 dark:border-rose-400/30 dark:text-rose-200 dark:hover:bg-rose-500/10">
+                  <LogOut size={16} aria-hidden="true" /> {signingOut ? 'Signing out…' : 'Sign out'}
+                </button>
+                {signOutError ? <p role="alert" className="mt-2 text-xs font-semibold text-rose-700 dark:text-rose-300">{signOutError}</p> : null}
+              </div>
+            ) : null}
 
             <div className="mt-3 flex flex-col gap-2.5 border-t border-slate-200 pt-3 px-1 dark:border-white/10">
               <div className="flex items-center justify-between">

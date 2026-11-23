@@ -4,9 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const PAYMENT_METHODS = [
   { value: 'CASH', label: 'Cash' },
-  { value: 'GCASH_MOCK', label: 'GCash (Mock)' },
-  { value: 'LANDBANK_MOCK', label: 'LandBank (Mock)' },
+  { value: 'GCASH_MOCK', label: 'GCash' },
 ];
+
+function paymentMethodLabel(value) {
+  if (value === 'LANDBANK_MOCK') return 'LandBank (legacy record)';
+  return PAYMENT_METHODS.find((method) => method.value === value)?.label || value || 'Unknown';
+}
 
 function moneyText(value) {
   if (value == null || value === '') return '0.00';
@@ -14,11 +18,10 @@ function moneyText(value) {
   return Number.isFinite(n) ? n.toFixed(2) : String(value);
 }
 
-function sameAmount(a, b) {
-  const x = Number(a);
-  const y = Number(b);
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
-  return Math.round(x * 100) === Math.round(y * 100);
+function dateTimeText(value) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return 'Date unavailable';
+  return new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
 async function readJson(res) {
@@ -39,7 +42,7 @@ function pickList(data, keys) {
 }
 
 function ownerLabel(item) {
-  return item.owner_masked || item.masked_name || item.owner_name_masked || item.owner || 'Owner withheld';
+  return item.owner_name || item.owner || 'Owner unavailable';
 }
 
 function checklistItems(item) {
@@ -83,8 +86,7 @@ export default function TreasuryPage() {
   const [recentPayments, setRecentPayments] = useState([]);
 
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const [receiptOrNo, setReceiptOrNo] = useState('');
-  const [amount, setAmount] = useState('');
+  const [gcashReferenceNo, setGcashReferenceNo] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [remarks, setRemarks] = useState('');
   const [paySubmitting, setPaySubmitting] = useState(false);
@@ -189,10 +191,8 @@ export default function TreasuryPage() {
   }, [loadQueue, loadBusiness]);
 
   const selectTarget = useCallback((kind, item) => {
-    const fee = kind === 'document' ? item.fee_amount : item.assessed_fee;
     setSelectedTarget({ kind, item });
-    setAmount(moneyText(fee));
-    setReceiptOrNo('');
+    setGcashReferenceNo('');
     setRemarks('');
     setPaymentMethod('CASH');
     setPayMessage(null);
@@ -211,22 +211,18 @@ export default function TreasuryPage() {
       if (!selectedTarget) return;
       setPayMessage(null);
 
-      const receipt = receiptOrNo.trim();
-      if (!/^[A-Za-z0-9-]{3,40}$/.test(receipt)) {
-        setPayMessage({ type: 'error', text: 'OR number must be 3-40 characters (letters, numbers, hyphen).' });
-        return;
-      }
-      if (!sameAmount(amount, selectedFee)) {
-        setPayMessage({ type: 'error', text: 'Amount must exactly equal the target fee.' });
+      const gcashReference = gcashReferenceNo.trim();
+      if (paymentMethod === 'GCASH_MOCK' && !/^[A-Za-z0-9-]{6,40}$/.test(gcashReference)) {
+        setPayMessage({ type: 'error', text: 'Enter the GCash reference number (6–40 letters, numbers, or hyphens).' });
         return;
       }
 
       const payload = {
         amount: moneyText(selectedFee),
-        receipt_or_no: receipt,
         payment_method: paymentMethod,
         remarks: remarks.trim() || undefined,
       };
+      if (paymentMethod === 'GCASH_MOCK') payload.gcash_reference_no = gcashReference;
       if (selectedTarget.kind === 'document') {
         payload.document_request_id = selectedTarget.item.tracking_code;
       } else {
@@ -254,14 +250,17 @@ export default function TreasuryPage() {
           });
           return;
         }
+        const targetLabel = selectedTarget.kind === 'document' ? selectedTarget.item.document_type : 'business clearance';
+        const nextStep = data.target_status === 'READY_FOR_PICKUP'
+          ? 'The document is now ready for pickup.'
+          : 'The business clearance remains approved.';
         setPayMessage({
           type: 'success',
-          text: `OR ${data.payment.receipt_or_no} recorded for ${data.payment.target_id}. Target status: ${data.target_status}.`,
+          text: `Payment recorded for ${targetLabel}. BEST transaction number ${data.payment.transaction_no} created. ${nextStep}`,
           receipt: data.payment,
         });
         setSelectedTarget(null);
-        setReceiptOrNo('');
-        setAmount('');
+        setGcashReferenceNo('');
         setRemarks('');
         await loadQueue();
       } catch {
@@ -270,7 +269,7 @@ export default function TreasuryPage() {
         setPaySubmitting(false);
       }
     },
-    [selectedTarget, receiptOrNo, amount, selectedFee, paymentMethod, remarks, loadQueue],
+    [selectedTarget, gcashReferenceNo, selectedFee, paymentMethod, remarks, loadQueue],
   );
 
   const updateBizDraft = useCallback((id, patch) => {
@@ -383,50 +382,76 @@ export default function TreasuryPage() {
   return (
     <main style={styles.page}>
       <header style={styles.header}>
-        <h1 style={styles.h1}>Treasury Counter</h1>
-        <p style={styles.pMuted}>Fee settlement and business screening. Works on the local network without internet access.</p>
+        <h1 style={styles.h1}>Treasury and Official Receipts</h1>
+        <p style={styles.pMuted}>Review approved requests, record cash or GCash payments, and track each payment with a BEST-generated transaction number.</p>
       </header>
 
       <section style={styles.card} aria-labelledby="settlement-title">
-        <h2 id="settlement-title" style={styles.h2}>Fee settlement</h2>
+        <div style={styles.sectionHeading}>
+          <div>
+            <h2 id="settlement-title" style={styles.h2}>Record a payment</h2>
+            <p style={styles.pMuted}>Choose a request, confirm the payment method, then record the payment.</p>
+          </div>
+          <span style={styles.countBadge}>{queueLoading ? 'Loading' : `${payableDocuments.length + payableBusinesses.length} waiting`}</span>
+        </div>
+        <ol style={styles.steps} aria-label="Payment steps">
+          <li style={styles.step}><strong style={styles.stepNumber}>1</strong><span>Choose a request</span></li>
+          <li style={styles.step}><strong style={styles.stepNumber}>2</strong><span>Add a GCash reference when needed</span></li>
+          <li style={styles.step}><strong style={styles.stepNumber}>3</strong><span>Record the payment</span></li>
+        </ol>
         {queueLoading ? <p style={styles.p}>Loading payable items...</p> : null}
         {queueError ? <p style={styles.error} role="alert">{queueError}</p> : null}
 
         {!queueLoading ? (
           <div style={styles.columns}>
-            <div>
-              <h3 style={styles.h3}>Payable documents</h3>
+            <div style={styles.queueColumn}>
+              <div style={styles.queueHeading}>
+              <h3 style={styles.h3}>Requests awaiting payment</h3>
+                <span style={styles.pMuted}>{payableDocuments.length + payableBusinesses.length} total</span>
+              </div>
+              <p style={styles.helper}>Only requests that have passed their required review appear here.</p>
+              <h4 style={styles.subheading}>Barangay documents <span style={styles.inlineCount}>{payableDocuments.length}</span></h4>
               {payableDocuments.length === 0 ? <p style={styles.pMuted}>No payable documents.</p> : (
                 <ul style={styles.list}>
                   {payableDocuments.map((doc) => (
                     <li key={doc.tracking_code} style={styles.listItem}>
                       <button
                         type="button"
-                        style={styles.selectButton}
+                        style={selectedTarget?.kind === 'document' && selectedTarget.item.tracking_code === doc.tracking_code
+                          ? { ...styles.selectButton, ...styles.selectButtonSelected }
+                          : styles.selectButton}
                         onClick={() => selectTarget('document', doc)}
+                        disabled={paySubmitting}
+                        aria-pressed={selectedTarget?.kind === 'document' && selectedTarget.item.tracking_code === doc.tracking_code}
                         aria-label={`Select document ${doc.tracking_code} for payment`}
                       >
-                        <span style={styles.itemTitle}>{doc.tracking_code}</span>
-                        <span style={styles.itemMeta}>{doc.document_type} · {doc.masked_name} · Fee {moneyText(doc.fee_amount)}</span>
+                        <span style={styles.itemTitle}>{doc.document_type}</span>
+                        <span style={styles.itemMeta}>Request {doc.tracking_code} · {doc.resident_name || 'Name unavailable'}</span>
+                        <span style={styles.itemFee}>₱{moneyText(doc.fee_amount)}</span>
                       </button>
                     </li>
                   ))}
                 </ul>
               )}
 
-              <h3 style={styles.h3}>Payable businesses</h3>
+              <h4 style={styles.subheading}>Business clearances <span style={styles.inlineCount}>{payableBusinesses.length}</span></h4>
               {payableBusinesses.length === 0 ? <p style={styles.pMuted}>No payable businesses.</p> : (
                 <ul style={styles.list}>
                   {payableBusinesses.map((biz) => (
                     <li key={biz.id} style={styles.listItem}>
                       <button
                         type="button"
-                        style={styles.selectButton}
+                        style={selectedTarget?.kind === 'business' && selectedTarget.item.id === biz.id
+                          ? { ...styles.selectButton, ...styles.selectButtonSelected }
+                          : styles.selectButton}
                         onClick={() => selectTarget('business', biz)}
+                        disabled={paySubmitting}
+                        aria-pressed={selectedTarget?.kind === 'business' && selectedTarget.item.id === biz.id}
                         aria-label={`Select business ${biz.id} for payment`}
                       >
-                        <span style={styles.itemTitle}>{biz.id}</span>
-                        <span style={styles.itemMeta}>{ownerLabel(biz)} · Assessed fee {moneyText(biz.assessed_fee)}</span>
+                        <span style={styles.itemTitle}>Business clearance</span>
+                        <span style={styles.itemMeta}>Application {biz.id} · {ownerLabel(biz)}</span>
+                        <span style={styles.itemFee}>₱{moneyText(biz.assessed_fee)}</span>
                       </button>
                     </li>
                   ))}
@@ -434,37 +459,28 @@ export default function TreasuryPage() {
               )}
             </div>
 
-            <div>
-              <h3 style={styles.h3}>Record payment</h3>
+            <div style={styles.paymentColumn}>
+              <h3 style={styles.h3}>Payment details</h3>
               {!selectedTarget ? (
-                <p style={styles.pMuted}>Select a payable document or business to record an official receipt.</p>
+                <div style={styles.emptySelection}>
+                  <span style={styles.emptySelectionNumber}>1</span>
+                  <p style={styles.p}>Choose a request from the list to see its fee and continue.</p>
+                </div>
               ) : (
                 <form onSubmit={onSubmitPayment} style={styles.form}>
-                  <p style={styles.p}><strong>Target:</strong> {selectedTarget.kind === 'document' ? selectedTarget.item.tracking_code : selectedTarget.item.id}</p>
-                  <label style={styles.label}>
-                    OR number
-                    <input
-                      style={styles.input}
-                      value={receiptOrNo}
-                      onChange={(e) => setReceiptOrNo(e.target.value)}
-                      required
-                      minLength={3}
-                      maxLength={40}
-                      pattern="[A-Za-z0-9-]{3,40}"
-                      autoComplete="off"
-                      aria-label="Official receipt number"
-                    />
-                  </label>
-                  <label style={styles.label}>
-                    Amount
-                    <input
-                      style={styles.input}
-                      value={amount}
-                      readOnly
-                      aria-readonly="true"
-                      aria-label="Amount"
-                    />
-                  </label>
+                  <div style={styles.selectedSummary}>
+                    <p style={styles.summaryLabel}>Selected request</p>
+                    <p style={styles.selectedTitle}>{selectedTarget.kind === 'document' ? selectedTarget.item.document_type : 'Business clearance'}</p>
+                    <p style={styles.itemMeta}>
+                      {selectedTarget.kind === 'document'
+                        ? `Request ${selectedTarget.item.tracking_code} · ${selectedTarget.item.resident_name || 'Name unavailable'}`
+                        : `Application ${selectedTarget.item.id} · ${ownerLabel(selectedTarget.item)}`}
+                    </p>
+                    <div style={styles.feeLine}>
+                      <span>Amount due</span>
+                      <strong>₱{moneyText(selectedFee)}</strong>
+                    </div>
+                  </div>
                   <label style={styles.label}>
                     Payment method
                     <select
@@ -478,8 +494,28 @@ export default function TreasuryPage() {
                       ))}
                     </select>
                   </label>
+                  {paymentMethod === 'GCASH_MOCK' ? (
+                    <label style={styles.label}>
+                      GCash reference number
+                      <input
+                        style={styles.input}
+                        value={gcashReferenceNo}
+                        onChange={(e) => setGcashReferenceNo(e.target.value)}
+                        required
+                        minLength={6}
+                        maxLength={40}
+                        pattern="[A-Za-z0-9-]{6,40}"
+                        autoComplete="off"
+                        placeholder="Enter the reference from the GCash payment"
+                        aria-describedby="gcash-reference-help"
+                      />
+                      <span id="gcash-reference-help" style={styles.helper}>Use the reference number shown in the GCash payment confirmation.</span>
+                    </label>
+                  ) : (
+                    <p style={styles.helper}>Cash payments do not need a provider reference. BEST assigns the transaction number after you record the payment.</p>
+                  )}
                   <label style={styles.label}>
-                    Remarks
+                    Notes (optional)
                     <textarea
                       style={styles.textarea}
                       value={remarks}
@@ -489,9 +525,12 @@ export default function TreasuryPage() {
                       aria-label="Remarks"
                     />
                   </label>
-                  <button type="submit" style={styles.primaryButton} disabled={paySubmitting}>
-                    {paySubmitting ? 'Recording...' : 'Record payment'}
-                  </button>
+                  <div>
+                    <button type="submit" style={styles.primaryButton} disabled={paySubmitting}>
+                      {paySubmitting ? 'Recording payment...' : 'Record payment'}
+                    </button>
+                    <p style={styles.helper}>BEST creates the transaction number automatically when the payment is saved.</p>
+                  </div>
                 </form>
               )}
 
@@ -504,32 +543,57 @@ export default function TreasuryPage() {
                   <p style={styles.p}>{payMessage.text}</p>
                   {payMessage.receipt ? (
                     <p style={styles.p}>
-                      <strong>OR confirmation:</strong> {payMessage.receipt.receipt_or_no} · {moneyText(payMessage.receipt.amount)} · {payMessage.receipt.payment_method}
+                      <strong>Transaction number:</strong> {payMessage.receipt.transaction_no} · ₱{moneyText(payMessage.receipt.amount)} · {paymentMethodLabel(payMessage.receipt.payment_method)}
                     </p>
+                  ) : null}
+                  {payMessage.receipt?.gcash_reference_no ? (
+                    <p style={styles.p}><strong>GCash reference:</strong> {payMessage.receipt.gcash_reference_no}</p>
                   ) : null}
                 </div>
               ) : null}
 
-              <h3 style={styles.h3}>Recent payments</h3>
-              {recentPayments.length === 0 ? <p style={styles.pMuted}>No recent payments.</p> : (
-                <ul style={styles.list}>
-                  {recentPayments.map((p) => (
-                    <li key={p.id} style={styles.recentItem}>
-                      <div style={styles.itemTitle}>{p.receipt_or_no} · {moneyText(p.amount)}</div>
-                      <div style={styles.itemMeta}>{p.payment_method} · {p.target_type} {p.target_id}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </div>
         ) : null}
       </section>
 
-      <section style={styles.card} aria-labelledby="screening-title">
-        <h2 id="screening-title" style={styles.h2}>Business screening</h2>
+      <section style={styles.card} aria-labelledby="recent-payments-title">
+        <div style={styles.sectionHeading}>
+          <div>
+            <h2 id="recent-payments-title" style={styles.h2}>Recent payment transactions</h2>
+            <p style={styles.pMuted}>Latest payments recorded at the counter.</p>
+          </div>
+          <span style={styles.countBadge}>{recentPayments.length} records</span>
+        </div>
+        {recentPayments.length === 0 ? <p style={styles.pMuted}>No payments have been recorded yet.</p> : (
+          <ul style={styles.receiptList}>
+            {recentPayments.map((payment) => (
+              <li key={payment.id} style={styles.receiptItem}>
+                <div style={styles.receiptMain}>
+                  <strong style={styles.itemTitle}>Transaction {payment.transaction_no || payment.id}</strong>
+                  <span style={styles.itemMeta}>{payment.target_type === 'DOCUMENT_REQUEST' ? 'Barangay document' : 'Business clearance'} · {payment.target_id}</span>
+                  <span style={styles.itemMeta}>{dateTimeText(payment.collected_at)} · {paymentMethodLabel(payment.payment_method)}</span>
+                  {payment.gcash_reference_no ? <span style={styles.itemMeta}>GCash reference: {payment.gcash_reference_no}</span> : null}
+                  {payment.official_receipt_no ? <span style={styles.itemMeta}>Official receipt no.: {payment.official_receipt_no}</span> : null}
+                </div>
+                <strong style={styles.receiptAmount}>₱{moneyText(payment.amount)}</strong>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <details style={styles.card}>
+        <summary style={styles.detailsSummary}>
+          <span>
+            <strong style={styles.detailsTitle}>Business clearance screening</strong>
+            <span style={styles.detailsCaption}>Review applications and assess fees before payment.</span>
+          </span>
+          <span style={styles.countBadge}>{bizLoading ? 'Loading' : bizError ? 'Could not load' : `${bizItems.length} applications`}</span>
+          <span style={styles.disclosureHint}>View screening steps ↓</span>
+        </summary>
+        <div style={styles.detailsBody}>
         {bizLoading ? <p style={styles.p}>Loading business screening items...</p> : null}
-        {bizError ? <p style={styles.error} role="alert">{bizError}</p> : null}
         {!bizLoading && !bizError && bizItems.length === 0 ? (
           <p style={styles.pMuted}>No business entries available.</p>
         ) : null}
@@ -639,7 +703,9 @@ export default function TreasuryPage() {
             );
           })}
         </div>
-      </section>
+        </div>
+      </details>
+      {bizError ? <p style={styles.error} role="alert">{bizError}</p> : null}
     </main>
   );
 }
@@ -650,12 +716,17 @@ const styles = {
     margin: '0 auto',
     padding: '16px',
     fontFamily: 'system-ui, -apple-system, Segoe UI, sans-serif',
-    color: '#111827',
-    background: '#f8fafc',
+    color: 'var(--text-body, #1e293b)',
+    background: 'var(--admin-page-bg, #f8fafc)',
     minHeight: '100vh',
     boxSizing: 'border-box',
   },
   header: { marginBottom: 16 },
+  sectionHeading: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 12 },
+  countBadge: { display: 'inline-flex', alignItems: 'center', padding: '5px 10px', borderRadius: 999, background: 'var(--admin-accent-soft, #eff6ff)', color: 'var(--admin-accent-text, #1e40af)', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' },
+  steps: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 8, listStyle: 'none', padding: 0, margin: '16px 0 20px' },
+  step: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 42, padding: '8px 10px', border: '1px solid var(--card-border, #e5e7eb)', borderRadius: 9, background: 'var(--card-bg, #fff)', color: 'var(--text-body, #1e293b)', fontSize: 14 },
+  stepNumber: { display: 'inline-flex', flex: '0 0 24px', alignItems: 'center', justifyContent: 'center', height: 24, borderRadius: 999, background: 'var(--admin-accent-soft, #dbeafe)', color: 'var(--admin-accent-text, #1d4ed8)', fontSize: 13 },
   card: {
     background: 'var(--card-bg, #ffffff)',
     border: '1px solid var(--card-border, #e5e7eb)',
@@ -670,6 +741,12 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
     gap: 16,
   },
+  queueColumn: { minWidth: 0 },
+  paymentColumn: { minWidth: 0, border: '1px solid var(--card-border, #e5e7eb)', borderRadius: 12, padding: 16, background: 'var(--admin-surface-subtle, #f8fafc)', boxSizing: 'border-box' },
+  queueHeading: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' },
+  subheading: { margin: '18px 0 8px', fontSize: 15, fontWeight: 700, color: 'var(--text-heading, #0f172a)' },
+  inlineCount: { display: 'inline-flex', minWidth: 22, justifyContent: 'center', marginLeft: 4, borderRadius: 999, padding: '1px 6px', background: 'var(--admin-neutral-soft, #f1f5f9)', color: 'var(--admin-neutral-text, #334155)', fontSize: 12 },
+  helper: { display: 'block', margin: '4px 0 10px', fontSize: 13, lineHeight: 1.45, color: 'var(--text-muted, #4b5563)' },
   bizGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
@@ -687,8 +764,8 @@ const styles = {
   h3: { fontSize: 17, fontWeight: 600, lineHeight: 1.3, margin: '14px 0 8px', color: 'var(--text-heading, #0f172a)' },
   p: { margin: '0 0 8px', fontSize: 15, lineHeight: 1.5, color: 'var(--text-body, #1e293b)' },
   pMuted: { margin: '0 0 8px', fontSize: 14, lineHeight: 1.5, color: 'var(--text-muted, #4b5563)' },
-  error: { margin: '0 0 8px', fontSize: 14, color: '#dc2626', fontWeight: 600 },
-  successText: { margin: '8px 0 0', fontSize: 14, color: '#16a34a', fontWeight: 600 },
+  error: { margin: '0 0 8px', fontSize: 14, color: 'var(--admin-error-text, #b91c1c)', fontWeight: 600 },
+  successText: { margin: '8px 0 0', fontSize: 14, color: 'var(--admin-success-text, #15803d)', fontWeight: 600 },
   list: { listStyle: 'none', padding: 0, margin: 0 },
   listItem: { marginBottom: 8 },
   recentItem: { padding: '8px 0', borderBottom: '1px solid var(--card-border, #f1f5f9)' },
@@ -702,9 +779,17 @@ const styles = {
     padding: '12px 14px',
     cursor: 'pointer',
   },
+  selectButtonSelected: { borderColor: 'var(--admin-accent-border, #2563eb)', background: 'var(--admin-accent-soft, #eff6ff)', boxShadow: '0 0 0 2px rgba(37, 99, 235, 0.12)' },
   itemTitle: { display: 'block', fontWeight: 700, fontSize: 15, marginBottom: 2, color: 'var(--text-heading, #0f172a)' },
   itemMeta: { display: 'block', fontSize: 14, color: 'var(--text-muted, #374151)', marginBottom: 4, overflowWrap: 'anywhere' },
+  itemFee: { display: 'block', marginTop: 8, fontSize: 16, fontWeight: 800, color: 'var(--text-heading, #0f172a)' },
   form: { display: 'grid', gap: 12 },
+  selectedSummary: { padding: 14, border: '1px solid var(--admin-accent-border, #bfdbfe)', borderRadius: 10, background: 'var(--admin-accent-soft, #eff6ff)' },
+  summaryLabel: { margin: '0 0 4px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--admin-accent-text, #1e40af)' },
+  selectedTitle: { margin: '0 0 4px', fontSize: 17, fontWeight: 750, color: 'var(--text-heading, #0f172a)' },
+  feeLine: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--admin-accent-border, #bfdbfe)', marginTop: 10, paddingTop: 10, fontSize: 15, color: 'var(--text-heading, #0f172a)' },
+  emptySelection: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: 14, border: '1px dashed var(--card-border, #cbd5e1)', borderRadius: 10, background: 'var(--card-bg, #fff)' },
+  emptySelectionNumber: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 24px', height: 24, borderRadius: 999, background: '#e2e8f0', color: '#334155', fontWeight: 700 },
   label: { display: 'grid', gap: 6, fontSize: 15, fontWeight: 600, color: 'var(--text-heading, #0f172a)' },
   labelText: { fontSize: 15, fontWeight: 600, margin: '0 0 4px', color: 'var(--text-heading, #0f172a)' },
   input: {
@@ -753,16 +838,25 @@ const styles = {
     marginTop: 12,
     padding: 10,
     borderRadius: 6,
-    border: '1px solid #fecaca',
-    background: '#fef2f2',
+    border: '1px solid var(--admin-error-border, #fecaca)',
+    background: 'var(--admin-error-bg, #fef2f2)',
   },
   successBox: {
     marginTop: 12,
     padding: 10,
     borderRadius: 6,
-    border: '1px solid #bbf7d0',
-    background: '#f0fdf4',
+    border: '1px solid var(--admin-success-border, #bbf7d0)',
+    background: 'var(--admin-success-bg, #f0fdf4)',
   },
+  receiptList: { listStyle: 'none', padding: 0, margin: 0 },
+  receiptItem: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '12px 0', borderTop: '1px solid var(--card-border, #e5e7eb)' },
+  receiptMain: { minWidth: 0 },
+  receiptAmount: { flex: '0 0 auto', fontSize: 17, color: 'var(--text-heading, #0f172a)' },
+  detailsSummary: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', cursor: 'pointer', listStyle: 'none' },
+  detailsTitle: { display: 'block', fontSize: 20, lineHeight: 1.3, color: 'var(--text-heading, #0f172a)' },
+  detailsCaption: { display: 'block', marginTop: 4, fontSize: 14, lineHeight: 1.5, color: 'var(--text-muted, #4b5563)' },
+  disclosureHint: { fontSize: 13, fontWeight: 600, color: 'var(--admin-accent-text, #1e40af)', whiteSpace: 'nowrap' },
+  detailsBody: { marginTop: 16 },
   checklistBox: { margin: '8px 0' },
   checklistList: { listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 },
   checkItem: { margin: 0 },

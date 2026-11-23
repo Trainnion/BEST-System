@@ -1,7 +1,8 @@
 /**
  * BEST System - GET /api/treasury (WP-13).
  * Treasurer/Admin queue: payable documents, payable businesses, recent payments.
- * No sealed fields, masked names only, no-store.
+ * Full names are returned only to authorized staff; public tracking stays masked.
+ * no-store.
  */
 
 import { prisma } from '../../../lib/db.js';
@@ -13,7 +14,7 @@ import {
   requireSession,
   PERMISSIONS,
 } from '../../../lib/auth.js';
-import { decimalToNumber, formatMoney, maskResident } from '../../../lib/treasury/helpers.js';
+import { formatMoney } from '../../../lib/treasury/helpers.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,7 +39,7 @@ export async function GET(request) {
           document_type: true,
           fee_amount: true,
           created_at: true,
-          resident: { select: { first_name: true, last_name: true } },
+          resident: { select: { first_name: true, middle_name: true, last_name: true, suffix: true } },
         },
       }),
       prisma.businessClearanceEntry.findMany({
@@ -49,7 +50,7 @@ export async function GET(request) {
           assessed_fee: true,
           status: true,
           physical_appointment_date: true,
-          owner: { select: { first_name: true, last_name: true } },
+          owner: { select: { first_name: true, middle_name: true, last_name: true, suffix: true } },
         },
       }),
       prisma.paymentRecord.findMany({
@@ -58,6 +59,7 @@ export async function GET(request) {
         select: {
           id: true,
           receipt_or_no: true,
+          gcash_reference_no: true,
           amount: true,
           payment_method: true,
           collected_at: true,
@@ -71,13 +73,13 @@ export async function GET(request) {
       tracking_code: row.tracking_code,
       document_type: row.document_type,
       fee_amount: formatMoney(row.fee_amount),
-      masked_name: maskResident(row.resident),
+      resident_name: fullName(row.resident),
       created_at: row.created_at,
     }));
 
     const payable_businesses = businesses.map((row) => ({
       id: row.id,
-      owner_masked: maskResident(row.owner),
+      owner_name: fullName(row.owner),
       assessed_fee: formatMoney(row.assessed_fee),
       status: row.status,
       physical_appointment_date: row.physical_appointment_date,
@@ -85,7 +87,9 @@ export async function GET(request) {
 
     const recent_payments = payments.map((row) => ({
       id: row.id,
-      receipt_or_no: row.receipt_or_no,
+      transaction_no: row.id,
+      official_receipt_no: row.receipt_or_no,
+      gcash_reference_no: row.gcash_reference_no,
       amount: formatMoney(row.amount),
       payment_method: row.payment_method,
       collected_at: row.collected_at,
@@ -97,4 +101,11 @@ export async function GET(request) {
   } catch (error) {
     return errorResponse(error);
   }
+}
+
+function fullName(person) {
+  return [person?.first_name, person?.middle_name, person?.last_name, person?.suffix]
+    .filter((part) => typeof part === 'string' && part.trim())
+    .map((part) => part.trim())
+    .join(' ');
 }

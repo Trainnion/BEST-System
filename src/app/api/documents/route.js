@@ -15,9 +15,10 @@
  *
  * GET - staff processing queue (STAFF with document review permission).
  *   200 -> { items, total, page }. Every item carries the tracking code, the
- *          type, the status, the fee, created/updated dates and the MASKED
- *          resident name (NFR-01: J*** D**). purpose and ctc_number are
- *          encrypted by the server and are never selected here.
+ *          type, the status, the fee, created/updated dates and the resident's
+ *          full name for authorized staff. purpose and ctc_number are encrypted
+ *          by the server and are never selected here. Public tracking remains
+ *          masked by /api/documents/track (NFR-01).
  *
  * Nothing about the request - no body, no PII, no tracking code - is logged.
  */
@@ -33,7 +34,6 @@ import {
   can,
   errorResponse,
   jsonResponse,
-  maskName,
   readJsonBody,
   requirePermission,
   requireSession,
@@ -108,6 +108,13 @@ function formatFee(value) {
   if (value && typeof value.toFixed === 'function') return value.toFixed(2);
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(2) : '0.00';
+}
+
+function fullResidentName(resident) {
+  return [resident.first_name, resident.middle_name, resident.last_name, resident.suffix]
+    .map((part) => (typeof part === 'string' ? part.trim() : ''))
+    .filter(Boolean)
+    .join(' ');
 }
 
 /**
@@ -328,7 +335,8 @@ export async function GET(request) {
     const status = (url.searchParams.get('status') || '').trim().toUpperCase();
     const type = (url.searchParams.get('type') || '').trim().toUpperCase();
     // Search is limited to the tracking code or the resident's last name: no
-    // encrypted field is searchable and nothing unmasked leaves this handler.
+    // encrypted field is searchable. This handler is staff-only; public
+    // tracking uses a separate route that masks resident names.
     const search = (url.searchParams.get('search') || '').trim().slice(0, 64);
     const page = clampInt(url.searchParams.get('page'), PAGE_DEFAULT, 1, 100000);
     const size = clampInt(
@@ -362,7 +370,7 @@ export async function GET(request) {
           fee_amount: true,
           created_at: true,
           updated_at: true,
-          resident: { select: { first_name: true, last_name: true } },
+          resident: { select: { first_name: true, middle_name: true, last_name: true, suffix: true } },
         },
       }),
     ]);
@@ -374,7 +382,7 @@ export async function GET(request) {
       fee_amount: formatFee(row.fee_amount),
       created_at: row.created_at,
       updated_at: row.updated_at,
-      masked_name: maskName(row.resident.first_name, row.resident.last_name),
+      resident_name: fullResidentName(row.resident),
     }));
 
     return jsonResponse({ items, total, page });

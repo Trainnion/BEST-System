@@ -14,7 +14,7 @@ import {
   Users,
 } from 'lucide-react';
 
-const DEFAULT_RESIDENT_NEXT = '/services/request';
+const DEFAULT_RESIDENT_NEXT = '/resident/account';
 const DEFAULT_STAFF_NEXT = '/admin/dashboard';
 
 function safeNext(raw, fallback = DEFAULT_RESIDENT_NEXT) {

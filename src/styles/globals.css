@@ -577,6 +577,19 @@
 /* Theme Variables for Admin */
 html.dark .admin-portal,
 html[data-theme='dark'] .admin-portal {
+  --admin-page-bg: #020617;
+  --admin-surface-subtle: rgba(2, 6, 23, 0.55);
+  --admin-accent-soft: rgba(37, 99, 235, 0.2);
+  --admin-accent-text: #93c5fd;
+  --admin-accent-border: rgba(96, 165, 250, 0.5);
+  --admin-neutral-soft: rgba(148, 163, 184, 0.16);
+  --admin-neutral-text: #cbd5e1;
+  --admin-error-bg: rgba(127, 29, 29, 0.35);
+  --admin-error-border: rgba(248, 113, 113, 0.45);
+  --admin-error-text: #f87171;
+  --admin-success-bg: rgba(20, 83, 45, 0.35);
+  --admin-success-border: rgba(74, 222, 128, 0.4);
+  --admin-success-text: #4ade80;
   --card-bg: rgba(15, 23, 42, 0.75);
   --card-border: rgba(255, 255, 255, 0.1);
   --text-heading: #f8fafc;
@@ -590,6 +603,19 @@ html[data-theme='dark'] .admin-portal {
 html.light .admin-portal,
 html:not(.dark) .admin-portal,
 html[data-theme='light'] .admin-portal {
+  --admin-page-bg: #f8fafc;
+  --admin-surface-subtle: #f8fafc;
+  --admin-accent-soft: #eff6ff;
+  --admin-accent-text: #1e40af;
+  --admin-accent-border: #bfdbfe;
+  --admin-neutral-soft: #f1f5f9;
+  --admin-neutral-text: #334155;
+  --admin-error-bg: #fef2f2;
+  --admin-error-border: #fecaca;
+  --admin-error-text: #b91c1c;
+  --admin-success-bg: #f0fdf4;
+  --admin-success-border: #bbf7d0;
+  --admin-success-text: #15803d;
   --card-bg: #ffffff;
   --card-border: #e2e8f0;
   --text-heading: #0f172a;
@@ -626,12 +652,12 @@ html[data-theme='light'] .admin-portal .border-white\/5 {
   border-color: #cbd5e1 !important;
 }
 
-html.light .admin-portal [class*='bg-slate-900'],
-html.light .admin-portal [class*='bg-slate-950'],
-html:not(.dark) .admin-portal [class*='bg-slate-900'],
-html:not(.dark) .admin-portal [class*='bg-slate-950'],
-html[data-theme='light'] .admin-portal [class*='bg-slate-900'],
-html[data-theme='light'] .admin-portal [class*='bg-slate-950'] {
+html.light .admin-portal [class*='bg-slate-900']:not(button):not(a),
+html.light .admin-portal [class*='bg-slate-950']:not(button):not(a),
+html:not(.dark) .admin-portal [class*='bg-slate-900']:not(button):not(a),
+html:not(.dark) .admin-portal [class*='bg-slate-950']:not(button):not(a),
+html[data-theme='light'] .admin-portal [class*='bg-slate-900']:not(button):not(a),
+html[data-theme='light'] .admin-portal [class*='bg-slate-950']:not(button):not(a) {
   background-color: #ffffff !important;
   color: #0f172a !important;
   box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px 0 rgba(15, 23, 42, 0.04) !important;
@@ -642,16 +668,92 @@ html.light .admin-portal h1,
 html.light .admin-portal h2,
 html.light .admin-portal h3,
 html.light .admin-portal h4,
-html.light .admin-portal [class*='text-white'],
 html:not(.dark) .admin-portal h1,
 html:not(.dark) .admin-portal h2,
 html:not(.dark) .admin-portal h3,
-html:not(.dark) .admin-portal [class*='text-white'],
 html[data-theme='light'] .admin-portal h1,
 html[data-theme='light'] .admin-portal h2,
 html[data-theme='light'] .admin-portal h3,
-html[data-theme='light'] .admin-portal [class*='text-white'] {
+html[data-theme='light'] .admin-portal h4 {
   color: #0f172a !important;
+}
+
+/* Text on panels converted to light surfaces must follow the light palette. */
+html.light .admin-portal [class~='text-white'],
+html:not(.dark) .admin-portal [class~='text-white'],
+html[data-theme='light'] .admin-portal [class~='text-white'] {
+  color: #0f172a !important;
+}
+
+/* Keep white text on dark or colored controls after light-theme panel fixes. */
+html.light .admin-portal button [class~='text-white'],
+html.light .admin-portal button[class~='text-white'],
+html.light .admin-portal a [class~='text-white'],
+html.light .admin-portal a[class~='text-white'],
+html:not(.dark) .admin-portal button [class~='text-white'],
+html:not(.dark) .admin-portal button[class~='text-white'],
+html:not(.dark) .admin-portal a [class~='text-white'],
+html:not(.dark) .admin-portal a[class~='text-white'],
+html[data-theme='light'] .admin-portal button [class~='text-white'],
+html[data-theme='light'] .admin-portal button[class~='text-white'],
+html[data-theme='light'] .admin-portal a [class~='text-white'],
+html[data-theme='light'] .admin-portal a[class~='text-white'] {
+  color: #fff !important;
+}
+
+/* Slate controls keep a dark surface in light mode, so keep their labels light. */
+html.light .admin-portal button[class~='bg-slate-700'],
+html.light .admin-portal button[class~='bg-slate-800'],
+html.light .admin-portal button[class~='bg-slate-900'],
+html.light .admin-portal button[class~='bg-slate-950'],
+html.light .admin-portal a[class~='bg-slate-700'],
+html.light .admin-portal a[class~='bg-slate-800'],
+html.light .admin-portal a[class~='bg-slate-900'],
+html.light .admin-portal a[class~='bg-slate-950'],
+html:not(.dark) .admin-portal button[class~='bg-slate-700'],
+html:not(.dark) .admin-portal button[class~='bg-slate-800'],
+html:not(.dark) .admin-portal button[class~='bg-slate-900'],
+html:not(.dark) .admin-portal button[class~='bg-slate-950'],
+html:not(.dark) .admin-portal a[class~='bg-slate-700'],
+html:not(.dark) .admin-portal a[class~='bg-slate-800'],
+html:not(.dark) .admin-portal a[class~='bg-slate-900'],
+html:not(.dark) .admin-portal a[class~='bg-slate-950'],
+html[data-theme='light'] .admin-portal button[class~='bg-slate-700'],
+html[data-theme='light'] .admin-portal button[class~='bg-slate-800'],
+html[data-theme='light'] .admin-portal button[class~='bg-slate-900'],
+html[data-theme='light'] .admin-portal button[class~='bg-slate-950'],
+html[data-theme='light'] .admin-portal a[class~='bg-slate-700'],
+html[data-theme='light'] .admin-portal a[class~='bg-slate-800'],
+html[data-theme='light'] .admin-portal a[class~='bg-slate-900'],
+html[data-theme='light'] .admin-portal a[class~='bg-slate-950'] {
+  color: #fff !important;
+}
+
+html.light .admin-portal button[class~='bg-slate-700'] *,
+html.light .admin-portal button[class~='bg-slate-800'] *,
+html.light .admin-portal button[class~='bg-slate-900'] *,
+html.light .admin-portal button[class~='bg-slate-950'] *,
+html.light .admin-portal a[class~='bg-slate-700'] *,
+html.light .admin-portal a[class~='bg-slate-800'] *,
+html.light .admin-portal a[class~='bg-slate-900'] *,
+html.light .admin-portal a[class~='bg-slate-950'] *,
+html:not(.dark) .admin-portal button[class~='bg-slate-700'] *,
+html:not(.dark) .admin-portal button[class~='bg-slate-800'] *,
+html:not(.dark) .admin-portal button[class~='bg-slate-900'] *,
+html:not(.dark) .admin-portal button[class~='bg-slate-950'] *,
+html:not(.dark) .admin-portal a[class~='bg-slate-700'] *,
+html:not(.dark) .admin-portal a[class~='bg-slate-800'] *,
+html:not(.dark) .admin-portal a[class~='bg-slate-900'] *,
+html:not(.dark) .admin-portal a[class~='bg-slate-950'] *,
+html[data-theme='light'] .admin-portal button[class~='bg-slate-700'] *,
+html[data-theme='light'] .admin-portal button[class~='bg-slate-800'] *,
+html[data-theme='light'] .admin-portal button[class~='bg-slate-900'] *,
+html[data-theme='light'] .admin-portal button[class~='bg-slate-950'] *,
+html[data-theme='light'] .admin-portal a[class~='bg-slate-700'] *,
+html[data-theme='light'] .admin-portal a[class~='bg-slate-800'] *,
+html[data-theme='light'] .admin-portal a[class~='bg-slate-900'] *,
+html[data-theme='light'] .admin-portal a[class~='bg-slate-950'] * {
+  color: #fff !important;
 }
 
 /* Light Mode Secondary Text */

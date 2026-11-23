@@ -22,7 +22,7 @@ export default function DocumentPrintPage() {
 
     async function loadDocument() {
       try {
-        const res = await fetch(`/api/documents/${trackingCode}`);
+        const res = await fetch(`/api/documents/${trackingCode}`, { cache: 'no-store', credentials: 'same-origin' });
         if (!res.ok) throw new Error('Document record not found');
         const data = await res.json();
         if (active) {
@@ -69,6 +69,27 @@ export default function DocumentPrintPage() {
             Return to Queue
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  const missingSignatories = [];
+  if (!doc.signatories?.punong_barangay?.full_name) missingSignatories.push('active Punong Barangay in Officials Directory');
+  if (!doc.signatories?.officer?.full_name) missingSignatories.push('your full name in My Account and a recorded review action for this request');
+  if (missingSignatories.length) {
+    return (
+      <div className="min-h-screen bg-slate-100 px-4 py-12 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <section className="mx-auto max-w-xl rounded-2xl border border-amber-300 bg-white p-6 shadow-sm dark:border-amber-400/30 dark:bg-slate-900">
+          <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-300" aria-hidden="true" />
+          <h1 className="mt-3 text-xl font-bold">Certificate signatories need attention</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The certificate is not ready to print because it cannot identify:</p>
+          <ul className="mt-2 list-inside list-disc space-y-1 text-sm font-semibold">{missingSignatories.map((item) => <li key={item}>{item}</li>)}</ul>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {!doc.signatories?.punong_barangay?.full_name ? <Link href="/admin/directory" className="rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-800 dark:bg-cyan-500 dark:text-slate-950">Update Officials Directory</Link> : null}
+            {!doc.signatories?.officer?.full_name ? <Link href="/admin/account" className="rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-800 dark:bg-cyan-500 dark:text-slate-950">Set your staff name</Link> : null}
+            <Link href="/admin/documents" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold hover:bg-slate-100 dark:border-white/15 dark:hover:bg-white/5">Return to queue</Link>
+          </div>
+        </section>
       </div>
     );
   }

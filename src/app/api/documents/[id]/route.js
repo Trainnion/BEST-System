@@ -1,11 +1,11 @@
 /**
  * BEST System - /api/documents/[id] (WP-08, plan Sec. 6.4, Sec. 12.4).
  *
- * GET  - staff detail view. Returns the request with the decrypted purpose and
- *        ctc_number plus operational metadata. Writes an AuditLog entry with
- *        action VIEW_ENCRYPTED before the answer leaves the server.
+ * GET  - staff detail view. Returns the request with the full resident name,
+ *        certificate fields, and decrypted purpose/CTC/address. Writes audit
+ *        entries before the answer leaves the server.
  *        200 -> { tracking_code, document_type, status, fee_amount,
- *                rejection_reason, qr_hash, purpose, ctc_number, masked_name,
+ *                rejection_reason, qr_hash, purpose, ctc_number, transaction_no, resident,
  *                created_at, updated_at }
  *        401 / 403 / 404.
  *
@@ -21,7 +21,6 @@ import {
   STAFF_ROLES,
   errorResponse,
   jsonResponse,
-  maskName,
   randomId,
   readJsonBody,
   requirePermission,
@@ -29,6 +28,7 @@ import {
   PERMISSIONS,
 } from '../../../../lib/auth.js';
 import { logEncryptedView } from '../../../../lib/audit.js';
+import { decryptField } from '../../../../lib/crypto/field.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -55,6 +55,13 @@ function formatFee(value) {
   if (value && typeof value.toFixed === 'function') return value.toFixed(2);
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(2) : '0.00';
+}
+
+function fullResidentName(resident) {
+  return [resident.first_name, resident.middle_name, resident.last_name, resident.suffix]
+    .map((part) => (typeof part === 'string' ? part.trim() : ''))
+    .filter(Boolean)
+    .join(' ');
 }
 
 function idFromParams(params) {
@@ -88,7 +95,20 @@ export async function GET(request, { params }) {
         qr_hash: true,
         created_at: true,
         updated_at: true,
-        resident: { select: { first_name: true, last_name: true } },
+        resident: {
+          select: {
+            id: true,
+            first_name: true,
+            middle_name: true,
+            last_name: true,
+            suffix: true,
+            civil_status: true,
+            street_address: true,
+            purok: true,
+          },
+        },
+        payment: { select: { id: true } },
+        reviewed_by: { select: { full_name: true, role: true } },
       },
     });
 
@@ -103,6 +123,37 @@ export async function GET(request, { params }) {
       targetId: id,
       fields: ['purpose', 'ctc_number'],
     });
+    await logEncryptedView({
+      userId: user.id,
+      model: 'Resident',
+      targetId: row.resident.id,
+      fields: ['street_address'],
+    });
+    // Prisma's field-encryption extension decrypts the top-level model only;
+    // this selected Resident relation therefore needs explicit decryption.
+    const residentStreetAddress = decryptField(
+      row.resident.street_address,
+      'Resident.street_address',
+    );
+
+    const officials = await prisma.barangayOfficial.findMany({
+      where: { is_active: true },
+      orderBy: [{ display_order: 'asc' }, { full_name: 'asc' }],
+      select: { full_name: true, position: true },
+    });
+    const punongBarangay = officials.find((official) =>
+      /punong barangay|barangay captain/i.test(official.position || ''),
+    );
+    const placeholderStaffNames = new Set([
+      'admin',
+      'administrator',
+      'barangay administrator',
+      'barangay staff',
+      'staff',
+      'official',
+    ]);
+    const officerName = (row.reviewed_by?.full_name || '').trim();
+    const hasOfficerName = officerName.length >= 2 && !placeholderStaffNames.has(officerName.toLowerCase());
 
     return jsonResponse({
       tracking_code: row.tracking_code,
@@ -113,7 +164,23 @@ export async function GET(request, { params }) {
       ctc_number: row.ctc_number,
       rejection_reason: row.rejection_reason,
       qr_hash: row.qr_hash,
-      masked_name: maskName(row.resident.first_name, row.resident.last_name),
+      transaction_no: row.payment?.id || null,
+      resident: {
+        full_name: fullResidentName(row.resident),
+        civil_status: row.resident.civil_status,
+        street_address: residentStreetAddress,
+        purok: row.resident.purok,
+      },
+      signatories: {
+        punong_barangay: punongBarangay ? {
+          full_name: punongBarangay.full_name,
+          position: punongBarangay.position,
+        } : null,
+        officer: hasOfficerName ? {
+          full_name: officerName,
+          role: row.reviewed_by.role,
+        } : null,
+      },
       created_at: row.created_at,
       updated_at: row.updated_at,
     });

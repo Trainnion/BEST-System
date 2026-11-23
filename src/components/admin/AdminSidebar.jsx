@@ -14,6 +14,7 @@ import {
   Shield,
   Sun,
   Moon,
+  UserRound,
 } from 'lucide-react';
 import useTheme from '@/lib/hooks/useTheme';
 
@@ -21,10 +22,11 @@ const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/documents', label: 'Document Queue', icon: FileText },
   { href: '/admin/blotter', label: 'Anonymous Blotter', icon: ShieldAlert },
-  { href: '/admin/treasury', label: 'Treasury & ORs', icon: CreditCard },
+  { href: '/admin/treasury', label: 'Treasury & Official Receipts', icon: CreditCard },
   { href: '/admin/residents', label: 'Residents & Slips', icon: Users },
   { href: '/admin/broadcasts', label: 'Broadcasts', icon: Radio },
   { href: '/admin/directory', label: 'Officials Directory', icon: BookOpen },
+  { href: '/admin/account', label: 'My Account', icon: UserRound },
 ];
 
 export default function AdminSidebar({ user }) {
@@ -107,7 +109,8 @@ export default function AdminSidebar({ user }) {
         {user && (
           <div className="px-3 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 dark:bg-white/5 dark:border-white/5 dark:text-slate-200">
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Signed in as</div>
-            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{user.username}</div>
+            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{user.full_name || user.username}</div>
+            {user.full_name && user.full_name !== user.username ? <div className="text-xs text-slate-500 dark:text-slate-400 truncate">@{user.username}</div> : null}
             <div className="text-xs text-sky-700 dark:text-cyan-400 font-mono mt-0.5 font-bold">{user.role}</div>
           </div>
         )}

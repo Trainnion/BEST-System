@@ -4,9 +4,15 @@ import QRCodeDisplay from './QRCodeDisplay.jsx';
 
 export default function PrintClearance({ documentData }) {
   const resident = documentData?.resident || {};
-  const residentName = `${resident.first_name || ''} ${
-    resident.middle_name ? `${resident.middle_name[0]}. ` : ''
-  }${resident.last_name || ''} ${resident.suffix || ''}`.trim() || documentData?.masked_name || 'RESIDENT NAME';
+  const residentName = resident.full_name || [
+    resident.first_name,
+    resident.middle_name,
+    resident.last_name,
+    resident.suffix,
+  ].filter((part) => typeof part === 'string' && part.trim()).join(' ') || 'RESIDENT NAME';
+  const punongBarangay = documentData?.signatories?.punong_barangay;
+  const officer = documentData?.signatories?.officer;
+  const officerRole = String(officer?.role || '').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
 
   const today = new Date();
   const day = today.getDate();
@@ -20,8 +26,8 @@ export default function PrintClearance({ documentData }) {
           {/* Header */}
           <div className="text-center space-y-0.5 border-b-2 border-black pb-4 mb-6">
             <div className="text-xs uppercase tracking-wider">Republic of the Philippines</div>
-            <div className="text-xs uppercase tracking-wider">Province of Laguna</div>
-            <div className="text-xs uppercase tracking-wider">Municipality / City of Santa Rosa</div>
+            <div className="text-xs uppercase tracking-wider">Province of Negros Oriental</div>
+            <div className="text-xs uppercase tracking-wider">Dumaguete City</div>
             <div className="text-sm font-bold uppercase tracking-widest mt-1">
               BARANGAY DARO
             </div>
@@ -88,12 +94,16 @@ export default function PrintClearance({ documentData }) {
                   </span>
                 </div>
                 <div>
-                  <span className="font-semibold">OR No.: </span>
-                  <span className="font-mono">{documentData?.receipt_or_no || 'OR-PENDING'}</span>
+                  <span className="font-semibold">Transaction No.: </span>
+                  <span className="font-mono">{documentData?.transaction_no || 'NOT RECORDED'}</span>
                 </div>
                 <div>
                   <span className="font-semibold">Doc No.: </span>
                   <span className="font-mono font-bold">{documentData?.tracking_code}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Processed by: </span>
+                  <span>{officer?.full_name} ({officerRole})</span>
                 </div>
               </div>
 
@@ -119,9 +129,9 @@ export default function PrintClearance({ documentData }) {
             <div className="col-span-5 text-center font-sans">
               <div className="mb-10 text-xs italic">Approved and attested by:</div>
               <div className="border-b-2 border-black pb-1 font-bold text-sm tracking-wide uppercase">
-                HON. JUAN DELA CRUZ
+                {punongBarangay?.full_name}
               </div>
-              <div className="text-xs font-semibold mt-0.5">Punong Barangay</div>
+              <div className="text-xs font-semibold mt-0.5">{punongBarangay?.position}</div>
               <div className="text-[9px] text-black/70 italic">Not valid without official seal</div>
             </div>
           </div>

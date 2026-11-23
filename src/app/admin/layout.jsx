@@ -18,7 +18,7 @@ export default function AdminLayout({ children }) {
 
     async function loadMe() {
       try {
-        const res = await fetch('/api/auth/me');
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (active && data?.user) {
@@ -33,10 +33,12 @@ export default function AdminLayout({ children }) {
     }
 
     loadMe();
+    window.addEventListener('best-staff-profile-updated', loadMe);
     return () => {
       active = false;
+      window.removeEventListener('best-staff-profile-updated', loadMe);
     };
-  }, [isLoginPage, router]);
+  }, [isLoginPage, pathname, router]);
 
   if (isLoginPage) {
     return <main className="admin-portal min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">{children}</main>;

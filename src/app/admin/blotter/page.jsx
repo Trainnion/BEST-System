@@ -68,8 +68,10 @@ export default function AdminBlotterPage() {
     setError('');
     try {
       const res = await fetch(`/api/admin/blotter/${trackingCode}`);
-      if (!res.ok) throw new Error('Failed to retrieve decrypted blotter report');
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.message || `Unable to open report (${res.status}).`);
+      }
       setSelectedReport(data);
       setActionTaken('');
       setPublicNotes('');
@@ -137,7 +139,7 @@ export default function AdminBlotterPage() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-200 text-sm flex items-center gap-3">
+        <div role="alert" className="p-4 rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-200 text-sm flex items-center gap-3">
           <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
           <span>{error}</span>
         </div>
@@ -282,7 +284,7 @@ export default function AdminBlotterPage() {
             <button
               type="button"
               onClick={() => setSelectedReport(null)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>

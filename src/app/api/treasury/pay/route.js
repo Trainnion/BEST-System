@@ -1,6 +1,6 @@
 /**
  * BEST System - POST /api/treasury/pay (WP-13).
- * Counter fee settlement: OR issuance and PaymentRecord creation.
+ * Counter fee settlement: BEST transaction number and PaymentRecord creation.
  * Decision 1: document becomes READY_FOR_PICKUP (PAID == PaymentRecord exists),
  * business stays APPROVED.
  */
@@ -24,9 +24,9 @@ import {
   buildPaymentId,
   decimalToNumber,
   formatMoney,
-  isValidOr,
+  isValidGcashReference,
   isValidPaymentMethod,
-  normalizeOr,
+  normalizeGcashReference,
   normalizePaymentMethod,
   parseAmount,
   uniqueField,
@@ -58,14 +58,17 @@ export async function POST(request) {
       return badRequest('TARGET_REQUIRED', 'Provide exactly one of document_request_id or business_clearance_id.');
     }
 
-    const receiptOrNo = normalizeOr(body.receipt_or_no);
-    if (!isValidOr(receiptOrNo)) {
-      return badRequest('OR_INVALID', 'receipt_or_no must be 3-40 characters using letters, numbers, or hyphen.');
-    }
-
     const paymentMethod = normalizePaymentMethod(body.payment_method);
     if (!isValidPaymentMethod(paymentMethod)) {
-      return badRequest('PAYMENT_METHOD_INVALID', 'payment_method must be CASH, GCASH_MOCK, or LANDBANK_MOCK.');
+      return badRequest('PAYMENT_METHOD_INVALID', 'payment_method must be CASH or GCASH_MOCK.');
+    }
+
+    const gcashReferenceNo = normalizeGcashReference(body.gcash_reference_no);
+    if (paymentMethod === 'GCASH_MOCK' && !isValidGcashReference(gcashReferenceNo)) {
+      return badRequest('GCASH_REFERENCE_INVALID', 'Provide a GCash reference number using 6-40 letters, numbers, or hyphens.');
+    }
+    if (paymentMethod === 'CASH' && gcashReferenceNo) {
+      return badRequest('GCASH_REFERENCE_NOT_APPLICABLE', 'A GCash reference number can only be provided for GCash payments.');
     }
 
     const amount = parseAmount(body.amount);
@@ -106,7 +109,7 @@ export async function POST(request) {
                 id: paymentId,
                 document_request_id: doc.tracking_code,
                 amount: expected,
-                receipt_or_no: receiptOrNo,
+                gcash_reference_no: gcashReferenceNo || null,
                 payment_method: paymentMethod,
                 collected_by_id: user.id,
                 remarks,
@@ -123,7 +126,7 @@ export async function POST(request) {
                 action: 'RECORD_PAYMENT',
                 target_entity: targetEntity,
                 target_id: targetId,
-                metadata: { payment_id: payment.id, receipt_or_no: receiptOrNo, amount: formatMoney(expected) },
+                metadata: { payment_id: payment.id, transaction_no: payment.id, amount: formatMoney(expected) },
                 ip_address: null,
               },
             });
@@ -159,7 +162,7 @@ export async function POST(request) {
               id: paymentId,
               business_clearance_id: biz.id,
               amount: expected,
-              receipt_or_no: receiptOrNo,
+              gcash_reference_no: gcashReferenceNo || null,
               payment_method: paymentMethod,
               collected_by_id: user.id,
               remarks,
@@ -172,7 +175,7 @@ export async function POST(request) {
               action: 'RECORD_PAYMENT',
               target_entity: targetEntity,
               target_id: targetId,
-              metadata: { payment_id: payment.id, receipt_or_no: receiptOrNo, amount: formatMoney(expected) },
+              metadata: { payment_id: payment.id, transaction_no: payment.id, amount: formatMoney(expected) },
               ip_address: null,
             },
           });
@@ -193,7 +196,8 @@ export async function POST(request) {
             success: true,
             payment: {
               id: payment.id,
-              receipt_or_no: payment.receipt_or_no,
+              transaction_no: payment.id,
+              gcash_reference_no: payment.gcash_reference_no,
               amount: formatMoney(payment.amount),
               payment_method: payment.payment_method,
               collected_at: payment.collected_at,
@@ -206,8 +210,8 @@ export async function POST(request) {
         );
       } catch (error) {
         const field = uniqueField(error);
-        if (field === 'receipt_or_no') {
-          return conflict('OR_ALREADY_USED', 'The official receipt number is already used.');
+        if (field === 'gcash_reference_no') {
+          return conflict('GCASH_REFERENCE_ALREADY_USED', 'That GCash reference number is already recorded.');
         }
         if (field === 'document_request_id' || field === 'business_clearance_id') {
           return conflict('ALREADY_PAID', 'This target already has a payment record.');

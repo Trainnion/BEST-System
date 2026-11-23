@@ -304,7 +304,7 @@ export default function AdminResidentsPage() {
             <button
               type="button"
               onClick={() => setActiveSlip(null)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -359,7 +359,7 @@ export default function AdminResidentsPage() {
             <button
               type="button"
               onClick={() => setShowCreateModal(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>

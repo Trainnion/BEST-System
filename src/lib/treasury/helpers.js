@@ -5,22 +5,20 @@
 
 import { randomInt } from 'node:crypto';
 
-import { maskName } from '../auth.js';
-
-export const PAYMENT_METHODS = Object.freeze(['CASH', 'GCASH_MOCK', 'LANDBANK_MOCK']);
-export const OR_PATTERN = /^[A-Za-z0-9-]{3,40}$/;
+export const PAYMENT_METHODS = Object.freeze(['CASH', 'GCASH_MOCK']);
+export const GCASH_REFERENCE_PATTERN = /^[A-Za-z0-9-]{6,40}$/;
 export const PAYMENT_ID_YEAR = '2026';
 export const PAYMENT_ID_PREFIX = 'PAY-' + PAYMENT_ID_YEAR + '-';
 export const LOG_ID_PREFIX = 'LOG-';
 export const ID_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 export const MAX_ID_ATTEMPTS = 8;
 
-export function normalizeOr(value) {
+export function normalizeGcashReference(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export function isValidOr(value) {
-  return OR_PATTERN.test(value);
+export function isValidGcashReference(value) {
+  return GCASH_REFERENCE_PATTERN.test(value);
 }
 
 export function normalizePaymentMethod(value) {
@@ -55,11 +53,6 @@ export function formatMoney(value) {
   const n = decimalToNumber(value);
   if (!Number.isFinite(n)) return '0.00';
   return n.toFixed(2);
-}
-
-export function maskResident(resident) {
-  if (!resident) return '';
-  return maskName(resident.first_name, resident.last_name);
 }
 
 export function randomSuffix(length = 4) {

@@ -229,7 +229,7 @@ export default function AdminDocumentsPage() {
                     <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                       {doc.document_type === 'CLEARANCE' ? 'Barangay Clearance' : 'Indigency Certificate'}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{doc.masked_name}</td>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{doc.resident_name || 'Name unavailable'}</td>
                     <td className="py-3.5 px-4 font-mono font-semibold">
                       {Number(doc.fee_amount) > 0 ? `₱${Number(doc.fee_amount).toFixed(2)}` : 'FREE'}
                     </td>
@@ -284,7 +284,7 @@ export default function AdminDocumentsPage() {
             <button
               type="button"
               onClick={() => setSelectedDoc(null)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -300,7 +300,7 @@ export default function AdminDocumentsPage() {
               <div className="p-4 rounded-xl bg-slate-950 border border-white/10 space-y-2 text-sm">
                 <div>
                   <span className="text-slate-400">Applicant: </span>
-                  <span className="font-semibold text-white">{selectedDoc.masked_name}</span>
+                  <span className="font-semibold text-white">{selectedDoc.resident?.full_name || 'Name unavailable'}</span>
                 </div>
                 <div>
                   <span className="text-slate-400">Document Type: </span>
@@ -326,16 +326,20 @@ export default function AdminDocumentsPage() {
 
               {selectedDoc.status !== 'RELEASED' && selectedDoc.status !== 'REJECTED' && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Rejection Reason (if rejecting)
+                  <label htmlFor="document-rejection-reason" className="block text-xs font-semibold text-slate-300 mb-1">
+                    Reason for rejection
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    id="document-rejection-reason"
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="e.g. Incomplete requirements, non-resident"
+                    rows={2}
+                    maxLength={500}
+                    placeholder="Explain what needs to be corrected"
+                    aria-describedby="document-rejection-help"
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white text-sm"
                   />
+                  <p id="document-rejection-help" className="mt-1 text-xs text-slate-400">A reason is required when you reject this request.</p>
                 </div>
               )}
             </div>
@@ -366,7 +370,7 @@ export default function AdminDocumentsPage() {
                     type="button"
                     disabled={actionLoading}
                     onClick={() => handleUpdateStatus('REJECTED')}
-                    className="px-4 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-rose-300 font-semibold text-sm transition"
+                    className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 border border-rose-800 text-white font-semibold text-sm transition"
                   >
                     Reject
                   </button>
@@ -401,14 +405,24 @@ export default function AdminDocumentsPage() {
               )}
 
               {selectedDoc.status === 'READY_FOR_PICKUP' && (
-                <button
-                  type="button"
-                  disabled={actionLoading}
-                  onClick={() => handleUpdateStatus('RELEASED')}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition"
-                >
-                  Confirm Released to Citizen
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={() => handleUpdateStatus('REJECTED')}
+                    className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 border border-rose-800 text-white font-semibold text-sm transition"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={() => handleUpdateStatus('RELEASED')}
+                    className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm transition"
+                  >
+                    Confirm Released to Citizen
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -422,7 +436,7 @@ export default function AdminDocumentsPage() {
             <button
               type="button"
               onClick={() => setShowAssistedModal(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>

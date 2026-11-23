@@ -253,7 +253,8 @@ model PaymentRecord {
   document_request_id    String?                 @unique // 1-to-1 FK -> DocumentRequest
   business_clearance_id  String?                 @unique // 1-to-1 FK -> BusinessClearanceEntry
   amount                 Decimal                 @db.Decimal(10, 2)
-  receipt_or_no          String                  @unique // Official Receipt Number
+  receipt_or_no          String?                 @unique // Optional physical official receipt number; legacy records retain their value.
+  gcash_reference_no     String?                 @unique
   payment_method         PaymentMethod           @default(CASH)
   collected_by_id        String                  // FK -> SystemUser.id (Treasurer)
   remarks                String?

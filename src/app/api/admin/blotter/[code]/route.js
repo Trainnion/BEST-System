@@ -35,6 +35,7 @@ import {
   requireSession,
 } from '../../../../../lib/auth.js';
 import { logEncryptedView } from '../../../../../lib/audit.js';
+import { CryptoError } from '../../../../../lib/crypto/errors.js';
 import {
   BLOTTER_STATUSES,
   MAX_ACTION_LENGTH,
@@ -182,13 +183,21 @@ export async function GET(request, context) {
         },
         orderBy: { created_at: 'asc' },
       });
-    } catch {
-      // A damaged ciphertext (GCM tag mismatch) or a dead connection: fail
-      // safely and leak nothing (plan Sec. 12.7 item 3).
+    } catch (error) {
+      // Never expose ciphertext, crypto errors, or database details. Give staff
+      // a safe next step while preserving the distinction between decryption
+      // failures and a report/database read failure.
+      if (error instanceof CryptoError) {
+        throw new AuthError(
+          500,
+          'This report’s encrypted details could not be opened. Ask an administrator to verify the encryption configuration and record integrity.',
+          'REPORT_UNREADABLE',
+        );
+      }
       throw new AuthError(
-        500,
-        'This report could not be read. It may be damaged; ask an administrator to check the record.',
-        'REPORT_UNREADABLE',
+        503,
+        'The report could not be loaded. Check server and database availability, then retry.',
+        'REPORT_UNAVAILABLE',
       );
     }
 
@@ -196,7 +205,7 @@ export async function GET(request, context) {
     if (!payload) {
       throw new AuthError(
         500,
-        'This report could not be read. It may be damaged; ask an administrator to check the record.',
+        'The report details could not be read. Ask an administrator to check the stored record.',
         'REPORT_UNREADABLE',
       );
     }
