@@ -9,6 +9,7 @@
 
 import { prisma } from '../../../../lib/db.js';
 import {
+  can,
   STAFF_ROLES,
   errorResponse,
   jsonResponse,
@@ -78,9 +79,20 @@ export async function GET(request) {
           created_at: true,
           credential: {
             select: {
+              is_active: true,
+              must_change_password: true,
               activated_at: true,
               activation_expires: true,
               locked_until: true,
+            },
+          },
+          barangay_id_card: {
+            select: {
+              id: true,
+              card_number: true,
+              status: true,
+              issued_date: true,
+              valid_until: true,
             },
           },
         },
@@ -104,9 +116,13 @@ export async function GET(request) {
         purok: r.purok,
         is_registered_voter: r.is_registered_voter,
         is_verified: r.is_verified,
+        has_account: !!r.credential,
+        is_active: r.credential?.is_active ?? false,
+        must_change_password: r.credential?.must_change_password ?? false,
         is_activated: isActivated,
         has_pending_activation: !!hasPendingActivation,
         is_locked: !!(r.credential?.locked_until && new Date(r.credential.locked_until) > new Date()),
+        id_card: r.barangay_id_card,
         created_at: r.created_at,
       };
     });
@@ -117,6 +133,8 @@ export async function GET(request) {
       page,
       size,
       total_pages: Math.ceil(total / size) || 1,
+      can_manage_accounts: user.role === 'ADMIN',
+      can_manage_id_cards: can(user.role, PERMISSIONS.MANAGE_ID_CARDS),
     });
   } catch (error) {
     return errorResponse(error);

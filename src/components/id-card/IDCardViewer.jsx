@@ -64,8 +64,8 @@ function Feedback({ feedback }) {
       className={
         'mt-3 rounded-xl border px-3 py-2 text-xs leading-relaxed ' +
         (feedback.tone === 'error'
-          ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
-          : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200')
+          ? 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200'
+          : 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200')
       }
       role={feedback.tone === 'error' ? 'alert' : 'status'}
     >
@@ -231,11 +231,11 @@ export default function IDCardViewer() {
 
       {mode === 'error' ? (
         <div className="glass mx-auto w-full max-w-[26rem] p-5" role="alert">
-          <p className="flex items-center gap-2 text-sm font-semibold text-amber-300">
+          <p className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300">
             <AlertTriangle className="h-4 w-4" aria-hidden="true" />
             The digital ID could not be loaded
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+          <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             The barangay server may be unreachable, or no card has been issued for this account yet.
             Ask the barangay hall if you believe your card is missing.
           </p>
@@ -243,7 +243,7 @@ export default function IDCardViewer() {
             <button
               type="button"
               onClick={handleRetry}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition active:scale-[0.98]"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-800 transition active:scale-[0.98] dark:border-cyan-400/40 dark:bg-cyan-400/10 dark:text-cyan-200"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Try again
@@ -253,7 +253,7 @@ export default function IDCardViewer() {
                 type="button"
                 onClick={handleViewSaved}
                 disabled={busy}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-200 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 transition active:scale-[0.98] hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 View saved copy
               </button>
@@ -265,8 +265,8 @@ export default function IDCardViewer() {
 
       {mode === 'removed' ? (
         <div className="glass mx-auto w-full max-w-[26rem] p-5" role="status">
-          <p className="text-sm font-semibold text-slate-100">Saved copy removed</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-300">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Saved copy removed</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             The copy kept in this browser has been deleted. Load the live card again whenever you
             are connected.
           </p>
@@ -274,7 +274,7 @@ export default function IDCardViewer() {
             <button
               type="button"
               onClick={handleRetry}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition active:scale-[0.98]"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-800 transition active:scale-[0.98] dark:border-cyan-400/40 dark:bg-cyan-400/10 dark:text-cyan-200"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Load live card
@@ -287,7 +287,7 @@ export default function IDCardViewer() {
       {mode === 'ready' || mode === 'saved' ? (
         <>
           {mode === 'saved' ? (
-            <div className="mx-auto mb-3 flex w-full max-w-[26rem] flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
+            <div className="mx-auto mb-3 flex w-full max-w-[26rem] flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
               <span>Showing the copy saved on this device. It may be out of date.</span>
               <button
                 type="button"
@@ -305,9 +305,9 @@ export default function IDCardViewer() {
 
       {mode === 'ready' || mode === 'saved' ? (
         <div className="glass-lite mx-auto mt-4 w-full max-w-[26rem] p-4">
-          <h2 className="text-sm font-semibold text-slate-100">This device</h2>
-          <p className="mt-1 text-xs leading-relaxed text-slate-400">
-            Saving keeps your name, card number and emergency contact in this browser. It is never
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">This device</h2>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+            Saving keeps the card details in this browser. They are never
             stored in the Service Worker cache or in local storage. Only save on a device you
             control, and remove the copy when you are finished.
           </p>
@@ -326,7 +326,7 @@ export default function IDCardViewer() {
               type="button"
               onClick={handleRemove}
               disabled={KIOSK || busy || !savedAvailable}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-2 text-sm font-semibold text-rose-200 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 transition active:scale-[0.98] dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               Remove from this device
@@ -334,7 +334,7 @@ export default function IDCardViewer() {
           </div>
 
           {KIOSK ? (
-            <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-relaxed text-slate-300">
+            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300">
               Saving is turned off on this kiosk. Open your card on your own phone to keep a copy.
             </p>
           ) : null}

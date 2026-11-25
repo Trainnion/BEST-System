@@ -17,6 +17,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import useTheme from '@/lib/hooks/useTheme';
+import { canAccessAdminPath } from '@/lib/admin-access.js';
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: '/admin/blotter', label: 'Anonymous Blotter', icon: ShieldAlert },
   { href: '/admin/treasury', label: 'Treasury & Official Receipts', icon: CreditCard },
   { href: '/admin/residents', label: 'Residents & Slips', icon: Users },
+  { href: '/admin/users', label: 'Staff Accounts', icon: UserRound },
   { href: '/admin/broadcasts', label: 'Broadcasts', icon: Radio },
   { href: '/admin/directory', label: 'Officials Directory', icon: BookOpen },
   { href: '/admin/account', label: 'My Account', icon: UserRound },
@@ -85,7 +87,7 @@ export default function AdminSidebar({ user }) {
       </div>
 
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => canAccessAdminPath(user?.role, item.href)).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (

@@ -36,11 +36,11 @@ Because BEST operates on an offline-first municipal network, **the system contin
    - 3.3 Guide 3: Applying for a Barangay Clearance (`/services/request`)
    - 3.4 Guide 4: Applying for a Free Certificate of Indigency (`/services/request`)
    - 3.5 Guide 5: Applying for a Barangay Business Clearance (Mandatory In-Person Screening)
-   - 3.6 Guide 6: Viewing Your Digital Barangay ID Card (`/resident/id`)
+   - 3.6 Guide 6: Viewing Your Digital Barangay ID Card (`/id-card`)
    - 3.7 Guide 7: Filing an Anonymous Incident Blotter Report (`/blotter`)
    - 3.8 Guide 8: Public Document & Blotter Tracking (`/track`)
    - 3.9 Guide 9: Verifying Certificate Authenticity via Vector QR (`/verify`)
-   - 3.10 Guide 10: Asking AI Kaagapay Civic Concierge (Tagalog, Cebuano, English)
+   - 3.10 Guide 10: Using the Kaagapay Civic Information Helper
 4. **Chapter 4: Frequently Asked Questions (FAQ) & Resident Assistance**
    - 4.1 Lost Activation Slips, Passwords & Common Inquiries
    - 4.2 Emergency Hotlines & Physical Hall Assistance Hours
@@ -104,7 +104,7 @@ The BEST platform accommodates different levels of interaction depending on what
 | 1. PUBLIC & ANONYMOUS MODE                                                        |
 |    - No account or login required.                                                |
 |    - File confidential anonymous blotters, track documents via tracking code,    |
-|      verify certificate QR codes, consult AI Kaagapay civic assistant.            |
+|      verify certificate QR codes, consult the Kaagapay FAQ helper.                |
 +-----------------------------------------------------------------------------------+
 | 2. PENDING ACTIVATION (7-DAY SLIP)                                                |
 |    - Resident has a physical activation slip issued at the desk.                  |
@@ -207,7 +207,7 @@ For auditing, training, and testing on the server terminal, use the following pr
   1. File a confidential community incident report at `/blotter` without revealing identity or IP address.
   2. Track document progress at `/track` using an 11-character tracking code.
   3. Verify a printed certificate by scanning its vector QR code at `/verify`.
-  4. Ask civic questions to the AI Kaagapay assistant at `/services/kaagapay`.
+  4. Use the Kaagapay FAQ helper at `/services/kaagapay` for prepared civic information.
 
 ---
 
@@ -317,9 +317,9 @@ Operating a business within Barangay San Gabriel requires a Barangay Business Cl
 
 ---
 
-### 3.6 Guide 6: Viewing Your Digital Barangay ID Card (`/resident/id`)
+### 3.6 Guide 6: Viewing Your Digital Barangay ID Card (`/id-card`)
 
-Every verified resident has access to a secure, digital version of their Barangay Resident ID card:
+Once staff issue a card for a verified resident, that resident can view their own digital Barangay ID:
 
 **How to View**:
 1. Sign in to `/resident/login`.
@@ -327,16 +327,12 @@ Every verified resident has access to a secure, digital version of their Baranga
 3. Your digital credential is displayed in the browser.
 
 **Digital ID Features**:
-- Full Legal Name, Photo Placeholder, and Resident Number (`RES-YYYY-XXXX`).
-- Unique Card Serial Number (`CARD-YYYY-XXXX`).
-- Civil details: Purok residence, birth date, gender, blood type, and emergency contact.
-- **High-Contrast Code 128 Barcode**: Scannable by municipal barcode readers at the desk.
-- **Vector Offline Verification QR Code**: Can be scanned by any smartphone camera to confirm card authenticity.
-- **Anti-Counterfeiting Holographic Glass Styling**: High-fidelity security finish preventing forged screenshots.
+- Full name, resident number, card number, purok, birth date, blood type, and validity dates.
+- A resident photo when an approved local photo is available; otherwise the card shows initials.
+- **Code 128 barcode** containing the card's barcode value.
 
 **Important Security Notice**:
-- Pursuant to municipal anti-fraud circulars, **the Digital Barangay ID is strictly view-only on personal phones**.
-- Physical ID cards may only be printed using the official barangay card printing machine at the hall. Mobile print buttons are disabled by design.
+- **The Digital Barangay ID is view-only** in BEST. The resident can show it on screen but cannot print or share it through the app.
 
 ---
 
@@ -407,17 +403,17 @@ If an employer, bank, university, or government agency requests proof that your 
 
 ---
 
-### 3.10 Guide 10: Asking AI Kaagapay Civic Concierge (Tagalog, Cebuano, English)
+### 3.10 Guide 10: Using the Kaagapay Civic Information Helper
 
-If you are unsure which documents you need or have questions regarding barangay hall schedules, consult **Kaagapay**, your 24/7 offline AI civic assistant:
+In the documented local configuration, Kaagapay is a FAQ helper for prepared information about services and office hours. It matches keywords to existing entries; it may not recognize every phrasing and returns prepared answers. Confirm requirements, fees, and local procedures with barangay staff.
 
 1. Open `/services/kaagapay` on any kiosk or phone.
 2. Select your preferred language: **Tagalog**, **Cebuano**, or **English**.
-3. Type your question in natural language:
+3. Type a short question using clear service keywords:
    - *Tagalog*: "Ano po ang requirements para makakuha ng Barangay Clearance para sa trabaho?"
    - *Cebuano*: "Unsa ang mga papeles nga kinahanglan para sa Certificate of Indigency?"
    - *English*: "What are the operating hours of the Barangay Health Center on Fridays?"
-4. Kaagapay provides an instant, easy-to-understand checklist based on official barangay ordinances.
+4. Kaagapay looks for a matching topic and displays the prepared answer and checklist, if available. If no topic matches, it shows a general service menu.
 
 ---
 
@@ -429,7 +425,7 @@ If you are unsure which documents you need or have questions regarding barangay 
 *Answer*: Visit the frontline desk at the barangay hall with your valid photo ID. The desk officer will confirm your identity and issue a new activation slip on the spot.
 
 **Q2: What happens if I forget my resident password?**  
-*Answer*: For security reasons and to prevent unauthorized identity theft, password resets are handled in person at the frontline desk. Present your photo ID, and an officer will issue an immediate password reset authorization.
+*Answer*: If you can still sign in, open **My Account** and change your password using your current password. If you cannot sign in, contact the barangay administrator to set a temporary password for your activated account. You will be asked to choose a new password at your next sign-in. If you have not activated your account yet, ask staff for a new activation slip.
 
 **Q3: Can I apply for a clearance for a family member?**  
 *Answer*: Yes, provided you bring an authorization letter signed by the resident, a photocopy of their valid ID, and your own valid ID to the frontline desk.

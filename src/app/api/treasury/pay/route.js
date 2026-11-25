@@ -24,9 +24,9 @@ import {
   buildPaymentId,
   decimalToNumber,
   formatMoney,
-  isValidGcashReference,
+  isValidPaymentReference,
   isValidPaymentMethod,
-  normalizeGcashReference,
+  normalizePaymentReference,
   normalizePaymentMethod,
   parseAmount,
   uniqueField,
@@ -60,15 +60,15 @@ export async function POST(request) {
 
     const paymentMethod = normalizePaymentMethod(body.payment_method);
     if (!isValidPaymentMethod(paymentMethod)) {
-      return badRequest('PAYMENT_METHOD_INVALID', 'payment_method must be CASH or GCASH_MOCK.');
+      return badRequest('PAYMENT_METHOD_INVALID', 'Choose cash, GCash, LandBank, BPI, Maya, or GoTyme.');
     }
 
-    const gcashReferenceNo = normalizeGcashReference(body.gcash_reference_no);
-    if (paymentMethod === 'GCASH_MOCK' && !isValidGcashReference(gcashReferenceNo)) {
-      return badRequest('GCASH_REFERENCE_INVALID', 'Provide a GCash reference number using 6-40 letters, numbers, or hyphens.');
+    const paymentReferenceNo = normalizePaymentReference(body.payment_reference_no);
+    if (paymentMethod !== 'CASH' && !isValidPaymentReference(paymentReferenceNo)) {
+      return badRequest('PAYMENT_REFERENCE_INVALID', 'Provide a transfer reference using 6-40 letters, numbers, or hyphens.');
     }
-    if (paymentMethod === 'CASH' && gcashReferenceNo) {
-      return badRequest('GCASH_REFERENCE_NOT_APPLICABLE', 'A GCash reference number can only be provided for GCash payments.');
+    if (paymentMethod === 'CASH' && paymentReferenceNo) {
+      return badRequest('PAYMENT_REFERENCE_NOT_APPLICABLE', 'A transfer reference can only be provided for GCash, LandBank, BPI, Maya, or GoTyme payments.');
     }
 
     const amount = parseAmount(body.amount);
@@ -109,7 +109,7 @@ export async function POST(request) {
                 id: paymentId,
                 document_request_id: doc.tracking_code,
                 amount: expected,
-                gcash_reference_no: gcashReferenceNo || null,
+                payment_reference_no: paymentReferenceNo || null,
                 payment_method: paymentMethod,
                 collected_by_id: user.id,
                 remarks,
@@ -162,7 +162,7 @@ export async function POST(request) {
               id: paymentId,
               business_clearance_id: biz.id,
               amount: expected,
-              gcash_reference_no: gcashReferenceNo || null,
+              payment_reference_no: paymentReferenceNo || null,
               payment_method: paymentMethod,
               collected_by_id: user.id,
               remarks,
@@ -197,7 +197,7 @@ export async function POST(request) {
             payment: {
               id: payment.id,
               transaction_no: payment.id,
-              gcash_reference_no: payment.gcash_reference_no,
+              payment_reference_no: payment.payment_reference_no,
               amount: formatMoney(payment.amount),
               payment_method: payment.payment_method,
               collected_at: payment.collected_at,
@@ -210,8 +210,8 @@ export async function POST(request) {
         );
       } catch (error) {
         const field = uniqueField(error);
-        if (field === 'gcash_reference_no') {
-          return conflict('GCASH_REFERENCE_ALREADY_USED', 'That GCash reference number is already recorded.');
+        if (field === 'payment_reference_no') {
+          return conflict('PAYMENT_REFERENCE_ALREADY_USED', 'That reference number is already recorded for this payment method.');
         }
         if (field === 'document_request_id' || field === 'business_clearance_id') {
           return conflict('ALREADY_PAID', 'This target already has a payment record.');

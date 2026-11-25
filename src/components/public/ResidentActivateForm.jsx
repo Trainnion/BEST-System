@@ -79,14 +79,14 @@ export default function ResidentActivateForm() {
   if (maskedName) {
     return (
       <section className="glass max-w-md p-rhythm-4" role="status">
-        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
           <BadgeCheck className="h-5 w-5" aria-hidden="true" />
           Account activated
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">
-          Welcome, <span className="font-mono text-cyan-300">{maskedName}</span>
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">
+          Welcome, <span className="font-mono text-cyan-700 dark:text-cyan-300">{maskedName}</span>
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300">
+        <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           Your password is set and your resident session is active on this device. You can
           now file a clearance or indigency request.
         </p>
@@ -171,7 +171,7 @@ export default function ResidentActivateForm() {
 
       {error ? (
         <p
-          className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm leading-relaxed text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           {error}
@@ -191,9 +191,9 @@ export default function ResidentActivateForm() {
         {submitting ? 'Activating...' : 'Activate account'}
       </button>
 
-      <p className="mt-4 text-sm leading-relaxed text-slate-400">
+      <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
         Already activated?{' '}
-        <a href="/resident/login" className="font-semibold text-cyan-300 underline">
+        <a href="/resident/login" className="font-semibold text-cyan-700 underline dark:text-cyan-300">
           Sign in instead
         </a>
         .

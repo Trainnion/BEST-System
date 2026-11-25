@@ -142,14 +142,14 @@ export default function TrackLookup() {
 
         {phase === 'not_found' ? (
           <div className="glass p-rhythm-4">
-            <h2 className="text-lg font-semibold text-slate-100">Report not found</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Report not found</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
               No report matches that code. Check the characters on your stub and try again.
               Nothing about a report is shared when a code does not exist.
             </p>
             <a
               href="/blotter"
-              className="tap-target mt-4 inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+              className="tap-target mt-4 inline-flex items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
             >
               File a report
             </a>
@@ -159,13 +159,13 @@ export default function TrackLookup() {
         {phase === 'offline' || phase === 'error' ? (
           <div className="glass flex items-start gap-3 p-rhythm-4">
             {phase === 'offline' ? (
-              <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+              <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
             ) : (
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" aria-hidden="true" />
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true" />
             )}
             <div>
-              <h2 className="text-lg font-semibold text-slate-100">Needs a connection</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">{message}</p>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Needs a connection</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{message}</p>
             </div>
           </div>
         ) : null}
@@ -173,7 +173,7 @@ export default function TrackLookup() {
         {phase === 'found' && result ? (
           <section className="glass p-rhythm-4" aria-label="Report status">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="font-mono text-sm font-semibold tracking-code text-cyan-300">
+              <p className="font-mono text-sm font-semibold tracking-code text-cyan-700 dark:text-cyan-300">
                 {result.tracking_code}
               </p>
               <span
@@ -188,14 +188,14 @@ export default function TrackLookup() {
 
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Incident type</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Incident type</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {INCIDENT_TYPE_LABELS[result.incident_type] || result.incident_type}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-slate-400">Filed</dt>
-                <dd className="mt-1 text-sm font-medium text-slate-100">
+                <dt className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Filed</dt>
+                <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
                   {formatDay(result.created_at)}
                 </dd>
               </div>
@@ -203,7 +203,7 @@ export default function TrackLookup() {
 
             <StatusTimeline status={result.status} updates={result.updates} />
 
-            <p className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-relaxed text-slate-400">
+            <p className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
               Public view only. Your narrative, exact location, exact time and staff internal
               notes are never returned by this lookup.
             </p>
@@ -213,7 +213,7 @@ export default function TrackLookup() {
 
       <a
         href="/blotter"
-        className="tap-target inline-flex w-fit items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-white/30"
+        className="tap-target inline-flex w-fit items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
       >
         Back to anonymous filing
       </a>

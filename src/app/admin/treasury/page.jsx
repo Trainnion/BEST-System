@@ -5,10 +5,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 const PAYMENT_METHODS = [
   { value: 'CASH', label: 'Cash' },
   { value: 'GCASH_MOCK', label: 'GCash' },
+  { value: 'LANDBANK_MOCK', label: 'LandBank' },
+  { value: 'BPI_MOCK', label: 'BPI' },
+  { value: 'MAYA_MOCK', label: 'Maya' },
+  { value: 'GOTYME_MOCK', label: 'GoTyme' },
 ];
 
 function paymentMethodLabel(value) {
-  if (value === 'LANDBANK_MOCK') return 'LandBank (legacy record)';
   return PAYMENT_METHODS.find((method) => method.value === value)?.label || value || 'Unknown';
 }
 
@@ -79,6 +82,7 @@ function normalizeChecklist(item) {
 
 export default function TreasuryPage() {
   const [queueLoading, setQueueLoading] = useState(true);
+  const [queueRefreshing, setQueueRefreshing] = useState(false);
   const [queueError, setQueueError] = useState('');
   const [unauthorized, setUnauthorized] = useState(false);
   const [payableDocuments, setPayableDocuments] = useState([]);
@@ -86,7 +90,7 @@ export default function TreasuryPage() {
   const [recentPayments, setRecentPayments] = useState([]);
 
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const [gcashReferenceNo, setGcashReferenceNo] = useState('');
+  const [paymentReferenceNo, setPaymentReferenceNo] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [remarks, setRemarks] = useState('');
   const [paySubmitting, setPaySubmitting] = useState(false);
@@ -98,8 +102,9 @@ export default function TreasuryPage() {
   const [bizDrafts, setBizDrafts] = useState({});
   const [bizSubmitting, setBizSubmitting] = useState({});
 
-  const loadQueue = useCallback(async () => {
-    setQueueLoading(true);
+  const loadQueue = useCallback(async ({ background = false } = {}) => {
+    if (background) setQueueRefreshing(true);
+    else setQueueLoading(true);
     setQueueError('');
     try {
       const res = await fetch('/api/treasury', {
@@ -129,7 +134,8 @@ export default function TreasuryPage() {
     } catch {
       setQueueError('Unable to load treasury queue.');
     } finally {
-      setQueueLoading(false);
+      if (background) setQueueRefreshing(false);
+      else setQueueLoading(false);
     }
   }, []);
 
@@ -186,13 +192,26 @@ export default function TreasuryPage() {
   }, []);
 
   useEffect(() => {
+    if (unauthorized) return undefined;
+
     loadQueue();
     loadBusiness();
-  }, [loadQueue, loadBusiness]);
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') loadQueue({ background: true });
+    };
+    const refreshInterval = window.setInterval(refreshWhenVisible, 15_000);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+
+    return () => {
+      window.clearInterval(refreshInterval);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [loadQueue, loadBusiness, unauthorized]);
 
   const selectTarget = useCallback((kind, item) => {
     setSelectedTarget({ kind, item });
-    setGcashReferenceNo('');
+    setPaymentReferenceNo('');
     setRemarks('');
     setPaymentMethod('CASH');
     setPayMessage(null);
@@ -211,9 +230,9 @@ export default function TreasuryPage() {
       if (!selectedTarget) return;
       setPayMessage(null);
 
-      const gcashReference = gcashReferenceNo.trim();
-      if (paymentMethod === 'GCASH_MOCK' && !/^[A-Za-z0-9-]{6,40}$/.test(gcashReference)) {
-        setPayMessage({ type: 'error', text: 'Enter the GCash reference number (6–40 letters, numbers, or hyphens).' });
+      const paymentReference = paymentReferenceNo.trim();
+      if (paymentMethod !== 'CASH' && !/^[A-Za-z0-9-]{6,40}$/.test(paymentReference)) {
+        setPayMessage({ type: 'error', text: `Enter the ${paymentMethodLabel(paymentMethod)} reference number (6–40 letters, numbers, or hyphens).` });
         return;
       }
 
@@ -222,7 +241,7 @@ export default function TreasuryPage() {
         payment_method: paymentMethod,
         remarks: remarks.trim() || undefined,
       };
-      if (paymentMethod === 'GCASH_MOCK') payload.gcash_reference_no = gcashReference;
+      if (paymentMethod !== 'CASH') payload.payment_reference_no = paymentReference;
       if (selectedTarget.kind === 'document') {
         payload.document_request_id = selectedTarget.item.tracking_code;
       } else {
@@ -260,7 +279,7 @@ export default function TreasuryPage() {
           receipt: data.payment,
         });
         setSelectedTarget(null);
-        setGcashReferenceNo('');
+        setPaymentReferenceNo('');
         setRemarks('');
         await loadQueue();
       } catch {
@@ -269,7 +288,7 @@ export default function TreasuryPage() {
         setPaySubmitting(false);
       }
     },
-    [selectedTarget, gcashReferenceNo, selectedFee, paymentMethod, remarks, loadQueue],
+    [selectedTarget, paymentReferenceNo, selectedFee, paymentMethod, remarks, loadQueue],
   );
 
   const updateBizDraft = useCallback((id, patch) => {
@@ -383,7 +402,7 @@ export default function TreasuryPage() {
     <main style={styles.page}>
       <header style={styles.header}>
         <h1 style={styles.h1}>Treasury and Official Receipts</h1>
-        <p style={styles.pMuted}>Review approved requests, record cash or GCash payments, and track each payment with a BEST-generated transaction number.</p>
+        <p style={styles.pMuted}>Review approved requests, record cash or transfer payments, and track each payment with a BEST-generated transaction number.</p>
       </header>
 
       <section style={styles.card} aria-labelledby="settlement-title">
@@ -392,11 +411,23 @@ export default function TreasuryPage() {
             <h2 id="settlement-title" style={styles.h2}>Record a payment</h2>
             <p style={styles.pMuted}>Choose a request, confirm the payment method, then record the payment.</p>
           </div>
-          <span style={styles.countBadge}>{queueLoading ? 'Loading' : `${payableDocuments.length + payableBusinesses.length} waiting`}</span>
+          <div style={styles.queueControls}>
+            <span style={styles.countBadge}>{queueLoading ? 'Loading' : `${payableDocuments.length + payableBusinesses.length} waiting`}</span>
+            <button
+              type="button"
+              style={styles.secondaryButton}
+              onClick={() => loadQueue({ background: true })}
+              disabled={queueLoading || queueRefreshing}
+              aria-label="Refresh payment queue"
+            >
+              {queueRefreshing ? 'Refreshing…' : 'Refresh queue'}
+            </button>
+          </div>
         </div>
+        <p style={styles.pMuted}>New payment requests appear automatically while this page is visible. You can also refresh the queue manually.</p>
         <ol style={styles.steps} aria-label="Payment steps">
           <li style={styles.step}><strong style={styles.stepNumber}>1</strong><span>Choose a request</span></li>
-          <li style={styles.step}><strong style={styles.stepNumber}>2</strong><span>Add a GCash reference when needed</span></li>
+          <li style={styles.step}><strong style={styles.stepNumber}>2</strong><span>Add a transfer reference when needed</span></li>
           <li style={styles.step}><strong style={styles.stepNumber}>3</strong><span>Record the payment</span></li>
         </ol>
         {queueLoading ? <p style={styles.p}>Loading payable items...</p> : null}
@@ -494,22 +525,22 @@ export default function TreasuryPage() {
                       ))}
                     </select>
                   </label>
-                  {paymentMethod === 'GCASH_MOCK' ? (
+                  {paymentMethod !== 'CASH' ? (
                     <label style={styles.label}>
-                      GCash reference number
+                      {paymentMethodLabel(paymentMethod)} reference number
                       <input
                         style={styles.input}
-                        value={gcashReferenceNo}
-                        onChange={(e) => setGcashReferenceNo(e.target.value)}
+                        value={paymentReferenceNo}
+                        onChange={(e) => setPaymentReferenceNo(e.target.value)}
                         required
                         minLength={6}
                         maxLength={40}
                         pattern="[A-Za-z0-9-]{6,40}"
                         autoComplete="off"
-                        placeholder="Enter the reference from the GCash payment"
-                        aria-describedby="gcash-reference-help"
+                        placeholder={`Enter the ${paymentMethodLabel(paymentMethod)} transfer reference`}
+                        aria-describedby="payment-reference-help"
                       />
-                      <span id="gcash-reference-help" style={styles.helper}>Use the reference number shown in the GCash payment confirmation.</span>
+                      <span id="payment-reference-help" style={styles.helper}>Use the reference shown in the {paymentMethodLabel(paymentMethod)} transfer confirmation. BEST records the reference only. Verify the transfer in {paymentMethodLabel(paymentMethod)} records before recording payment.</span>
                     </label>
                   ) : (
                     <p style={styles.helper}>Cash payments do not need a provider reference. BEST assigns the transaction number after you record the payment.</p>
@@ -546,8 +577,8 @@ export default function TreasuryPage() {
                       <strong>Transaction number:</strong> {payMessage.receipt.transaction_no} · ₱{moneyText(payMessage.receipt.amount)} · {paymentMethodLabel(payMessage.receipt.payment_method)}
                     </p>
                   ) : null}
-                  {payMessage.receipt?.gcash_reference_no ? (
-                    <p style={styles.p}><strong>GCash reference:</strong> {payMessage.receipt.gcash_reference_no}</p>
+                  {payMessage.receipt?.payment_reference_no ? (
+                    <p style={styles.p}><strong>{paymentMethodLabel(payMessage.receipt.payment_method)} reference:</strong> {payMessage.receipt.payment_reference_no}</p>
                   ) : null}
                 </div>
               ) : null}
@@ -573,7 +604,7 @@ export default function TreasuryPage() {
                   <strong style={styles.itemTitle}>Transaction {payment.transaction_no || payment.id}</strong>
                   <span style={styles.itemMeta}>{payment.target_type === 'DOCUMENT_REQUEST' ? 'Barangay document' : 'Business clearance'} · {payment.target_id}</span>
                   <span style={styles.itemMeta}>{dateTimeText(payment.collected_at)} · {paymentMethodLabel(payment.payment_method)}</span>
-                  {payment.gcash_reference_no ? <span style={styles.itemMeta}>GCash reference: {payment.gcash_reference_no}</span> : null}
+                  {payment.payment_reference_no ? <span style={styles.itemMeta}>{paymentMethodLabel(payment.payment_method)} reference: {payment.payment_reference_no}</span> : null}
                   {payment.official_receipt_no ? <span style={styles.itemMeta}>Official receipt no.: {payment.official_receipt_no}</span> : null}
                 </div>
                 <strong style={styles.receiptAmount}>₱{moneyText(payment.amount)}</strong>
@@ -723,6 +754,7 @@ const styles = {
   },
   header: { marginBottom: 16 },
   sectionHeading: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 12 },
+  queueControls: { display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   countBadge: { display: 'inline-flex', alignItems: 'center', padding: '5px 10px', borderRadius: 999, background: 'var(--admin-accent-soft, #eff6ff)', color: 'var(--admin-accent-text, #1e40af)', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' },
   steps: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 8, listStyle: 'none', padding: 0, margin: '16px 0 20px' },
   step: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 42, padding: '8px 10px', border: '1px solid var(--card-border, #e5e7eb)', borderRadius: 9, background: 'var(--card-bg, #fff)', color: 'var(--text-body, #1e293b)', fontSize: 14 },

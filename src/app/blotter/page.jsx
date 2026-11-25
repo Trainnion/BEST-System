@@ -38,7 +38,7 @@ export default function BlotterPage() {
 
       <p className="mt-rhythm-5 max-w-prose text-xs leading-relaxed text-slate-500">
         Already filed?{' '}
-        <a className="font-semibold text-cyan-300 underline-offset-4 hover:underline" href="/blotter/track">
+        <a className="font-semibold text-cyan-700 underline-offset-4 hover:underline dark:text-cyan-300" href="/blotter/track">
           Check your report with the tracking code
         </a>
         . Keep the code safe - it is the only link to your report.

@@ -1,7 +1,7 @@
 /**
  * BEST System - POST /api/resident/login (WP-06, Sec. 6.4 and Sec. 13.3 step 4).
  *
- *   200 OK -> { resident_no, masked_name, expires_in_s } + the best_res cookie
+ *   200 OK -> { resident_no, masked_name, expires_in_s, must_change_password } + the best_res cookie
  *   400    -> a missing field, or a body that carries a resident_id
  *   401    -> wrong resident number or password (one generic answer for every
  *             case: unknown number, never activated, wrong password)
@@ -31,13 +31,14 @@ export async function POST(request) {
   const body = await readJsonBody(request);
   try {
     assertNoResidentId(body);
-    const { resident } = await authenticateResident(body.resident_no, body.password);
+    const { resident, credential } = await authenticateResident(body.resident_no, body.password);
     const issued = await issueSessionFor(SESSION_KIND_RESIDENT, resident.id, RESIDENT_ROLE);
     return jsonResponse(
       {
         resident_no: resident.id,
         masked_name: maskName(resident.first_name, resident.last_name),
         expires_in_s: issued.expires_in_s,
+        must_change_password: credential.must_change_password === true,
       },
       { status: 200, cookie: issued.cookie },
     );

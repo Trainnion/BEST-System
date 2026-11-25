@@ -24,6 +24,7 @@ import {
 } from '../../../../lib/auth.js';
 import {
   BLOTTER_STATUSES,
+  BLOTTER_STATUS_GROUPS,
   INCIDENT_TYPES,
   INCIDENT_ZONES,
   URGENCY_LEVELS,
@@ -57,7 +58,11 @@ export async function GET(request) {
     const size = clampInt(url.searchParams.get('size'), PAGE_SIZE_DEFAULT, 1, PAGE_SIZE_MAX);
 
     const where = {};
-    if (BLOTTER_STATUSES.includes(status)) where.status = status;
+    if (Object.hasOwn(BLOTTER_STATUS_GROUPS, status)) {
+      where.status = { in: BLOTTER_STATUS_GROUPS[status] };
+    } else if (BLOTTER_STATUSES.includes(status)) {
+      where.status = status;
+    }
     if (URGENCY_LEVELS.includes(urgency)) where.urgency_level = urgency;
     if (INCIDENT_TYPES.includes(incidentType)) where.incident_type = incidentType;
     if (INCIDENT_ZONES.includes(zone)) where.incident_zone = zone;

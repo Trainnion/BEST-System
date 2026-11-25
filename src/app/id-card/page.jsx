@@ -48,21 +48,21 @@ export default async function IdCardPage() {
   return (
     <main id="main" className="mx-auto w-full max-w-content px-gutter py-rhythm-6">
       <header className="mx-auto max-w-[26rem]">
-        <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-200">
+        <p className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-800 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-200">
           Verified resident
           <span aria-hidden="true" className="text-cyan-500/70">
             &middot;
           </span>
           View only
         </p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-50 sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl dark:text-slate-50">
           Your Digital <span className="text-gradient-glass">Barangay ID</span>
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-300">
           Show this screen when the barangay hall asks for your digital ID. It is a viewer for your
           own record only, and it stays tied to this signed-in session.
         </p>
-        <p className="mt-2 text-xs leading-relaxed text-slate-400">
+        <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
           No card details are written into this page. They are fetched securely after it opens.
         </p>
       </header>
@@ -74,7 +74,7 @@ export default async function IdCardPage() {
       <ResidentSignOutButton />
 
       <noscript>
-        <p className="mx-auto mt-4 w-full max-w-[26rem] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-relaxed text-slate-300">
+        <p className="mx-auto mt-4 w-full max-w-[26rem] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300">
           The live card is loaded securely in the browser and needs JavaScript. Ask the barangay
           hall staff to open your record for you.
         </p>

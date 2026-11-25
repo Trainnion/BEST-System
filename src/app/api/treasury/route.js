@@ -59,7 +59,7 @@ export async function GET(request) {
         select: {
           id: true,
           receipt_or_no: true,
-          gcash_reference_no: true,
+          payment_reference_no: true,
           amount: true,
           payment_method: true,
           collected_at: true,
@@ -89,7 +89,7 @@ export async function GET(request) {
       id: row.id,
       transaction_no: row.id,
       official_receipt_no: row.receipt_or_no,
-      gcash_reference_no: row.gcash_reference_no,
+      payment_reference_no: row.payment_reference_no,
       amount: formatMoney(row.amount),
       payment_method: row.payment_method,
       collected_at: row.collected_at,

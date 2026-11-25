@@ -5,7 +5,7 @@
  *
  * Front: photo or initials, name, Resident No., card No., purok, birth date,
  *        blood type and valid-until.
- * Back:  Code 128 barcode, emergency contact and the view-only notice.
+ * Back:  Code 128 barcode and the view-only notice.
  * Flip:  a CSS 3D flip in the Full tier and a tap-to-swap in the Lite tier,
  *        driven by the existing useMotionPreference hook.
  *
@@ -193,17 +193,6 @@ export default function DigitalIDCard({ card }) {
             <p className={styles.sectionTitle}>Code 128 barcode</p>
             <div className={styles.barcodeBox}>
               <BarcodeDisplay value={card.barcode_data} />
-            </div>
-
-            <p className={styles.sectionTitle}>Emergency contact</p>
-            <div className={styles.emergency}>
-              <div className={styles.emergencyRow}>
-                <p className={styles.emergencyLabel}>Name</p>
-                <p className={styles.emergencyValue}>
-                  {card.emergency_contact_name || 'Not available'}
-                </p>
-              </div>
-              <p className={styles.emergencyValue}>{card.emergency_contact_phone || 'Not available'}</p>
             </div>
 
             <p className={styles.notice}>

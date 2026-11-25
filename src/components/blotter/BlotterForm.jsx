@@ -324,15 +324,15 @@ export default function BlotterForm() {
   if (result) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status">
-        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
           <CircleCheck className="h-5 w-5" aria-hidden="true" />
           Report filed anonymously
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Your tracking code</h2>
-        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Your tracking code</h2>
+        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-700 dark:text-cyan-300">
           {result.tracking_code}
         </p>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           Keep this code. It is the only key to your report - there is no name or account
           attached to it.
         </p>
@@ -346,7 +346,7 @@ export default function BlotterForm() {
           <button
             type="button"
             onClick={() => setResult(null)}
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             File another report
           </button>
@@ -358,12 +358,12 @@ export default function BlotterForm() {
   if (queued) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status">
-        <p className="flex items-center gap-2 text-sm font-semibold text-amber-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300">
           <WifiOff className="h-5 w-5" aria-hidden="true" />
           Saved on this device
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Waiting for the barangay server</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Waiting for the barangay server</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           Your report text is stored on this device only, and it is deleted as soon as the
           server accepts it. A fresh anti-spam proof is obtained when it is sent, so an
           expired proof is never reused. Keep the details until it is accepted.
@@ -378,7 +378,7 @@ export default function BlotterForm() {
           </button>
           <a
             href="/offline"
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             Offline help
           </a>
@@ -390,8 +390,8 @@ export default function BlotterForm() {
   return (
     <form className="glass max-w-xl p-rhythm-4" onSubmit={handleSubmit} noValidate>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="inline-flex items-center gap-2 text-sm text-slate-400">
-          <Lock className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+        <p className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <Lock className="h-4 w-4 text-cyan-700 dark:text-cyan-300" aria-hidden="true" />
           No login. No name. No cookie.
         </p>
         <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide state-success">
@@ -400,7 +400,7 @@ export default function BlotterForm() {
         </span>
       </div>
 
-      <p className="mt-4 flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm leading-relaxed text-amber-200">
+      <p className="mt-4 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm leading-relaxed text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
         <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
         Do not include names, phone numbers or plate numbers.
       </p>
@@ -500,7 +500,7 @@ export default function BlotterForm() {
           />
         </Field>
 
-        <p className="text-xs leading-relaxed text-slate-400" aria-live="polite">
+        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400" aria-live="polite">
           {findingsText
             ? 'Before sending, this device will remove: ' + findingsText + '.'
             : 'No obvious names or phone numbers detected. Please re-read your text.'}
@@ -538,7 +538,7 @@ export default function BlotterForm() {
         </div>
       </div>
 
-      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-relaxed text-slate-300">
+      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-relaxed text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
         <input
           type="checkbox"
           checked={consentToQueue}
@@ -552,19 +552,19 @@ export default function BlotterForm() {
       </label>
 
       {submitting ? (
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3" aria-live="polite">
-          <p className="flex items-center gap-2 text-sm font-medium text-slate-200">
-            <LoaderCircle className="h-4 w-4 animate-spin text-cyan-300" aria-hidden="true" />
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.04]" aria-live="polite">
+          <p className="flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+            <LoaderCircle className="h-4 w-4 animate-spin text-cyan-700 dark:text-cyan-300" aria-hidden="true" />
             {stage || 'Working...'}
           </p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={powPercent}>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={powPercent}>
             <div
               className="h-full rounded-full bg-cyan-400 transition-[width] duration-200"
               style={{ width: powPercent + '%' }}
             />
           </div>
           {powAttempts > 0 ? (
-            <p className="mt-1 font-mono text-[11px] text-slate-400">
+            <p className="mt-1 font-mono text-[11px] text-slate-600 dark:text-slate-400">
               {powAttempts.toLocaleString()} attempts - {powPercent}%
             </p>
           ) : null}
@@ -573,7 +573,7 @@ export default function BlotterForm() {
 
       {formError ? (
         <p
-          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm leading-relaxed text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -594,7 +594,7 @@ export default function BlotterForm() {
         {submitting ? 'Filing...' : 'File anonymously'}
       </button>
 
-      <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-slate-500">
+      <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-slate-600 dark:text-slate-500">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         Your narrative, exact location and exact time travel over HTTPS and are encrypted
         by the server before they are stored. Only authorized barangay officers can read

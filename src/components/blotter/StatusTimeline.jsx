@@ -26,7 +26,7 @@ export default function StatusTimeline({ status, updates }) {
 
   return (
     <div className="mt-5">
-      <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
         Progress
       </h3>
       <ol className="mt-3 flex flex-col gap-2">
@@ -40,17 +40,17 @@ export default function StatusTimeline({ status, updates }) {
                 className={
                   'mt-1 h-3 w-3 shrink-0 rounded-full border ' +
                   (reached
-                    ? 'border-cyan-300 bg-cyan-300'
-                    : 'border-white/20 bg-transparent')
+                    ? 'border-cyan-700 bg-cyan-700 dark:border-cyan-300 dark:bg-cyan-300'
+                    : 'border-slate-300 bg-transparent dark:border-white/20')
                 }
               />
               <span
                 className={
                   'text-sm ' +
                   (isCurrent
-                    ? 'font-semibold text-cyan-200'
+                    ? 'font-semibold text-cyan-800 dark:text-cyan-200'
                     : reached
-                      ? 'text-slate-200'
+                      ? 'text-slate-700 dark:text-slate-200'
                       : 'text-slate-500')
                 }
               >
@@ -63,23 +63,23 @@ export default function StatusTimeline({ status, updates }) {
 
       {rows.length > 0 ? (
         <div className="mt-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
             Public updates
           </h3>
           <ul className="mt-3 flex flex-col gap-3">
             {rows.map((update, index) => (
               <li
                 key={String(index) + (update.created_at || '')}
-                className="rounded-xl border border-white/10 bg-white/[0.04] p-3"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.04]"
               >
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
                   {formatDay(update.created_at)}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-100">
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {update.action_taken}
                 </p>
                 {update.public_notes ? (
-                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                  <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                     {update.public_notes}
                   </p>
                 ) : null}
@@ -88,7 +88,7 @@ export default function StatusTimeline({ status, updates }) {
           </ul>
         </div>
       ) : (
-        <p className="mt-4 text-sm leading-relaxed text-slate-400">
+        <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
           No public update has been recorded yet. Keep your tracking code and check again.
         </p>
       )}

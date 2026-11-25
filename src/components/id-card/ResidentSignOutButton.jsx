@@ -44,16 +44,16 @@ export default function ResidentSignOutButton() {
         type="button"
         onClick={handleSignOut}
         disabled={busy}
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-slate-100 transition-colors hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 disabled:cursor-wait disabled:opacity-70"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 dark:border-white/15 dark:bg-white/[0.06] dark:text-slate-100 dark:hover:bg-white/[0.12] dark:focus-visible:ring-cyan-400 disabled:cursor-wait disabled:opacity-70"
       >
         <LogOut size={16} aria-hidden="true" />
         {busy ? 'Signing out...' : 'Sign out'}
       </button>
-      <p className="mt-2 text-xs leading-relaxed text-slate-400">
+      <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
         Finished? Sign out to end this resident session on this device.
       </p>
       {error ? (
-        <p role="alert" className="mt-2 text-xs font-semibold text-rose-300">
+        <p role="alert" className="mt-2 text-xs font-semibold text-rose-700 dark:text-rose-300">
           {error}
         </p>
       ) : null}

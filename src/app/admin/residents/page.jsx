@@ -13,7 +13,16 @@ import {
   X,
   Clock,
   ShieldCheck,
+  Power,
+  CreditCard,
 } from 'lucide-react';
+import PasswordResetModal from '../../../components/admin/PasswordResetModal.jsx';
+
+function formatDateOnly(value) {
+  const match = typeof value === 'string' ? value.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/) : null;
+  if (!match) return 'Unknown';
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).toLocaleDateString();
+}
 
 export default function AdminResidentsPage() {
   const [residents, setResidents] = useState([]);
@@ -24,6 +33,13 @@ export default function AdminResidentsPage() {
   const [purok, setPurok] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [canManageAccounts, setCanManageAccounts] = useState(false);
+  const [canManageIdCards, setCanManageIdCards] = useState(false);
+  const [changingResidentId, setChangingResidentId] = useState('');
+  const [passwordResetTarget, setPasswordResetTarget] = useState(null);
+  const [idCardTarget, setIdCardTarget] = useState(null);
+  const [idCardForm, setIdCardForm] = useState({ status: 'ACTIVE', valid_until: '' });
+  const [idCardSaving, setIdCardSaving] = useState(false);
 
   // Slip modal state
   const [activeSlip, setActiveSlip] = useState(null);
@@ -65,6 +81,8 @@ export default function AdminResidentsPage() {
       setResidents(data.items || []);
       setTotal(data.total || 0);
       setTotalPages(data.total_pages || 1);
+      setCanManageAccounts(data.can_manage_accounts === true);
+      setCanManageIdCards(data.can_manage_id_cards === true);
     } catch (err) {
       setError(err.message || 'Error loading residents');
     } finally {
@@ -125,6 +143,82 @@ export default function AdminResidentsPage() {
       setError(err.message);
     } finally {
       setCreateLoading(false);
+    }
+  }
+
+  async function handleToggleResidentAccount(resident) {
+    const nextActive = !resident.is_active;
+    if (!nextActive && !window.confirm(`Deactivate the resident login for ${resident.first_name} ${resident.last_name}? They will be signed out and cannot sign in until reactivated.`)) {
+      return;
+    }
+
+    setChangingResidentId(resident.id);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/residents/${encodeURIComponent(resident.id)}/account`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        body: JSON.stringify({ is_active: nextActive }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Could not update this resident account.');
+      await fetchResidents();
+    } catch (toggleError) {
+      setError(toggleError.message || 'Could not update this resident account.');
+    } finally {
+      setChangingResidentId('');
+    }
+  }
+
+  function handleOpenIdCard(resident) {
+    const validUntil = resident.id_card?.valid_until
+      ? String(resident.id_card.valid_until).slice(0, 10)
+      : (() => {
+          const date = new Date();
+          date.setFullYear(date.getFullYear() + 3);
+          return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+        })();
+
+    setIdCardTarget(resident);
+    setIdCardForm({
+      status: resident.id_card?.status || 'ACTIVE',
+      valid_until: validUntil,
+    });
+  }
+
+  async function handleSaveIdCard(event) {
+    event.preventDefault();
+    if (!idCardTarget) return;
+    if (
+      idCardTarget.id_card &&
+      idCardForm.status === 'REVOKED' &&
+      idCardTarget.id_card.status !== 'REVOKED' &&
+      !window.confirm(`Revoke the digital ID for ${idCardTarget.first_name} ${idCardTarget.last_name}?`)
+    ) {
+      return;
+    }
+
+    setIdCardSaving(true);
+    setError('');
+    try {
+      const response = await fetch(
+        `/api/admin/residents/${encodeURIComponent(idCardTarget.id)}/id-card`,
+        {
+          method: idCardTarget.id_card ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
+          body: JSON.stringify(idCardForm),
+        },
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || 'Could not save this digital ID.');
+      setIdCardTarget(null);
+      await fetchResidents();
+    } catch (saveError) {
+      setError(saveError.message || 'Could not save this digital ID.');
+    } finally {
+      setIdCardSaving(false);
     }
   }
 
@@ -205,19 +299,20 @@ export default function AdminResidentsPage() {
                 <th className="py-3.5 px-4">Purok</th>
                 <th className="py-3.5 px-4">Birth Date</th>
                 <th className="py-3.5 px-4">Account Status</th>
+                <th className="py-3.5 px-4">Digital ID</th>
                 <th className="py-3.5 px-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-white/5 text-slate-800 dark:text-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-slate-500">
+                  <td colSpan="7" className="py-8 text-center text-slate-500">
                     Loading resident records...
                   </td>
                 </tr>
               ) : residents.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-slate-500">
+                  <td colSpan="7" className="py-8 text-center text-slate-500">
                     No matching residents found in directory.
                   </td>
                 </tr>
@@ -234,7 +329,13 @@ export default function AdminResidentsPage() {
                       {new Date(r.birth_date).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-4">
-                      {r.is_activated ? (
+                      <div className="space-y-1">
+                      {r.has_account && !r.is_active ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20">
+                          <Power className="w-3.5 h-3.5" />
+                          Deactivated
+                        </span>
+                      ) : r.is_activated ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Activated
@@ -249,17 +350,64 @@ export default function AdminResidentsPage() {
                           Unactivated
                         </span>
                       )}
+                      {r.must_change_password ? <div className="text-xs font-semibold text-amber-700 dark:text-amber-300">Password change required</div> : null}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {r.id_card ? (
+                        <div className="space-y-1">
+                          <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${r.id_card.status === 'ACTIVE' ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300' : r.id_card.status === 'REVOKED' ? 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300' : 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'}`}>
+                            {r.id_card.status}
+                          </span>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">Expires {formatDateOnly(r.id_card.valid_until)}</div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-slate-500 dark:text-slate-400">Not issued</span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <button
                         type="button"
                         onClick={() => handleIssueSlip(r.id)}
-                        disabled={slipLoading}
+                        disabled={slipLoading || (r.has_account && !r.is_active)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-800 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 dark:border-indigo-500/30 dark:text-indigo-300 text-sm font-bold transition disabled:opacity-50"
                       >
                         <Key className="w-4 h-4" />
                         <span>Issue Slip</span>
                       </button>
+                      {canManageIdCards ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenIdCard(r)}
+                          disabled={!r.is_verified && !r.id_card}
+                          title={!r.is_verified && !r.id_card ? 'Verify the resident before issuing an ID.' : undefined}
+                          className="ml-2 inline-flex items-center gap-1.5 rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-1.5 text-sm font-bold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-200 dark:hover:bg-cyan-500/20"
+                        >
+                          <CreditCard className="h-4 w-4" />
+                          <span>{r.id_card ? 'Manage ID' : 'Issue ID'}</span>
+                        </button>
+                      ) : null}
+                      {canManageAccounts && r.has_account && r.is_activated ? (
+                        <button
+                          type="button"
+                          onClick={() => setPasswordResetTarget({ ...r, full_name: `${r.first_name} ${r.last_name}` })}
+                          className="ml-2 inline-flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-3 py-1.5 text-sm font-bold text-sky-800 transition hover:bg-sky-100 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-200 dark:hover:bg-cyan-500/20"
+                        >
+                          <Key className="h-4 w-4" />
+                          <span>Set password</span>
+                        </button>
+                      ) : null}
+                      {canManageAccounts && r.has_account ? (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleResidentAccount(r)}
+                          disabled={changingResidentId === r.id}
+                          className={`ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-bold transition disabled:opacity-50 ${r.is_active ? 'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-800 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:border-rose-500/30 dark:text-rose-200' : 'bg-sky-50 hover:bg-sky-100 border-sky-300 text-sky-800 dark:bg-cyan-500/10 dark:hover:bg-cyan-500/20 dark:border-cyan-500/30 dark:text-cyan-200'}`}
+                        >
+                          <Power className="w-4 h-4" />
+                          <span>{changingResidentId === r.id ? 'Saving…' : r.is_active ? 'Deactivate' : 'Reactivate'}</span>
+                        </button>
+                      ) : null}
                     </td>
                   </tr>
                 ))
@@ -296,6 +444,97 @@ export default function AdminResidentsPage() {
           </div>
         </div>
       </div>
+
+      {/* Digital ID issue/manage modal. Cards are view-only for residents and cannot be printed. */}
+      {idCardTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/80 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="resident-id-card-title"
+            className="my-8 w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/15 dark:bg-slate-900"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="resident-id-card-title" className="text-xl font-bold text-slate-900 dark:text-white">
+                  {idCardTarget.id_card ? 'Manage Digital ID' : 'Issue Digital ID'}
+                </h2>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  {idCardTarget.first_name} {idCardTarget.last_name} · {idCardTarget.id}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIdCardTarget(null)}
+                aria-label="Close digital ID form"
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {idCardTarget.id_card ? (
+              <p className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-300">
+                Card number: <span className="font-mono font-semibold">{idCardTarget.id_card.card_number}</span>
+              </p>
+            ) : (
+              <p className="mt-4 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm leading-relaxed text-cyan-900 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-100">
+                The card number and barcode will be generated automatically. The resident can view the card after signing in. Printing is not available.
+              </p>
+            )}
+
+            <form onSubmit={handleSaveIdCard} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="id-card-valid-until" className="mb-1 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Valid until
+                </label>
+                <input
+                  id="id-card-valid-until"
+                  type="date"
+                  required
+                  value={idCardForm.valid_until}
+                  onChange={(event) => setIdCardForm((current) => ({ ...current, valid_until: event.target.value }))}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 focus:border-cyan-500 focus:outline-none dark:border-white/15 dark:bg-slate-950 dark:text-white"
+                />
+              </div>
+              {idCardTarget.id_card ? (
+                <div>
+                  <label htmlFor="id-card-status" className="mb-1 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                    Card status
+                  </label>
+                  <select
+                    id="id-card-status"
+                    value={idCardForm.status}
+                    onChange={(event) => setIdCardForm((current) => ({ ...current, status: event.target.value }))}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 focus:border-cyan-500 focus:outline-none dark:border-white/15 dark:bg-slate-950 dark:text-white"
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="EXPIRED">Expired</option>
+                    <option value="REVOKED">Revoked</option>
+                  </select>
+                </div>
+              ) : null}
+              <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIdCardTarget(null)}
+                  disabled={idCardSaving}
+                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={idCardSaving}
+                  className="rounded-xl bg-cyan-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-60 dark:bg-cyan-600 dark:hover:bg-cyan-500"
+                >
+                  {idCardSaving ? 'Saving…' : idCardTarget.id_card ? 'Save changes' : 'Issue card'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Activation Slip Modal */}
       {activeSlip && (
@@ -495,6 +734,14 @@ export default function AdminResidentsPage() {
           </div>
         </div>
       )}
+
+      <PasswordResetModal
+        account={passwordResetTarget}
+        kind="resident"
+        endpoint={passwordResetTarget ? `/api/admin/residents/${encodeURIComponent(passwordResetTarget.id)}/password` : ''}
+        onClose={() => setPasswordResetTarget(null)}
+        onSaved={fetchResidents}
+      />
     </div>
   );
 }

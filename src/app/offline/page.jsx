@@ -26,33 +26,33 @@ export default function OfflinePage() {
   return (
     <main id="main" className="mx-auto w-full max-w-content px-gutter py-rhythm-6">
       <header className="max-w-prose">
-        <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-300">
+        <p className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-800 dark:border-white/10 dark:bg-white/[0.04] dark:text-cyan-300">
           Offline fallback
         </p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-50 sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl dark:text-slate-50">
           Working <span className="text-gradient-glass">without a connection</span>
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-300">
           BEST is built for the barangay LAN and for phones that drop signal. Requests you
           send while the server is unreachable stay on this device until it answers back.
         </p>
       </header>
 
       <section className="mt-rhythm-5 max-w-prose glass p-rhythm-4" aria-labelledby="offline-rules">
-        <h2 id="offline-rules" className="text-lg font-semibold text-slate-100">
+        <h2 id="offline-rules" className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           How the pending queue behaves
         </h2>
-        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-300">
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           {RULES.map((rule) => (
             <li key={rule} className="flex gap-2">
-              <span aria-hidden="true" className="mt-0.5 text-cyan-400">
+              <span aria-hidden="true" className="mt-0.5 text-cyan-700 dark:text-cyan-400">
                 +
               </span>
               <span>{rule}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-4 border-t border-white/10 pt-3 font-mono text-xs tracking-code text-slate-400">
+        <p className="mt-4 border-t border-slate-200 pt-3 font-mono text-xs tracking-code text-slate-600 dark:border-white/10 dark:text-slate-400">
           queue capacity: 10 entries - retention: 7 days - kinds: document | business | blotter
         </p>
       </section>
@@ -62,7 +62,7 @@ export default function OfflinePage() {
       </div>
 
       <noscript>
-        <p className="mt-4 max-w-prose rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-200">
+        <p className="mt-4 max-w-prose rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
           JavaScript is switched off, so the live queue cannot be listed here. The rules above
           still apply: reconnect, turn JavaScript on and reopen this page to see and retry the
           items saved on this device.

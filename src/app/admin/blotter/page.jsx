@@ -14,6 +14,14 @@ import {
   ShieldCheck,
   Send,
 } from 'lucide-react';
+import { BLOTTER_STATUS_LABELS, BLOTTER_TRANSITIONS } from '@/lib/blotter/constants.js';
+
+const PAGE_SIZE = 15;
+const QUEUE_VIEWS = [
+  { value: '', label: 'All Reports' },
+  { value: 'NEEDS_REVIEW', label: 'Needs Review' },
+  { value: 'HANDLED', label: 'Handled Reports' },
+];
 
 export default function AdminBlotterPage() {
   const [reports, setReports] = useState([]);
@@ -45,7 +53,7 @@ export default function AdminBlotterPage() {
       if (urgencyFilter) params.set('urgency', urgencyFilter);
       if (search) params.set('search', search);
       params.set('page', String(page));
-      params.set('size', '15');
+      params.set('size', String(PAGE_SIZE));
 
       const res = await fetch(`/api/admin/blotter?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to load blotter queue');
@@ -76,13 +84,7 @@ export default function AdminBlotterPage() {
       setActionTaken('');
       setPublicNotes('');
       setInternalNotes('');
-      setNextStatus(
-        data.status === 'FILED'
-          ? 'UNDER_REVIEW'
-          : data.status === 'UNDER_REVIEW'
-          ? 'ACTION_TAKEN'
-          : 'CLOSED',
-      );
+      setNextStatus(BLOTTER_TRANSITIONS[data.status]?.[0] || '');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -93,8 +95,13 @@ export default function AdminBlotterPage() {
   async function handleUpdateBlotter(e) {
     e.preventDefault();
     if (!selectedReport) return;
+    const allowedNextStatuses = BLOTTER_TRANSITIONS[selectedReport.status] || [];
+    if (!allowedNextStatuses.includes(nextStatus)) {
+      alert('Choose one of the available next steps for this report.');
+      return;
+    }
     if (!actionTaken.trim()) {
-      alert('Action taken summary is required.');
+      alert('An investigation update is required.');
       return;
     }
 
@@ -117,13 +124,16 @@ export default function AdminBlotterPage() {
       }
 
       setSelectedReport(null);
-      fetchReports();
+      if (page === 1) fetchReports();
+      else setPage(1);
     } catch (err) {
       alert(err.message);
     } finally {
       setActionLoading(false);
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-6">
@@ -136,6 +146,34 @@ export default function AdminBlotterPage() {
         <p className="text-base text-slate-600 dark:text-slate-400 mt-1">
           Review community incident reports, update investigation status, and log actions taken.
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <div role="group" aria-label="Blotter report views" className="flex flex-wrap gap-2">
+          {QUEUE_VIEWS.map((view) => (
+            <button
+              key={view.value || 'all'}
+              type="button"
+              aria-pressed={statusFilter === view.value}
+              onClick={() => {
+                setStatusFilter(view.value);
+                setPage(1);
+              }}
+              className={`min-h-10 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                statusFilter === view.value
+                  ? 'border-rose-700 bg-rose-700 text-white dark:border-rose-400 dark:bg-rose-400 dark:text-slate-950'
+                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:bg-slate-800'
+              }`}
+            >
+              {view.label}
+            </button>
+          ))}
+        </div>
+        {statusFilter === 'HANDLED' && (
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Reports with Action Taken or Closed status are shown here.
+          </p>
+        )}
       </div>
 
       {error && (
@@ -162,21 +200,6 @@ export default function AdminBlotterPage() {
         </div>
 
         <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
-          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-base focus:outline-none focus:border-rose-500"
-        >
-          <option value="">All Statuses</option>
-          <option value="FILED">Filed</option>
-          <option value="UNDER_REVIEW">Under Review</option>
-          <option value="ACTION_TAKEN">Action Taken</option>
-          <option value="CLOSED">Closed</option>
-        </select>
-
-        <select
           value={urgencyFilter}
           onChange={(e) => {
             setUrgencyFilter(e.target.value);
@@ -186,7 +209,7 @@ export default function AdminBlotterPage() {
         >
           <option value="">All Urgency Levels</option>
           <option value="LOW">Low</option>
-          <option value="NORMAL">Normal</option>
+          <option value="MEDIUM">Medium</option>
           <option value="HIGH">High</option>
           <option value="CRITICAL">Critical (Immediate Dispatch)</option>
         </select>
@@ -274,6 +297,31 @@ export default function AdminBlotterPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Showing {total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total} reports
+        </p>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            disabled={loading || page <= 1}
+            className="min-h-10 rounded-lg border border-slate-300 px-3 font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            Previous
+          </button>
+          <span aria-live="polite">Page {page} of {totalPages}</span>
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            disabled={loading || page >= totalPages}
+            className="min-h-10 rounded-lg border border-slate-300 px-3 font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            Next
+          </button>
         </div>
       </div>
 
@@ -375,22 +423,34 @@ export default function AdminBlotterPage() {
                     <select
                       value={nextStatus}
                       onChange={(e) => setNextStatus(e.target.value)}
+                      required
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white text-sm"
                     >
-                      {selectedReport.status === 'FILED' && (
-                        <option value="UNDER_REVIEW">Under Review</option>
-                      )}
-                      <option value="ACTION_TAKEN">Action Taken (Tanod Dispatched)</option>
-                      <option value="CLOSED">Closed (Resolved / Dismissed)</option>
+                      {(BLOTTER_TRANSITIONS[selectedReport.status] || []).map((status) => (
+                        <option key={status} value={status}>
+                          {BLOTTER_STATUS_LABELS[status]}
+                          {status === 'ACTION_TAKEN' ? ' (Tanod Dispatched)' : ''}
+                          {status === 'CLOSED' ? ' (Resolved / Dismissed)' : ''}
+                        </option>
+                      ))}
                     </select>
+                    {selectedReport.status === 'FILED' && (
+                      <p className="mt-2 text-xs leading-5 text-amber-200">
+                        Move this report to Under Review first. Action Taken and Closed become available after review.
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Action Taken *</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Investigation Update *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Dispatched barangay tanod unit"
+                      placeholder={nextStatus === 'UNDER_REVIEW'
+                        ? 'e.g. Report accepted for review; follow-up assigned'
+                        : nextStatus === 'CLOSED'
+                          ? 'e.g. No further action needed; report closed'
+                          : 'e.g. Barangay tanod dispatched to investigate'}
                       value={actionTaken}
                       onChange={(e) => setActionTaken(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-white text-sm"
@@ -434,7 +494,7 @@ export default function AdminBlotterPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={actionLoading}
+                    disabled={actionLoading || !nextStatus}
                     className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-600/20 transition flex items-center gap-2 disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />

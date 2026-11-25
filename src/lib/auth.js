@@ -351,7 +351,7 @@ function candidateKinds(allowed) {
  * @param {string[]|null} allowed the roles the caller accepts
  * @returns {Promise<{user: object, session: object, cookie: string}>}
  */
-async function validateSession(kind, rawToken, allowed) {
+async function validateSession(kind, rawToken, allowed, options = {}) {
   let payload;
   try {
     const result = await jwtDecrypt(rawToken, deriveSessionKey(), {
@@ -409,14 +409,14 @@ async function validateSession(kind, rawToken, allowed) {
         first_name: true,
         last_name: true,
         credential: {
-          select: { activated_at: true, session_valid_after: true },
+          select: { activated_at: true, is_active: true, must_change_password: true, session_valid_after: true },
         },
       },
     });
     if (!resident || !resident.credential) {
       throw new AuthError(401, 'Your session is invalid or has expired.', 'SESSION_INVALID');
     }
-    if (!resident.credential.activated_at) {
+    if (!resident.credential.activated_at || !resident.credential.is_active) {
       throw new AuthError(401, 'Your session is invalid or has expired.', 'SESSION_NOT_ACTIVATED');
     }
     validAfter = resident.credential.session_valid_after;
@@ -424,6 +424,7 @@ async function validateSession(kind, rawToken, allowed) {
       id: resident.id,
       role: RESIDENT_ROLE,
       masked_name: maskName(resident.first_name, resident.last_name),
+      must_change_password: resident.credential.must_change_password,
     };
   }
 
@@ -433,6 +434,9 @@ async function validateSession(kind, rawToken, allowed) {
 
   if (allowed && !allowed.includes(user.role)) {
     throw new AuthError(403, 'Your role may not use this endpoint.', 'ROLE_FORBIDDEN');
+  }
+  if (user.must_change_password && options.allowMustChangePassword !== true) {
+    throw new AuthError(403, 'Change your password before using the system.', 'PASSWORD_CHANGE_REQUIRED');
   }
 
   // Slide the window: the original iat is preserved, last becomes now.
@@ -451,16 +455,17 @@ async function validateSession(kind, rawToken, allowed) {
 /**
  * Require a valid session (Sec. 16.3).
  *
- * The request is rejected with 401 when the cookie is missing or cannot be
- * decrypted, when the idle window is over, when the absolute 8 hour limit is
- * over, when the cookie was issued before `session_valid_after`, or when the
- * account is inactive. Residents also need an activated credential.
+ * The request is rejected when the cookie is missing or cannot be decrypted,
+ * when the idle window is over, when the absolute 8 hour limit is over, when
+ * the cookie was issued before `session_valid_after`, when the account is
+ * inactive, or when a temporary password still requires a change. Residents
+ * also need an activated credential.
  *
  * @param {Request} request
  * @param {string[]} [roles] the accepted roles; omit to accept staff or resident
  * @returns {Promise<{user: object, session: object, cookie: string}>}
  */
-export async function requireSession(request, roles) {
+export async function requireSession(request, roles, options = {}) {
   assertServerOnly();
   const allowed = Array.isArray(roles)
     ? roles.map((role) => String(role).toUpperCase()).filter((role) => role !== '')
@@ -471,7 +476,7 @@ export async function requireSession(request, roles) {
     const raw = readCookie(request, sessionCookieName(kind));
     if (!raw) continue;
     try {
-      return await validateSession(kind, raw, allowed);
+      return await validateSession(kind, raw, allowed, options);
     } catch (error) {
       if (!firstError) firstError = error;
     }
@@ -492,6 +497,7 @@ export const PERMISSIONS = Object.freeze({
   FILE_BLOTTER: 'file_blotter',
   TRACK_BLOTTER: 'track_blotter',
   VIEW_OWN_ID_CARD: 'view_own_id_card',
+  MANAGE_ID_CARDS: 'manage_id_cards',
   ISSUE_ACTIVATION_SLIP: 'issue_activation_slip',
   ASSISTED_INTAKE: 'assisted_intake',
   AI_CHAT: 'ai_chat',
@@ -526,6 +532,7 @@ const RBAC_MATRIX = Object.freeze({
   [PERMISSIONS.FILE_BLOTTER]: EVERY_ROLE,
   [PERMISSIONS.TRACK_BLOTTER]: EVERY_ROLE,
   [PERMISSIONS.VIEW_OWN_ID_CARD]: [RESIDENT_ROLE, BUSINESS_APPLICANT_ROLE],
+  [PERMISSIONS.MANAGE_ID_CARDS]: ['STAFF', 'ADMIN'],
   [PERMISSIONS.ISSUE_ACTIVATION_SLIP]: ['STAFF', 'ADMIN'],
   [PERMISSIONS.ASSISTED_INTAKE]: ['STAFF', 'ADMIN'],
   [PERMISSIONS.AI_CHAT]: EVERY_ROLE,
@@ -912,6 +919,14 @@ export async function issueActivation(residentId, issuedById) {
     throw new AuthError(404, 'That resident could not be found.', 'ACTIVATION_TARGET_NOT_FOUND');
   }
 
+  const currentCredential = await prisma.residentCredential.findUnique({
+    where: { resident_id: resident.id },
+    select: { is_active: true },
+  });
+  if (currentCredential && !currentCredential.is_active) {
+    throw new AuthError(403, 'An administrator must reactivate this resident account before issuing a new slip.', 'RESIDENT_ACCOUNT_INACTIVE');
+  }
+
   const code = randomActivationCode(ACTIVATION_CODE_LENGTH);
   const activationHash = await bcrypt.hash(code, BCRYPT_COST);
   const now = new Date(nowMs());
@@ -993,7 +1008,7 @@ export async function activateResidentAccount(input) {
     },
   });
   const credential = resident ? resident.credential : null;
-  if (!resident || !credential || !credential.activation_hash) {
+  if (!resident || !credential || !credential.is_active || !credential.activation_hash) {
     await bcrypt.compare(activationCode, DUMMY_PASSWORD_HASH);
     throw generic();
   }
@@ -1055,7 +1070,7 @@ export async function authenticateResident(residentNo, password) {
     where: { resident_id: number },
     include: { resident: true },
   });
-  if (!credential || !credential.password_hash || !credential.activated_at || !credential.resident) {
+  if (!credential || !credential.is_active || !credential.password_hash || !credential.activated_at || !credential.resident) {
     await bcrypt.compare(secret, DUMMY_PASSWORD_HASH);
     throw new AuthError(401, INVALID_RESIDENT_CREDENTIALS_MESSAGE, 'INVALID_CREDENTIALS');
   }

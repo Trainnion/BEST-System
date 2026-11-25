@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { BadgeCheck, CalendarDays, FileText, LogOut, RefreshCw, UserRound } from 'lucide-react';
+import PasswordChangeForm from '../../../components/auth/PasswordChangeForm.jsx';
 
 const REQUEST_LABELS = {
   CLEARANCE: 'Barangay Clearance',
@@ -50,6 +51,14 @@ export default function ResidentAccountPage() {
       if (accountResponse.status === 401 || requestResponse.status === 401) {
         router.replace(`/resident/login?next=${encodeURIComponent('/resident/account')}`);
         return;
+      }
+      const blockedResponse = accountResponse.status === 403 ? accountResponse : requestResponse.status === 403 ? requestResponse : null;
+      if (blockedResponse) {
+        const blockedData = await blockedResponse.clone().json().catch(() => ({}));
+        if (blockedData.error === 'PASSWORD_CHANGE_REQUIRED') {
+          router.replace('/password/change?type=resident&required=1');
+          return;
+        }
       }
       const [accountData, requestData] = await Promise.all([accountResponse.json(), requestResponse.json()]);
       if (!accountResponse.ok) throw new Error(accountData.message || 'Could not load your resident account.');
@@ -120,6 +129,8 @@ export default function ResidentAccountPage() {
                 </dl>
               </section>
             ) : null}
+
+            <PasswordChangeForm mode="resident" />
 
             <section aria-labelledby="requests-heading" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
               <div className="flex flex-wrap items-center justify-between gap-3">

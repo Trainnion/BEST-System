@@ -46,6 +46,12 @@ export const BLOTTER_STATUSES = Object.freeze([
   'CLOSED',
 ]);
 
+/** Convenient queue filters; handled reports stay visible after leaving review. */
+export const BLOTTER_STATUS_GROUPS = Object.freeze({
+  NEEDS_REVIEW: Object.freeze(['FILED', 'UNDER_REVIEW']),
+  HANDLED: Object.freeze(['ACTION_TAKEN', 'CLOSED']),
+});
+
 /** The one transition map the PATCH handler enforces. */
 export const BLOTTER_TRANSITIONS = Object.freeze({
   FILED: Object.freeze(['UNDER_REVIEW']),

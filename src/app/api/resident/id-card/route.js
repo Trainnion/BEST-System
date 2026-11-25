@@ -17,12 +17,8 @@
  *     404 is returned as for a missing card;
  *   - the response is an explicit allow-list of fields: no contact number,
  *     e-mail, street address, demo flag or credential is ever serialised;
- *   - V5 encrypts resident PII server-side as `v1.<kid>.<iv>.<ct>.<tag>`
- *     with the AAD context `Resident.<column>`; only the two emergency
- *     contact fields are opened here, with FIELD_ENC_KEY, inside this server
- *     module;
- *   - a damaged emergency field falls back to "Not available" instead of
- *     failing the whole card, and never leaks the error or ciphertext;
+ *   - emergency contact fields and other sensitive profile fields are never
+ *     selected or returned by the card endpoint;
  *   - values are never logged, and the response is no-store with no Set-Cookie.
  */
 
@@ -33,14 +29,12 @@ import {
   jsonResponse,
   requireSession,
 } from '../../../../lib/auth.js';
-import { decryptField } from '../../../../lib/crypto/field.js';
 import { prisma } from '../../../../lib/db.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const GENERIC_NOT_FOUND = 'No digital ID card is available for this account.';
-const EMERGENCY_PLACEHOLDER = 'Not available';
 
 /**
  * A strict YYYY-MM-DD date, or null for anything unusable.
@@ -88,29 +82,7 @@ function fullName(resident) {
 }
 
 /**
- * Open one V5 encrypted emergency field. A null, a damaged value, a rotated
- * key or a legacy plaintext value yields null, which the caller turns into a
- * safe placeholder: one unreadable field must never turn the card into a 500.
- *
- * @param {unknown} stored
- * @param {'emergency_contact_name'|'emergency_contact_phone'} column
- * @returns {string|null}
- */
-function openEmergencyField(stored, column) {
-  if (typeof stored !== 'string' || stored.trim() === '') return null;
-  try {
-    const value = decryptField(stored, 'Resident.' + column);
-    return typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Read the resident's card fields and open the two emergency fields one by
- * one. The Prisma extension decrypts top-level model rows only, so this query
- * intentionally reads the raw row and decrypts with the exact AAD context;
- * that lets one damaged field fall back without hiding card metadata.
+ * Read only the non-sensitive resident fields that appear on the card.
  *
  * @param {string} residentId
  * @returns {Promise<object|null>}
@@ -126,20 +98,14 @@ async function loadResidentCardRow(residentId) {
       "purok",
       "birth_date",
       "blood_type",
-      "photo_url",
-      "emergency_contact_name",
-      "emergency_contact_phone"
+      "photo_url"
     FROM "Resident"
     WHERE "id" = ${residentId}
     LIMIT 1
   `;
   const row = Array.isArray(rows) ? rows[0] : null;
   if (!row) return null;
-  return {
-    ...row,
-    emergency_contact_name: openEmergencyField(row.emergency_contact_name, 'emergency_contact_name'),
-    emergency_contact_phone: openEmergencyField(row.emergency_contact_phone, 'emergency_contact_phone'),
-  };
+  return row;
 }
 
 /**
@@ -148,7 +114,6 @@ async function loadResidentCardRow(residentId) {
  *
  * @param {object} card BarangayIDCard row
  * @param {object} resident Resident row
- * @param {{name: string, phone: string}} emergency already-opened or placeholder values
  * @returns {{
  *   id: string,
  *   card_number: string,
@@ -162,12 +127,9 @@ async function loadResidentCardRow(residentId) {
  *   birth_date: string|null,
  *   blood_type: string,
  *   photo_url: string|null,
- *   emergency_contact_name: string,
- *   emergency_contact_phone: string,
  * }}
  */
-export function toCardViewModel(card, resident, emergency) {
-  const contact = emergency && typeof emergency === 'object' ? emergency : {};
+export function toCardViewModel(card, resident) {
   return {
     id: String(card.id),
     card_number: String(card.card_number),
@@ -184,14 +146,6 @@ export function toCardViewModel(card, resident, emergency) {
         ? resident.blood_type.trim()
         : 'Unknown',
     photo_url: safePhotoUrl(resident.photo_url),
-    emergency_contact_name:
-      typeof contact.name === 'string' && contact.name.trim() !== ''
-        ? contact.name.trim()
-        : EMERGENCY_PLACEHOLDER,
-    emergency_contact_phone:
-      typeof contact.phone === 'string' && contact.phone.trim() !== ''
-        ? contact.phone.trim()
-        : EMERGENCY_PLACEHOLDER,
   };
 }
 
@@ -207,9 +161,8 @@ export async function GET(request) {
       BUSINESS_APPLICANT_ROLE,
     ]);
 
-    // The card and the resident are queried separately: the extension
-    // decrypts top-level model rows only, and the resident row needs its own
-    // top-level handling for the emergency fields.
+    // The card and the resident are queried separately so the response stays
+    // limited to the resident's own card and its displayed fields.
     const card = await prisma.barangayIDCard.findUnique({
       where: { resident_id: user.id },
     });
@@ -242,10 +195,7 @@ export async function GET(request) {
       );
     }
 
-    const view = toCardViewModel(card, resident, {
-      name: resident.emergency_contact_name,
-      phone: resident.emergency_contact_phone,
-    });
+    const view = toCardViewModel(card, resident);
 
     // No cookie is re-issued on this endpoint on purpose: the card response is
     // read-only and must not carry Set-Cookie.

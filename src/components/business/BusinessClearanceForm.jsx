@@ -232,10 +232,10 @@ export default function BusinessClearanceForm() {
   if (sessionState === 'offline') {
     return (
       <div className="glass flex max-w-xl items-start gap-3 p-rhythm-4" role="status">
-        <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+        <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
         <div>
-          <h2 className="text-base font-semibold text-slate-100">Needs a connection</h2>
-          <p className="mt-1 text-sm leading-relaxed text-slate-300">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Needs a connection</h2>
+          <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             Your resident session could not be checked. Reconnect to the barangay server and
             reload this page - nothing you type is sent while you are offline.
           </p>
@@ -247,41 +247,41 @@ export default function BusinessClearanceForm() {
   if (result) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status">
-        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
           <CircleCheck className="h-5 w-5" aria-hidden="true" />
           Appointment booked
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Your reference</h2>
-        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Your reference</h2>
+        <p className="mt-2 break-all font-mono text-2xl font-bold tracking-code text-cyan-700 dark:text-cyan-300">
           {result.id}
         </p>
         <dl className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">Appointment date</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-100">
+            <dt className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Appointment date</dt>
+            <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
               {formatDate(result.physical_appointment_date)}
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">Applicant</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-100">
+            <dt className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Applicant</dt>
+            <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
               {maskedName || 'Verified resident'}
             </dd>
           </div>
         </dl>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.04]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
             Checklist to bring
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-300">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
             {(Array.isArray(result.checklist) ? result.checklist : []).map((item) => (
               <li key={item.id}>{item.title}</li>
             ))}
           </ul>
         </div>
 
-        <p className="mt-3 text-sm leading-relaxed text-slate-300">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           Keep this reference. Bring the original documents to the barangay hall on
           your appointment date. No clearance is issued online.
         </p>
@@ -304,7 +304,7 @@ export default function BusinessClearanceForm() {
               setAddress('');
               setAppointmentDate('');
             }}
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             Book another
           </button>
@@ -316,19 +316,19 @@ export default function BusinessClearanceForm() {
   if (queued) {
     return (
       <section className="glass max-w-xl p-rhythm-4" role="status">
-        <p className="flex items-center gap-2 text-sm font-semibold text-amber-300">
+        <p className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300">
           <WifiOff className="h-5 w-5" aria-hidden="true" />
           Saved on this device
         </p>
-        <h2 className="mt-3 text-xl font-bold text-slate-50">Queued until you reconnect</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-300">
+        <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-50">Queued until you reconnect</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           The server could not be reached, so your request was written to this
           device&apos;s outbox. It is sent automatically when the barangay server answers
           again - you do not need to retype it.
         </p>
-        <p className="mt-3 text-sm text-slate-300">
+        <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
           Pending on this device:{' '}
-          <span className="font-semibold text-cyan-300">{pendingCount}</span>{' '}
+          <span className="font-semibold text-cyan-700 dark:text-cyan-300">{pendingCount}</span>{' '}
           {pendingCount === 1 ? 'item' : 'items'}.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -341,7 +341,7 @@ export default function BusinessClearanceForm() {
           <button
             type="button"
             onClick={() => setQueued(false)}
-            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-slate-200 transition hover:border-white/30"
+            className="tap-target inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30"
           >
             Try sending again
           </button>
@@ -352,12 +352,12 @@ export default function BusinessClearanceForm() {
 
   return (
     <form className="glass max-w-xl p-rhythm-4" onSubmit={handleSubmit} noValidate>
-      <h2 className="text-base font-semibold text-slate-200">Screening details</h2>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-slate-200">Screening details</h2>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Filing as{' '}
-          <span className="font-mono font-semibold text-slate-200">
+          <span className="font-mono font-semibold text-slate-900 dark:text-slate-200">
             {maskedName || 'verified resident'}
           </span>
         </p>
@@ -419,7 +419,7 @@ export default function BusinessClearanceForm() {
 
       {fieldError ? (
         <p
-          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm leading-relaxed text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -429,7 +429,7 @@ export default function BusinessClearanceForm() {
 
       {formError ? (
         <p
-          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm leading-relaxed text-rose-300"
+          className="mt-4 flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm leading-relaxed text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
           role="alert"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -450,7 +450,7 @@ export default function BusinessClearanceForm() {
         {submitting ? 'Sending...' : 'Book screening appointment'}
       </button>
 
-      <p className="mt-3 text-xs leading-relaxed text-slate-500">
+      <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-500">
         Your business name, nature and address are encrypted on the barangay server before
         storage. No clearance is approved online.
       </p>

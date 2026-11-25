@@ -73,6 +73,9 @@ enum PaymentMethod {
   CASH
   GCASH_MOCK
   LANDBANK_MOCK
+  BPI_MOCK
+  MAYA_MOCK
+  GOTYME_MOCK
 }
 
 enum CivilStatus {
@@ -129,6 +132,8 @@ model ResidentCredential {
   activation_hash     String?
   activation_expires  DateTime?
   activated_at        DateTime?
+  is_active           Boolean    @default(true)
+  must_change_password Boolean   @default(false)
   issued_by_id        String
   failed_attempts     Int        @default(0)
   locked_until        DateTime?
@@ -254,7 +259,7 @@ model PaymentRecord {
   business_clearance_id  String?                 @unique // 1-to-1 FK -> BusinessClearanceEntry
   amount                 Decimal                 @db.Decimal(10, 2)
   receipt_or_no          String?                 @unique // Optional physical official receipt number; legacy records retain their value.
-  gcash_reference_no     String?                 @unique
+  payment_reference_no   String?
   payment_method         PaymentMethod           @default(CASH)
   collected_by_id        String                  // FK -> SystemUser.id (Treasurer)
   remarks                String?
@@ -267,6 +272,7 @@ model PaymentRecord {
 
   @@index([collected_by_id])
   @@index([receipt_or_no])
+  @@unique([payment_method, payment_reference_no])
 }
 
 // ----------------------------------------------------

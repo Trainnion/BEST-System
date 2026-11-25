@@ -25,6 +25,7 @@
 const MANIFEST_URL = '/precache-manifest.json';
 const FALLBACK_URL = '/offline';
 const PUBLIC_API_RE = /^\/api\/(?:broadcasts|directory|public\/stats)$/;
+const NETWORK_ONLY_PAGE_RE = /^\/(?:admin|id-card|resident|password)(?:\/|$)/;
 const IMMUTABLE_RE = /^(?:\/_next\/static\/|\/icons\/)|\.woff2$/;
 const MAX_API_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7-day max age (Sec. 7.3)
 const CACHED_AT_HEADER = 'X-BEST-Cached-At';
@@ -48,12 +49,18 @@ self.addEventListener('install', (event) => {
             CACHE_NAME = `best-shell-v${manifest.build_id}`;
           }
           if (Array.isArray(manifest.routes) && manifest.routes.length > 0) {
-            SHELL_ROUTES = manifest.routes.map((route) => String(route));
+            SHELL_ROUTES = manifest.routes
+              .map((route) => String(route))
+              .filter((route) => !NETWORK_ONLY_PAGE_RE.test(new URL(route, self.location.origin).pathname));
           }
           const urls = []
             .concat(SHELL_ROUTES)
             .concat(Array.isArray(manifest.files) ? manifest.files : [])
-            .filter((url) => typeof url === 'string' && url.startsWith('/'));
+            .filter((url) => {
+              if (typeof url !== 'string' || !url.startsWith('/')) return false;
+              const pathname = new URL(url, self.location.origin).pathname;
+              return !NETWORK_ONLY_PAGE_RE.test(pathname);
+            });
 
           const cache = await caches.open(CACHE_NAME);
           // One missing URL must never abort the install (Sec. 7.3).
@@ -253,8 +260,8 @@ self.addEventListener('fetch', (event) => {
   // ai, ...) is network-only and never cached (OFFLINE-02/03).
   if (path.startsWith('/api/')) return;
 
-  // Admin and authenticated pages: network-only, never cached.
-  if (path === '/admin' || path.startsWith('/admin/')) return;
+  // Admin and resident-authenticated pages: network-only, never cached.
+  if (NETWORK_ONLY_PAGE_RE.test(path)) return;
 
   // Immutable static assets: cache-first.
   if (IMMUTABLE_RE.test(path)) {

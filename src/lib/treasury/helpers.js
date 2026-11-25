@@ -5,20 +5,27 @@
 
 import { randomInt } from 'node:crypto';
 
-export const PAYMENT_METHODS = Object.freeze(['CASH', 'GCASH_MOCK']);
-export const GCASH_REFERENCE_PATTERN = /^[A-Za-z0-9-]{6,40}$/;
+export const PAYMENT_METHODS = Object.freeze([
+  'CASH',
+  'GCASH_MOCK',
+  'LANDBANK_MOCK',
+  'BPI_MOCK',
+  'MAYA_MOCK',
+  'GOTYME_MOCK',
+]);
+export const PAYMENT_REFERENCE_PATTERN = /^[A-Za-z0-9-]{6,40}$/;
 export const PAYMENT_ID_YEAR = '2026';
 export const PAYMENT_ID_PREFIX = 'PAY-' + PAYMENT_ID_YEAR + '-';
 export const LOG_ID_PREFIX = 'LOG-';
 export const ID_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 export const MAX_ID_ATTEMPTS = 8;
 
-export function normalizeGcashReference(value) {
+export function normalizePaymentReference(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export function isValidGcashReference(value) {
-  return GCASH_REFERENCE_PATTERN.test(value);
+export function isValidPaymentReference(value) {
+  return PAYMENT_REFERENCE_PATTERN.test(value);
 }
 
 export function normalizePaymentMethod(value) {
@@ -74,8 +81,13 @@ export function buildLogId() {
 export function uniqueField(error) {
   if (!error || error.code !== 'P2002') return null;
   const target = error.meta ? error.meta.target : null;
-  if (Array.isArray(target) && target.length > 0) return String(target[0]);
-  if (typeof target === 'string') return target;
+  if (Array.isArray(target) && target.length > 0) {
+    const fields = target.map(String);
+    return fields.includes('payment_reference_no') ? 'payment_reference_no' : fields[0];
+  }
+  if (typeof target === 'string') {
+    return target.includes('payment_reference_no') ? 'payment_reference_no' : target;
+  }
   return '';
 }
 

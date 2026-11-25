@@ -29,7 +29,6 @@ const SHELL_CANDIDATES = [
   ['/blotter/track', ['blotter/track/page.jsx', 'blotter/track/page.js']],
   ['/directory', ['directory/page.jsx', 'directory/page.js']],
   ['/broadcasts', ['broadcasts/page.jsx', 'broadcasts/page.js']],
-  ['/id-card', ['id-card/page.jsx', 'id-card/page.js']],
   ['/services/request', ['services/request/page.jsx', 'services/request/page.js']],
   ['/services/business-clearance', ['services/business-clearance/page.jsx', 'services/business-clearance/page.js']],
   ['/services/kaagapay', ['services/kaagapay/page.jsx', 'services/kaagapay/page.js']],

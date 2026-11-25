@@ -55,6 +55,8 @@ function UnifiedLoginContent({ initialRole = 'resident' }) {
       ? 'Your session timed out after 15 minutes of inactivity.'
       : reason === 'expired'
         ? 'Your session expired. Please sign in again.'
+        : reason === 'password_changed'
+          ? 'Your password was changed. Sign in with the new password.'
         : '',
   );
   const [loading, setLoading] = useState(false);
@@ -114,6 +116,10 @@ function UnifiedLoginContent({ initialRole = 'resident' }) {
       }
 
       // Success
+      if (data.must_change_password) {
+        router.replace('/password/change?type=resident&required=1');
+        return;
+      }
       const target = safeNext(searchParams.get('next'), DEFAULT_RESIDENT_NEXT);
       router.push(target);
     } catch {
@@ -152,6 +158,10 @@ function UnifiedLoginContent({ initialRole = 'resident' }) {
       }
 
       // Success
+      if (data.user?.must_change_password) {
+        router.replace('/password/change?type=staff&required=1');
+        return;
+      }
       const target = safeNext(searchParams.get('next'), DEFAULT_STAFF_NEXT);
       router.push(target);
     } catch {

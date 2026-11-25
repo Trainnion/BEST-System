@@ -86,7 +86,7 @@ Every system operator and software developer is legally bound by the invariants 
 3. **Public Lookups Mask Citizen Names (NFR-01)**: Public tracking interfaces mask identities to `J*** D**` format to prevent unauthorized PII harvesting.
 4. **100% Solid Black-and-White Printing (NFR-05)**: Official certificates print with zero CSS background graphics, zero glassmorphism, and zero color gradients on standard 80 gsm Letter/A4 stock.
 5. **No Runtime External Origin (OFFLINE-01)**: Zero third-party CDNs, Google Fonts, tracking pixels, or remote scripts. The terminal operates fully severed from the internet.
-6. **No AI Transmission of PII (OFFLINE-02/03)**: No resident personal data or blotter records may be transmitted to external LLM APIs. Local summaries run on offline models only.
+6. **Sensitive data stays within the system (OFFLINE-02/03)**: Do not send resident personal data or blotter records to external services. In the documented local configuration, broadcast summaries use deterministic sentence extraction and fixed templates.
 7. **Homomorphic / Server-Side Field Encryption (ENC-01)**: Sensitive fields (blotter narrative, incident location, document purpose, CTC number, staff notes) are encrypted using AES-256-GCM.
 8. **15-Minute Server-Enforced Inactivity Timeout (NFR-06)**: All staff and resident sessions expire after 900 seconds of inactivity on the server side.
 9. **No Plain-HTTP Production Listener**: Local traffic runs over TLS (HTTPS) on port 443 with HSTS headers.
@@ -118,10 +118,10 @@ The system provides four specialized administrative roles. Sharing accounts acro
 - View deep system telemetry (`/api/health/deep`), including PostgreSQL query latency, disk space utilization, backup age, and TLS certificate expiration.
 - Inspect immutable security audit logs (`AuditLog` table) for all sensitive operations (e.g., `VIEW_ENCRYPTED`, `UPDATE_STATUS`, `RECORD_PAYMENT`).
 - Access all document, blotter, resident, broadcast, and directory queues.
+- Issue and manage digital ID cards for verified residents in `/admin/residents`, including validity and active/expired/revoked status.
 - Execute server-side maintenance scripts (`scripts/test-restore.sh`, `ops/scripts/promote-spare.sh`).
 
 **Restricted & Forbidden Actions:**
-- **CANNOT** view citizen Digital ID cards (strict privacy segregation).
 - **CANNOT** approve business clearances without in-person Treasurer financial assessment.
 - **CANNOT** commit or export the raw 256-bit encryption key (`FIELD_ENC_KEY`) to external storage.
 
@@ -145,6 +145,7 @@ The system provides four specialized administrative roles. Sharing accounts acro
 - Decrypt and inspect applicant purposes and Community Tax Certificate (CTC) numbers.
 - Perform assisted walk-in intake for senior citizens, persons with disabilities (PWDs), and residents lacking smartphones.
 - Issue 7-day Crockford base32 activation slips (e.g., `DEMO7ACT04`) to verified residents at `/admin/residents`.
+- Issue digital ID cards for verified residents and update their expiration or status at `/admin/residents`. Card numbers and barcode values are generated automatically; cards are not printed from BEST.
 - Register new residents in the civil registry database.
 - Triage anonymous blotter reports at `/admin/blotter`, record Tanod patrol dispatches, and enter AES-256 encrypted internal investigator notes.
 - Trigger high-fidelity certificate printing (`/admin/documents/print/[id]`).
@@ -166,7 +167,7 @@ The system provides four specialized administrative roles. Sharing accounts acro
 **Permitted Capabilities:**
 - Access the Treasury & Cashier Terminal at `/admin/treasury`.
 - Search document applications in `PAYMENT_PENDING` status by tracking code or applicant name.
-- Settle municipal clearance fees (₱50.00 standard clearance fee) via `CASH`, validated `GCASH_MOCK`, or `LANDBANK_MOCK`.
+- Record municipal clearance payments (₱50.00 standard clearance fee) by cash, GCash, LandBank, BPI, Maya, or GoTyme. Transfer methods require a reference number; verify the transfer in the provider's records before recording it. BEST does not connect to or verify payments with those providers.
 - Record sequential government Official Receipt (OR) numbers (`OR-2026-XXXX`).
 - Transition settled document requests to `READY_FOR_PICKUP`.
 - Conduct physical, in-person document screening for Barangay Business Clearances:
@@ -191,7 +192,7 @@ The system provides four specialized administrative roles. Sharing accounts acro
 - Access the Official Directory Management interface at `/admin/directory`.
 - Update official council roster entries (Punong Barangay, Barangay Kagawad, Sangguniang Kabataan Chair, Secretary, Treasurer).
 - Publish urgent community broadcast advisories at `/admin/broadcasts`.
-- Generate AI-summarized notices and 120-word megaphone bandilyo PA scripts for barangay tanod mobile vehicles.
+- Create concise notice summaries and template-based megaphone script text for barangay tanod mobile vehicles.
 - Review aggregate civic caseload telemetry and municipal statistics on the dashboard.
 
 **Restricted & Forbidden Actions:**
@@ -400,7 +401,7 @@ The system provides four specialized administrative roles. Sharing accounts acro
    - **`ADVISORY`** (Scheduled power/water outage, medical mission — blue banner)
    - **`GENERAL`** (Barangay assembly, fiesta notice — green banner)
 4. Input the official title and full broadcast text.
-5. Click **Generate AI Audio Script**. The local offline AI engine generates a 120-word, high-urgency Tagalog/English script optimized for mobile Tanod megaphone speakers (*Bandilyo*).
+5. Click **AI Simplify & Megaphone**. In the documented local configuration, the helper extracts the lead sentence and sentences containing dates, times, or amounts, then fills a fixed language-specific script template. It creates text only; it does not produce audio or guarantee a fixed word count.
 6. Click **Publish Broadcast Immediately**.
 7. The advisory appears on all public kiosks, citizen portals, and local hall digital displays.
 
@@ -525,7 +526,7 @@ Backup archives cannot be decrypted without the physical private age key maintai
 **Key Management Policy (ENC-01)**:
 - `FIELD_ENC_KEY` is a 256-bit (32-byte) cryptographically secure random value encoded in base64.
 - The key resides exclusively in the server's `.env` file with operating system file permissions set to `600` (read/write by the host user only).
-- **NEVER** commit `.env` to git or paste it into AI tools or chat windows.
+- **NEVER** commit `.env` to git or paste it into external chat services or public websites.
 - **Generating a New Key (Initial Setup Only)**:
   ```bash
   npm run keys:generate

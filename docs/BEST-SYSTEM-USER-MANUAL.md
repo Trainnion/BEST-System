@@ -71,10 +71,11 @@ Citizens can safely report community disputes, noise disturbances, or security c
 4. The browser automatically solves a lightweight **SHA-256 Proof-of-Work challenge** (`/api/blotter/challenge`) to verify human interaction without capturing IP addresses.
 5. Save the issued **Blotter Tracking Code** (`BLT-XXXX-XX`) to track tanod action status privately at `/blotter/track`.
 
-### 2.4 Kaagapay Civic AI Assistant
-Residents can query barangay ordinances, procedures, and office hours at `/services/kaagapay`.
-- Operates in **Tagalog (TL)**, **Cebuano (CEB)**, and **English (EN)**.
-- Operates locally via deterministic local knowledge bases without sending data to external APIs.
+### 2.4 Kaagapay Civic Information Helper
+Residents can use `/services/kaagapay` to look up prepared information about services and office hours.
+- Supports **Tagalog (TL)**, **Cebuano (CEB)**, and **English (EN)**.
+- In the documented local configuration, matches keywords to a local knowledge base and returns prepared answers.
+- Confirm requirements, fees, and local procedures with barangay staff because the knowledge base may be incomplete.
 
 ---
 
@@ -123,7 +124,7 @@ Authorized personnel access the management portal at **`/admin/login`**.
 
 #### E. Community Broadcast Publisher (`/admin/broadcasts`)
 - Create announcements categorized under *Urgent*, *Ayuda*, *Health*, *Veterinary*, or *Scholarship*.
-- **AI Simplify**: Uses local NLP to generate a concise summary for citizen kiosks and an audio script tailored for mobile barangay patrol speakers.
+- **Broadcast text helper** (the button is currently labelled **AI Simplify & Megaphone**): In the documented local configuration, extracts key sentences for a concise summary and fills a fixed script template. It creates text, not audio.
 
 ---
 

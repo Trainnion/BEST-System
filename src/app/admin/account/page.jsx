@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BadgeCheck, UserRound } from 'lucide-react';
+import PasswordChangeForm from '../../../components/auth/PasswordChangeForm.jsx';
 
 export default function AdminAccountPage() {
   const [account, setAccount] = useState(null);
@@ -92,6 +93,8 @@ export default function AdminAccountPage() {
           </>
         )}
       </section>
+
+      <PasswordChangeForm mode="staff" />
     </div>
   );
 }

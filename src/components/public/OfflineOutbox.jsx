@@ -167,13 +167,13 @@ export default function OfflineOutbox() {
   return (
     <section className="glass p-rhythm-4" aria-labelledby="outbox-heading">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="outbox-heading" className="text-lg font-semibold text-slate-100">
+        <h2 id="outbox-heading" className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           Pending on this device
         </h2>
-        <p className="text-sm text-slate-400">
-          <span className="font-semibold text-cyan-300">{pending}</span> waiting
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          <span className="font-semibold text-cyan-700 dark:text-cyan-300">{pending}</span> waiting
           <span aria-hidden="true"> · </span>
-          <span className="font-semibold text-rose-300">{attention}</span> needing attention
+          <span className="font-semibold text-rose-700 dark:text-rose-300">{attention}</span> needing attention
         </p>
       </div>
 
@@ -181,10 +181,10 @@ export default function OfflineOutbox() {
         className={
           'mt-3 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ' +
           (health === 'up'
-            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
             : health === 'down'
-              ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-              : 'border-white/10 bg-white/[0.04] text-slate-300')
+              ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+              : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300')
         }
         role="status"
       >
@@ -209,7 +209,7 @@ export default function OfflineOutbox() {
           disabled={busy || entries.length === 0}
           className={
             BUTTON_BASE +
-            ' border-cyan-400/50 bg-cyan-400/15 text-cyan-200 hover:border-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
+            ' border-cyan-300 bg-cyan-50 text-cyan-800 hover:border-cyan-500 dark:border-cyan-400/50 dark:bg-cyan-400/15 dark:text-cyan-200 dark:hover:border-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
           }
         >
           {busy ? (
@@ -222,15 +222,15 @@ export default function OfflineOutbox() {
       </div>
 
       {note ? (
-        <p className="mt-3 text-sm text-slate-300" role="status">
+        <p className="mt-3 text-sm text-slate-700 dark:text-slate-300" role="status">
           {note}
         </p>
       ) : null}
 
       {entries.length === 0 ? (
-        <div className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-rhythm-4">
-          <Inbox className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
-          <p className="text-sm leading-relaxed text-slate-300">
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-rhythm-4 dark:border-white/10 dark:bg-white/[0.04]">
+          <Inbox className="mt-0.5 h-5 w-5 shrink-0 text-slate-600 dark:text-slate-400" aria-hidden="true" />
+          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             Nothing is queued. Requests you send while offline appear here with a Retry
             button, and they are sent automatically once the server answers.
           </p>
@@ -242,9 +242,9 @@ export default function OfflineOutbox() {
             const meta = STATUS_META[status];
             const kindLabel = KIND_LABELS[entry.kind] || entry.kind || 'Request';
             return (
-              <li key={entry.id} className="rounded-xl border border-white/10 bg-white/[0.04] p-rhythm-3">
+              <li key={entry.id} className="rounded-xl border border-slate-200 bg-slate-50 p-rhythm-3 dark:border-white/10 dark:bg-white/[0.04]">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-slate-100">{kindLabel}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{kindLabel}</p>
                   <span
                     className={
                       'inline-flex min-h-[26px] items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ' +
@@ -255,11 +255,11 @@ export default function OfflineOutbox() {
                   </span>
                 </div>
 
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                   {reasonOf(entry, status)}
                 </p>
 
-                <p className="mt-2 font-mono text-xs text-slate-500">
+                <p className="mt-2 font-mono text-xs text-slate-600 dark:text-slate-500">
                   {entry.id}
                   {entry.created_at ? ' - queued ' + formatDateTime(entry.created_at) : ''}
                 </p>
@@ -271,7 +271,7 @@ export default function OfflineOutbox() {
                     disabled={busy}
                     className={
                       BUTTON_BASE +
-                      ' border-white/15 bg-white/[0.04] text-slate-200 hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60'
+                      ' border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-100 dark:border-white/15 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60'
                     }
                   >
                     <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -283,7 +283,7 @@ export default function OfflineOutbox() {
                     disabled={busy}
                     className={
                       BUTTON_BASE +
-                      ' border-rose-500/40 bg-rose-500/10 text-rose-300 hover:border-rose-400 disabled:cursor-not-allowed disabled:opacity-60'
+                      ' border-rose-300 bg-rose-50 text-rose-800 hover:border-rose-500 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:border-rose-400 disabled:cursor-not-allowed disabled:opacity-60'
                     }
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -297,7 +297,7 @@ export default function OfflineOutbox() {
       )}
 
       {attention > 0 ? (
-        <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-amber-300">
+        <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
           <CircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           Items that need attention are not retried automatically: the server already
           answered them. Fix the cause (often a missing sign-in) before retrying.
